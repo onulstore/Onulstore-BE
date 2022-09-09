@@ -1,6 +1,7 @@
 package com.onulstore.domain.question;
 
 import com.onulstore.common.BaseTimeEntity;
+import com.onulstore.domain.user.User;
 import lombok.*;
 
 import javax.persistence.*;
@@ -20,5 +21,11 @@ public class Question extends BaseTimeEntity {
     private String title;
 
     private String content;
+    
+    private boolean answerState;    // 답변 유무
+
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User user;
 
 }
