@@ -47,3 +47,16 @@ jobs:
         docker build -t onulstore .
         docker tag onulstore dldnjsrms/onulstore:${GITHUB_SHA::7}
         docker push dldnjsrms/onulstore:${GITHUB_SHA::7}
+
+    - name: Deploy
+      uses: appleboy/ssh-action@master
+      with:
+        host: 15.164.124.56
+        username: ec2-user
+        key: ${{ secrets.PRIVATE_KEY }}
+        envs: GITHUB_SHA
+        script: |
+          docker pull dldnjsrms/onulstore:${GITHUB_SHA::7}
+          docker tag dldnjsrms/onulstore:${GITHUB_SHA::7} onulstore
+          docker stop server
+          docker run -d --rm --name server -p 80:8080 onulstore
