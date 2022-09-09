@@ -1,11 +1,15 @@
 package com.onulstore.domain.question;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.onulstore.common.BaseTimeEntity;
 import com.onulstore.domain.product.Product;
+import com.onulstore.domain.questionAnswer.QuestionAnswer;
 import com.onulstore.domain.user.User;
 import lombok.*;
 
 import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Setter
@@ -32,5 +36,9 @@ public class Question extends BaseTimeEntity {
     @ManyToOne
     @JoinColumn(name = "product_id")
     private Product product;
+
+    @OneToMany(mappedBy = "question", cascade = CascadeType.ALL)
+    @JsonIgnore
+    private List<QuestionAnswer> questionAnswers = new ArrayList<>();
 
 }
