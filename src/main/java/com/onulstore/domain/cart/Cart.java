@@ -1,6 +1,8 @@
 package com.onulstore.domain.cart;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.onulstore.common.BaseTimeEntity;
+import com.onulstore.domain.order.Order;
 import com.onulstore.domain.product.Product;
 import com.onulstore.domain.user.User;
 import lombok.*;
@@ -29,5 +31,10 @@ public class Cart extends BaseTimeEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id")
     private Product product;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "order_id")
+    @JsonIgnore
+    private Order order;
 
 }
