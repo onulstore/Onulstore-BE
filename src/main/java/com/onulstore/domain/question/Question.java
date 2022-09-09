@@ -1,6 +1,7 @@
 package com.onulstore.domain.question;
 
 import com.onulstore.common.BaseTimeEntity;
+import com.onulstore.domain.product.Product;
 import com.onulstore.domain.user.User;
 import lombok.*;
 
@@ -27,5 +28,9 @@ public class Question extends BaseTimeEntity {
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
+
+    @ManyToOne
+    @JoinColumn(name = "product_id")
+    private Product product;
 
 }
