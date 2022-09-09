@@ -40,3 +40,10 @@ jobs:
     - name: Show Current Time
       run: echo "CurrentTime=${{steps.current-time.outputs.formattedTime}}"
       shell: bash
+
+    - name: Docker build
+      run: |
+        docker login -u ${{ secrets.USERNAME }} -p ${{ secrets.PASSWORD }}
+        docker build -t onulstore .
+        docker tag onulstore dldnjsrms/onulstore:${GITHUB_SHA::7}
+        docker push dldnjsrms/onulstore:${GITHUB_SHA::7}
