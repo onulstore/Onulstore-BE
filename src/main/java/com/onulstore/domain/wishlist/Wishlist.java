@@ -1,6 +1,7 @@
 package com.onulstore.domain.wishlist;
 
 import com.onulstore.common.BaseTimeEntity;
+import com.onulstore.domain.product.Product;
 import com.onulstore.domain.user.User;
 import lombok.*;
 
@@ -25,5 +26,8 @@ public class Wishlist extends BaseTimeEntity {
     @JoinColumn(name = "user_id")
     private User user;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "product_id")
+    private Product product;
 
 }

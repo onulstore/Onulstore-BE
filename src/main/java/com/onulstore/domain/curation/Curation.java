@@ -1,9 +1,13 @@
 package com.onulstore.domain.curation;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.onulstore.common.BaseTimeEntity;
+import com.onulstore.domain.product.Product;
 import lombok.*;
 
 import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Setter
@@ -22,5 +26,9 @@ public class Curation extends BaseTimeEntity {
 
     @Column
     private String content;
+
+    @OneToMany(mappedBy = "curation", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JsonIgnore
+    private List<Product> products = new ArrayList<>();
 
 }
