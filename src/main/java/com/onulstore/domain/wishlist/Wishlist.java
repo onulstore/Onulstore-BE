@@ -1,6 +1,7 @@
 package com.onulstore.domain.wishlist;
 
 import com.onulstore.common.BaseTimeEntity;
+import com.onulstore.domain.user.User;
 import lombok.*;
 
 import javax.persistence.*;
@@ -19,5 +20,10 @@ public class Wishlist extends BaseTimeEntity {
 
     @Column
     private Integer productCount;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    private User user;
+
 
 }
