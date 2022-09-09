@@ -1,6 +1,5 @@
 package com.onulstore.domain.product;
 
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.onulstore.common.BaseTimeEntity;
 import com.onulstore.domain.cart.Cart;
