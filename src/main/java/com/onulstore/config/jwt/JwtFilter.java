@@ -1,4 +1,4 @@
-package com.onulstore.jwt;
+package com.onulstore.config.jwt;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
