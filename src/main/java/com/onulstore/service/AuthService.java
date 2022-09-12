@@ -2,7 +2,7 @@ package com.onulstore.service;
 
 import com.onulstore.domain.member.Member;
 import com.onulstore.domain.member.MemberRepository;
-import com.onulstore.jwt.TokenProvider;
+import com.onulstore.config.jwt.TokenProvider;
 import com.onulstore.web.dto.LoginDto;
 import com.onulstore.web.dto.MemberDto;
 import com.onulstore.web.dto.TokenDto;
