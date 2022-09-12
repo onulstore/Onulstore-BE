@@ -3,7 +3,7 @@ package com.onulstore.domain.order;
 import com.onulstore.common.BaseTimeEntity;
 import com.onulstore.domain.cart.Cart;
 import com.onulstore.domain.enums.OrderStatus;
-import com.onulstore.domain.user.User;
+import com.onulstore.domain.member.Member;
 import lombok.*;
 
 import javax.persistence.*;
@@ -42,8 +42,8 @@ public class Order extends BaseTimeEntity {
     private OrderStatus orderStatus;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
-    private User user;
+    @JoinColumn(name = "member_id")
+    private Member member;
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
     private List<Cart> carts = new ArrayList<>();
