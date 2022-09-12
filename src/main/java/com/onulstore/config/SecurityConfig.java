@@ -1,9 +1,9 @@
 package com.onulstore.config;
 
-import com.onulstore.jwt.JwtAccessDeniedHandler;
-import com.onulstore.jwt.JwtAuthenticationEntryPoint;
-import com.onulstore.jwt.JwtSecurityConfig;
-import com.onulstore.jwt.TokenProvider;
+import com.onulstore.config.jwt.JwtAccessDeniedHandler;
+import com.onulstore.config.jwt.JwtAuthenticationEntryPoint;
+import com.onulstore.config.jwt.JwtSecurityConfig;
+import com.onulstore.config.jwt.TokenProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
@@ -13,6 +13,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.web.filter.CorsFilter;
 
 @RequiredArgsConstructor
@@ -49,8 +50,14 @@ public class SecurityConfig {
                 .antMatchers("/",  "/**", "/auth/**", "/products", "/v2/api-docs", "/swagger-resources/**"
                         , "/swagger-ui.html", "/swagger-ui/index.html", "/webjars/**", "/swagger/**").permitAll()
                 .anyRequest().authenticated()
-                .and()
 
+                .and()
+                .logout()
+                .logoutRequestMatcher(new AntPathRequestMatcher("/auth/logout"))
+                .logoutSuccessUrl("/")
+                .invalidateHttpSession(true)
+
+                .and()
                 .apply(new JwtSecurityConfig(tokenProvider));
 
         return http.build();

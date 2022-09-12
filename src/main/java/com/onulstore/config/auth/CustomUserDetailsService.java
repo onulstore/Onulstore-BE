@@ -1,4 +1,4 @@
-package com.onulstore.service;
+package com.onulstore.config.auth;
 
 import com.onulstore.domain.member.Member;
 import com.onulstore.domain.member.MemberRepository;

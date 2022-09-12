@@ -1,4 +1,4 @@
-package com.onulstore.jwt;
+package com.onulstore.config.jwt;
 
 import com.onulstore.web.dto.TokenDto;
 import io.jsonwebtoken.*;
@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
 public class TokenProvider {
 
     private static final String AUTHORITIES_KEY = "auth";
-    private static final String BEARER_TYPE = "bearer";
+    private static final String BEARER_TYPE = "Bearer";
 
     static long ACCESS_TOKEN_EXPIRE_TIME = 1000 * 60 * 30; // 30분
     static long REFRESH_TOKEN_EXPIRE_TIME = 1000 * 60 * 60 * 24 * 7; // 7일
