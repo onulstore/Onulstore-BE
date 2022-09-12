@@ -2,7 +2,7 @@ package com.onulstore.domain.review;
 
 import com.onulstore.common.BaseTimeEntity;
 import com.onulstore.domain.product.Product;
-import com.onulstore.domain.user.User;
+import com.onulstore.domain.member.Member;
 import lombok.*;
 
 import javax.persistence.*;
@@ -29,8 +29,8 @@ public class Review extends BaseTimeEntity {
     private float rate;
 
     @ManyToOne
-    @JoinColumn(name = "user_id")
-    private User user;
+    @JoinColumn(name = "member_id")
+    private Member member;
 
     @ManyToOne
     @JoinColumn(name = "product_id")

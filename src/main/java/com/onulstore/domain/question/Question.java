@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.onulstore.common.BaseTimeEntity;
 import com.onulstore.domain.product.Product;
 import com.onulstore.domain.questionAnswer.QuestionAnswer;
-import com.onulstore.domain.user.User;
+import com.onulstore.domain.member.Member;
 import lombok.*;
 
 import javax.persistence.*;
@@ -30,8 +30,8 @@ public class Question extends BaseTimeEntity {
     private boolean answerState;    // 답변 유무
 
     @ManyToOne
-    @JoinColumn(name = "user_id")
-    private User user;
+    @JoinColumn(name = "member_id")
+    private Member member;
 
     @ManyToOne
     @JoinColumn(name = "product_id")
