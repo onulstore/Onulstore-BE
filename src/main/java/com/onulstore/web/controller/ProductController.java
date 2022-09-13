@@ -54,7 +54,13 @@ public class ProductController {
 
     @ApiOperation(value = "상품 전체 조회")
     @GetMapping("/products/list")
-    public ResponseEntity<Page<Product>> entireProducts(@PageableDefault(sort = "id", direction = Sort.Direction.DESC, size=5) Pageable pageable){
+    public ResponseEntity<Page<ProductDto.ProductResponse>> entireProducts(@PageableDefault(sort = "id", direction = Sort.Direction.DESC, size=5) Pageable pageable){
+        return ResponseEntity.ok(productService.entireProductList(pageable));
+    }
+
+    @ApiOperation(value = "상품 검색")
+    @GetMapping("/products/search")
+    public ResponseEntity<Page<ProductDto.ProductResponse>> searchProducts(@PageableDefault(sort = "id", direction = Sort.Direction.DESC, size=5) Pageable pageable){
         return ResponseEntity.ok(productService.entireProductList(pageable));
     }
 
