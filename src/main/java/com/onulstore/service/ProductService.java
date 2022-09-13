@@ -4,8 +4,11 @@ import com.onulstore.domain.product.Product;
 import com.onulstore.domain.product.ProductRepository;
 import com.onulstore.web.dto.ProductDto;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -37,5 +40,17 @@ public class ProductService {
                 modification.getProductStatus());
 
         return ProductDto.ProductResponse.of(productRepository.save(product));
+    }
+
+    @Transactional
+    public boolean delete(Long productId) {
+        Optional<Product> deleteProductNumber = productRepository.findById(productId);
+        if(deleteProductNumber.isPresent()){
+            productRepository.deleteById(productId);
+            return true;
+        }
+        else{
+            return false;
+        }
     }
 }

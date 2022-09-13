@@ -5,6 +5,7 @@ import com.onulstore.web.dto.ProductDto;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -27,6 +28,17 @@ public class ProductController {
         return ResponseEntity.ok(productService.modify(requestDto, productId));
     }
 
+    @ApiOperation(value = "상품 삭제")
+    @DeleteMapping("/products/{productId}")
+    public ResponseEntity<?> deleteProduct(@PathVariable Long productId) {
 
+        boolean checkRemoved = productService.delete(productId);
+
+        if(!checkRemoved) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+
+        return new ResponseEntity<>(productId, HttpStatus.OK);
+    }
 
 }
