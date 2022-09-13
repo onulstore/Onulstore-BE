@@ -23,6 +23,7 @@ public class ProductService {
             throw new RuntimeException("이미 존재하는 상품입니다.");
         }
         Product product = registration.toProduct();
+        product.newPurchaseCount();
         return ProductDto.ProductResponse.of(productRepository.save(product));
     }
 
@@ -36,7 +37,6 @@ public class ProductService {
                 modification.getSmallCategoryCode(),
                 modification.getPrice(),
                 modification.getQuantity(),
-                modification.getPurchaseCount(),
                 modification.getProductImg(),
                 modification.getProductStatus());
 
@@ -55,13 +55,13 @@ public class ProductService {
         }
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public ProductDto.ProductResponse detailInquiry(Long productId){
-        Product product = productRepository.findById(productId).get();
+        Product product = productRepository.findById(productId).orElseThrow();
         return ProductDto.ProductResponse.of(product);
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public Page entireProductList(Pageable pageable){
         Page<ProductDto.ProductResponse> pages = productRepository.findAll(pageable).map(product -> ProductDto.ProductResponse.of(product));
         return pages;

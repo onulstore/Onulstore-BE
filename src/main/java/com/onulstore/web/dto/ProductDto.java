@@ -24,7 +24,6 @@ public class ProductDto {
         private String smallCategoryCode;
         private Integer price;
         private Integer quantity;
-        private Integer purchaseCount;
         private String productImg;
         private ProductStatus productStatus;
 
@@ -36,7 +35,6 @@ public class ProductDto {
                     .smallCategoryCode(smallCategoryCode)
                     .price(price)
                     .quantity(quantity)
-                    .purchaseCount(purchaseCount)
                     .productImg(productImg)
                     .productStatus(productStatus)
                     .build();
