@@ -74,4 +74,15 @@ public class Product extends BaseTimeEntity {
     @JsonIgnore
     private Curation curation;
 
+    public void changeProductData(String productName, String content, String largeCategoryCode, String smallCategoryCode, Integer price, Integer quantity, Integer purchaseCount, String productImg, ProductStatus productStatus) {
+        this.productName = productName;
+        this.content = content;
+        this.largeCategoryCode = largeCategoryCode;
+        this.smallCategoryCode = smallCategoryCode;
+        this.price = price;
+        this.quantity = quantity;
+        this.purchaseCount = purchaseCount;
+        this.productImg = productImg;
+        this.productStatus = productStatus;
+    }
 }
