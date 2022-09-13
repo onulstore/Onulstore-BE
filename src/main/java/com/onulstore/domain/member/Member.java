@@ -9,6 +9,7 @@ import com.onulstore.domain.question.Question;
 import com.onulstore.domain.questionAnswer.QuestionAnswer;
 import com.onulstore.domain.review.Review;
 import com.onulstore.domain.wishlist.Wishlist;
+import com.onulstore.web.dto.MemberDto;
 import lombok.*;
 
 import javax.persistence.*;
@@ -78,5 +79,18 @@ public class Member extends BaseTimeEntity {
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
     @JsonIgnore
     private List<Review> reviews = new ArrayList<>();
+
+    public Member updateProfile(MemberDto.updateRequest updateRequest) {
+        this.phoneNum = updateRequest.getPhoneNum();
+        this.roadAddress = updateRequest.getRoadAddress();
+        this.buildingName = updateRequest.getBuildingName();
+        this.detailAddress = updateRequest.getDetailAddress();
+        return this;
+    }
+
+    public Member updatePassword(String password) {
+        this.password = password;
+        return this;
+    }
 
 }
