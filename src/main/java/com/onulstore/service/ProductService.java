@@ -4,7 +4,8 @@ import com.onulstore.domain.product.Product;
 import com.onulstore.domain.product.ProductRepository;
 import com.onulstore.web.dto.ProductDto;
 import lombok.RequiredArgsConstructor;
-import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -52,5 +53,17 @@ public class ProductService {
         else{
             return false;
         }
+    }
+
+    @Transactional
+    public ProductDto.ProductResponse detailInquiry(Long productId){
+        Product product = productRepository.findById(productId).get();
+        return ProductDto.ProductResponse.of(product);
+    }
+
+    @Transactional
+    public Page entireProductList(Pageable pageable){
+        Page<ProductDto.ProductResponse> pages = productRepository.findAll(pageable).map(product -> ProductDto.ProductResponse.of(product));
+        return pages;
     }
 }
