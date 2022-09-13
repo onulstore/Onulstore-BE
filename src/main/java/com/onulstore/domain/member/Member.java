@@ -3,7 +3,6 @@ package com.onulstore.domain.member;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.onulstore.common.BaseTimeEntity;
 import com.onulstore.domain.cart.Cart;
-import com.onulstore.domain.enums.Authority;
 import com.onulstore.domain.order.Order;
 import com.onulstore.domain.question.Question;
 import com.onulstore.domain.questionAnswer.QuestionAnswer;
@@ -49,8 +48,8 @@ public class Member extends BaseTimeEntity {
     @Column
     private String detailAddress;
 
-    @Enumerated(EnumType.STRING)
-    private Authority authority;
+    @Column
+    private String authority;
 
     @Column
     @JsonIgnore
