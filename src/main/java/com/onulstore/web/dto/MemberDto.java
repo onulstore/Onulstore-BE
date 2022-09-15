@@ -30,6 +30,7 @@ public class MemberDto {
                     .roadAddress(roadAddress)
                     .buildingName(buildingName)
                     .detailAddress(detailAddress)
+                    .authority(Authority.ROLE_USER.getKey())
                     .activated(true)
                     .build();
         }
