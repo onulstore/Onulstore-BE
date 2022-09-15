@@ -1,33 +1,8 @@
+server:
+  port: 8080
+
 spring:
 
   mvc:
     path match:
       matching-strategy: ant_path_matcher
-
-  datasource:
-    driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/onulstore?autoReconnect=true
-    username: root
-    password: shadow21&
-
-  jpa:
-    open-in-view: true
-    database-platform: org.hibernate.dialect.MySQL5InnoDBDialect
-    show-sql: true
-    hibernate:
-      naming:
-        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
-      ddl-auto: update
-      use-new-id-generator-mappings: false
-    properties:
-      hibernate:
-        format_sql: true
-        default_batch_fetch_size: 1000
-    defer-datasource-initialization: true
-
-logging:
-  level:
-    com.onulstore: DEBUG
-
-jwt:
-  secret: c2lsdmVybmluZS10ZWNoLXNwcmluZy1ib290LWp3dC10dXRvcmlhbC1zZWNyZXQtc2lsdmVybmluZS10ZWNoLXNwcmluZy1ib290LWp3dC10dXRvcmlhbC1zZWNyZXQK

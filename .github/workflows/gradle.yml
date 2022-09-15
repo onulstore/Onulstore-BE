@@ -22,23 +22,30 @@ jobs:
         java-version: '11'
         distribution: 'temurin'
 
+    - name: Gradle Caching
+      uses: actions/cache@v3
+      with:
+        path: |
+          ~/.gradle/caches
+          ~/.gradle/wrapper
+        key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+        restore-keys: |
+          ${{ runner.os }}-gradle-
+
+    - name: make application-prod.yml
+      if: contains(github.ref, 'master')
+      run: |
+        cd ./src/main/resources
+        touch ./application-prod.yml
+        echo "${{ secrets.PROPERTIES_PROD }}" > ./application-prod.yml
+      shell: bash
+
     - name: Grant execute permission for gradlew
       run: chmod +x ./gradlew
       shell: bash
 
     - name: Build with Gradle
       run: ./gradlew clean build
-      shell: bash
-
-    - name: Get current time
-      uses: 1466587594/get-current-time@v2
-      id: current-time
-      with:
-        format: YYYY-MM-DDTHH-mm-ss
-        utcOffset: "+09:00"
-
-    - name: Show Current Time
-      run: echo "CurrentTime=${{steps.current-time.outputs.formattedTime}}"
       shell: bash
 
     - name: Docker build
@@ -51,7 +58,7 @@ jobs:
     - name: Deploy
       uses: appleboy/ssh-action@master
       with:
-        host: 15.164.124.56
+        host: ${{ secrets.HOST_PROD }}
         username: ec2-user
         key: ${{ secrets.PRIVATE_KEY }}
         envs: GITHUB_SHA
@@ -60,3 +67,14 @@ jobs:
           docker tag dldnjsrms/onulstore:${GITHUB_SHA::7} onulstore
           docker stop server
           docker run -d --rm --name server -p 80:8080 onulstore
+
+    - name: Get current time
+      uses: 1466587594/get-current-time@v2
+      id: current-time
+      with:
+        format: YYYY-MM-DDTHH-mm-ss
+        utcOffset: "+09:00"
+
+    - name: Show Current Time
+      run: echo "CurrentTime=${{steps.current-time.outputs.formattedTime}}"
+      shell: bash

@@ -1,29 +1,39 @@
 package com.onulstore.domain.category;
 
-import com.onulstore.common.BaseTimeEntity;
-import lombok.*;
+import com.onulstore.web.dto.CategoryDto;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import javax.persistence.*;
 
 @Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
 @Entity
-public class Category extends BaseTimeEntity {
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+public class Category {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(length = 50)
+    @Column(length = 30, nullable = false)
     private String categoryName;
 
-    @Column(length = 10)
-    private String categoryCode;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "parent_id")
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    private Category parent;
 
-    @Column(length = 10)
-    private String upperCategoryCode;
+    public Category(String categoryName, Category parent) {
+        this.categoryName = categoryName;
+        this.parent = parent;
+    }
+
+    public Category updateCategory(CategoryDto.updateCatRequest updateCatRequest) {
+        this.categoryName = updateCatRequest.getCategoryName();
+        return this;
+    }
 
 }

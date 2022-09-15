@@ -22,6 +22,7 @@ import java.util.HashMap;
 import java.util.List;
 
 @Service
+@Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class AuthService {
 
@@ -60,7 +61,6 @@ public class AuthService {
     }
 
     // 전체 회원 조회
-    @Transactional(readOnly = true)
     public HashMap<String, Object> viewAllMember() {
         HashMap<String, Object> resultMap = new HashMap<>();
 
