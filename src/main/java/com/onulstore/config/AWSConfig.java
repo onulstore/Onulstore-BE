@@ -1,4 +1,4 @@
-package com.onulstore.s3config;
+package com.onulstore.config;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;

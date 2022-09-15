@@ -39,7 +39,7 @@ public class CartService {
 
   public void deleteCart(Long cartId) {
     Cart cart = cartRepository.findById(cartId).orElseThrow(RuntimeException::new);
-    cartRepository.deleteById(cartId);
+    cartRepository.delete(cart);
   }
 
   public CartDto shoppingCart(Long cartId) {
