@@ -1,6 +1,5 @@
 package com.onulstore.web.controller;
 
-import com.onulstore.domain.product.Product;
 import com.onulstore.service.ProductService;
 import com.onulstore.web.dto.ProductDto;
 import io.swagger.annotations.Api;
@@ -18,7 +17,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequiredArgsConstructor
-@Api(tags = {"상품 Controller"})
+@Api(tags = {"Product Controller"})
 public class ProductController {
 
     private final ProductService productService;
