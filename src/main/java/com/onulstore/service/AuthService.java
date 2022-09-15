@@ -6,7 +6,7 @@ import com.onulstore.domain.enums.Authority;
 import com.onulstore.domain.member.Member;
 import com.onulstore.domain.member.MemberRepository;
 import com.onulstore.exception.AccessPrivilegeExceptions;
-import com.onulstore.exception.NotExistException;
+import com.onulstore.exception.NotExistUserException;
 import com.onulstore.web.dto.LoginDto;
 import com.onulstore.web.dto.MemberDto;
 import com.onulstore.web.dto.TokenDto;
@@ -65,7 +65,7 @@ public class AuthService {
         HashMap<String, Object> resultMap = new HashMap<>();
 
         Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId()).orElseThrow(
-                () -> new NotExistException("존재하지 않는 유저입니다."));
+                () -> new NotExistUserException("존재하지 않는 유저입니다."));
 
         if (!member.getAuthority().equals(Authority.ROLE_ADMIN.getKey())) {
             throw new AccessPrivilegeExceptions("접근 권한이 없습니다.");
