@@ -31,6 +31,7 @@ jobs:
         key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
         restore-keys: |
           ${{ runner.os }}-gradle-
+
     - name: make application-prod.yml
 #      if: contains(github.ref, 'master')
       run: |
@@ -62,6 +63,7 @@ jobs:
         docker build -t onulstore .
         docker tag onulstore dldnjsrms/onulstore:${GITHUB_SHA::7}
         docker push dldnjsrms/onulstore:${GITHUB_SHA::7}
+
     - name: Deploy
       uses: appleboy/ssh-action@master
       with:
@@ -74,6 +76,7 @@ jobs:
           docker tag dldnjsrms/onulstore:${GITHUB_SHA::7} onulstore
           docker stop server
           docker run -d --rm --name server -p 80:8080 onulstore
+
     - name: Get current time
       uses: 1466587594/get-current-time@v2
       id: current-time
