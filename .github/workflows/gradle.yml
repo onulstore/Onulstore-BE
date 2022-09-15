@@ -54,9 +54,9 @@ jobs:
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       run: |
         aws s3 cp \
-        --region ap-northeast-2 \
-        --acl private \
-        ./springboot-intro-build.zip s3://onulstorebucket/
+          --recursive \
+          --region ap-northeast-2 \
+          dist s3://onulstorebucket
 
     - name: Docker build
       run: |
