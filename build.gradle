@@ -39,6 +39,7 @@ dependencies {
 
     compileOnly 'org.projectlombok:lombok'
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
+    implementation 'com.amazonaws:aws-java-sdk-s3:1.12.301'
 
     // MySQL
     runtimeOnly 'mysql:mysql-connector-java'
@@ -50,6 +51,8 @@ dependencies {
     implementation group: 'io.jsonwebtoken', name: 'jjwt-api', version: '0.11.5'
     runtimeOnly group: 'io.jsonwebtoken', name: 'jjwt-impl', version: '0.11.5'
     runtimeOnly group: 'io.jsonwebtoken', name: 'jjwt-jackson', version: '0.11.5'
+
+
 }
 
 tasks.named('test') {
