@@ -5,14 +5,15 @@ import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.onulstore.domain.product.Product;
 import com.onulstore.domain.product.ProductRepository;
 import com.onulstore.web.dto.ProductDto;
-import java.io.InputStream;
-import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.io.InputStream;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -56,7 +57,7 @@ public class ProductService {
     @Transactional
     public void delete(Long productId) {
         Product product = productRepository.findById(productId).orElseThrow(RuntimeException::new);
-        productRepository.deleteById(productId);
+        productRepository.delete(product);
     }
 
     @Transactional(readOnly = true)
