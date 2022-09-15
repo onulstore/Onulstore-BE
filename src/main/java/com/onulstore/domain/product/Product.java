@@ -85,6 +85,10 @@ public class Product extends BaseTimeEntity {
         this.productStatus = productStatus;
     }
 
+    public void insertImage(String image) {
+        this.productImg = image;
+    }
+
     public void newPurchaseCount(){
         this.purchaseCount = 0;
     }
