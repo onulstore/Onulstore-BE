@@ -17,7 +17,6 @@ public class MemberDto {
         private String password;
         private String username;
         private String phoneNum;
-        private String authority;
         private String roadAddress;
         private String buildingName;
         private String detailAddress;
@@ -31,7 +30,6 @@ public class MemberDto {
                     .roadAddress(roadAddress)
                     .buildingName(buildingName)
                     .detailAddress(detailAddress)
-                    .authority(Authority.ROLE_USER.getKey())
                     .activated(true)
                     .build();
         }
