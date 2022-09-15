@@ -33,7 +33,7 @@ jobs:
           ${{ runner.os }}-gradle-
 
     - name: make application-prod.yml
-      if: contains(github.ref, 'master')
+#      if: contains(github.ref, 'master')
       run: |
         cd ./src/main/resources
         touch ./application-prod.yml
