@@ -51,9 +51,11 @@ jobs:
       env:
         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws-region: ap-northeast-2
+        AWS-region: ap-northeast-2
+        AWS_EC2_METADATA_DISABLED: true
       run: |
         aws s3 sync ./build s3://onulstorebucket
+        
     - name: Docker build
       run: |
         docker login -u ${{ secrets.USERNAME }} -p ${{ secrets.PASSWORD }}
