@@ -8,10 +8,18 @@ import com.onulstore.domain.product.ProductRepository;
 import com.onulstore.domain.wishlist.Wishlist;
 import com.onulstore.domain.wishlist.WishlistRepository;
 import com.onulstore.exception.NotExistUserException;
+import com.onulstore.web.dto.ProductDto;
 import com.onulstore.web.dto.WishlistDto;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -22,6 +30,7 @@ public class WishlistService {
     private final ProductRepository productRepository;
 
     // 찜 등록
+    @Transactional
     public WishlistDto.WishlistResponse addWishlist(WishlistDto.WishlistRequest request) {
         Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId()).orElseThrow(
                 () -> new NotExistUserException("존재하지 않는 유저입니다."));
@@ -46,5 +55,18 @@ public class WishlistService {
         wishlistRepository.deleteById(wishlistId);
     }
 
+    // 찜 조회
+    @Transactional
+    public HashMap<String, Object> getWishlist() {
+        HashMap<String,Object> resultMap = new HashMap<>();
 
-}
+        Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId()).orElseThrow(
+                () -> new NotExistUserException("존재하지 않는 유저입니다."));
+
+        List<Wishlist> wishlist = wishlistRepository.findAllByMemberId(member.getId());
+        resultMap.put("getWishlist", wishlist);
+
+        return resultMap;
+        }
+
+    }

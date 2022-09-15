@@ -24,7 +24,6 @@ public class WishlistDto {
                     .product(product)
                     .member(member)
                     .build();
-
         }
 
     }
