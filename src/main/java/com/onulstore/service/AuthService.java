@@ -6,7 +6,7 @@ import com.onulstore.domain.enums.Authority;
 import com.onulstore.domain.member.Member;
 import com.onulstore.domain.member.MemberRepository;
 import com.onulstore.exception.AccessPrivilegeExceptions;
-import com.onulstore.exception.NotExistUserException;
+import com.onulstore.exception.NotExistException;
 import com.onulstore.web.dto.LoginDto;
 import com.onulstore.web.dto.MemberDto;
 import com.onulstore.web.dto.TokenDto;
@@ -22,6 +22,7 @@ import java.util.HashMap;
 import java.util.List;
 
 @Service
+@Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class AuthService {
 
@@ -60,12 +61,11 @@ public class AuthService {
     }
 
     // 전체 회원 조회
-    @Transactional(readOnly = true)
     public HashMap<String, Object> viewAllMember() {
         HashMap<String, Object> resultMap = new HashMap<>();
 
         Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId()).orElseThrow(
-                () -> new NotExistUserException("존재하지 않는 유저입니다."));
+                () -> new NotExistException("존재하지 않는 유저입니다."));
 
         if (!member.getAuthority().equals(Authority.ROLE_ADMIN.getKey())) {
             throw new AccessPrivilegeExceptions("접근 권한이 없습니다.");
