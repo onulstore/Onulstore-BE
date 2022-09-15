@@ -12,7 +12,7 @@ permissions:
 jobs:
 
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-18.04
     steps:
     
     - uses: actions/checkout@v3
@@ -22,22 +22,56 @@ jobs:
         java-version: '11'
         distribution: 'temurin'
 
+    - name: Gradle Caching
+      uses: actions/cache@v3
+      with:
+        path: |
+          ~/.gradle/caches
+          ~/.gradle/wrapper
+        key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+        restore-keys: |
+          ${{ runner.os }}-gradle-
+    - name: make application-prod.yml
+#      if: contains(github.ref, 'master')
+      run: |
+        cd ./src/main/resources
+        touch ./application-prod.yml
+        echo "${{ secrets.PROPERTIES_PROD }}" > ./application-prod.yml
+      shell: bash
 
     - name: Grant execute permission for gradlew
       run: chmod +x ./gradlew
       shell: bash
 
-    - name: Configure AWS credentials
-      uses: aws-actions/configure-aws-credentials@v1
-      with:
-        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws-region: ap-northeast-2
-
     - name: Build with Gradle
-      run: ./gradlew clean build
+      run: ./gradlew clean build -x test
       shell: bash
 
+    - name: Deliver to AWS S3
+      env:
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ap-northeast-2
+      run: |
+        aws s3 sync ./build s3://onulstorebucket
+    - name: Docker build
+      run: |
+        docker login -u ${{ secrets.USERNAME }} -p ${{ secrets.PASSWORD }}
+        docker build -t onulstore .
+        docker tag onulstore dldnjsrms/onulstore:${GITHUB_SHA::7}
+        docker push dldnjsrms/onulstore:${GITHUB_SHA::7}
+    - name: Deploy
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.HOST_PROD }}
+        username: ec2-user
+        key: ${{ secrets.PRIVATE_KEY }}
+        envs: GITHUB_SHA
+        script: |
+          docker pull dldnjsrms/onulstore:${GITHUB_SHA::7}
+          docker tag dldnjsrms/onulstore:${GITHUB_SHA::7} onulstore
+          docker stop server
+          docker run -d --rm --name server -p 80:8080 onulstore
     - name: Get current time
       uses: 1466587594/get-current-time@v2
       id: current-time
@@ -48,23 +82,3 @@ jobs:
     - name: Show Current Time
       run: echo "CurrentTime=${{steps.current-time.outputs.formattedTime}}"
       shell: bash
-
-    - name: Docker build
-      run: |
-        docker login -u ${{ secrets.USERNAME }} -p ${{ secrets.PASSWORD }}
-        docker build -t onulstore .
-        docker tag onulstore dldnjsrms/onulstore:${GITHUB_SHA::7}
-        docker push dldnjsrms/onulstore:${GITHUB_SHA::7}
-
-    - name: Deploy
-      uses: appleboy/ssh-action@master
-      with:
-        host: 15.164.124.56
-        username: ec2-user
-        key: ${{ secrets.PRIVATE_KEY }}
-        envs: GITHUB_SHA
-        script: |
-          docker pull dldnjsrms/onulstore:${GITHUB_SHA::7}
-          docker tag dldnjsrms/onulstore:${GITHUB_SHA::7} onulstore
-          docker stop server
-          docker run -d --rm --name server -p 80:8080 onulstore
