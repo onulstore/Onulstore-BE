@@ -6,5 +6,6 @@ spring:
   mvc:
     path match:
       matching-strategy: ant_path_matcher
+
   profiles:
     include: prod
