@@ -2,8 +2,17 @@ package com.onulstore.service;
 
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.ObjectMetadata;
+import com.onulstore.config.SecurityUtil;
+import com.onulstore.domain.category.Category;
+import com.onulstore.domain.category.CategoryRepository;
+import com.onulstore.domain.enums.Authority;
+import com.onulstore.domain.member.Member;
+import com.onulstore.domain.member.MemberRepository;
 import com.onulstore.domain.product.Product;
 import com.onulstore.domain.product.ProductRepository;
+import com.onulstore.exception.AccessPrivilegeExceptions;
+import com.onulstore.exception.CategoryNotFoundException;
+import com.onulstore.exception.NotExistUserException;
 import com.onulstore.web.dto.ProductDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -27,25 +36,42 @@ public class ProductService {
 
     private final AmazonS3Client s3Client;
     private final ProductRepository productRepository;
+    private final MemberRepository memberRepository;
+    private final CategoryRepository categoryRepository;
 
     @Transactional
     public ProductDto.ProductResponse register(ProductDto.ProductRequest registration) {
-        if(productRepository.existsByProductName(registration.getProductName())) {
-            throw new RuntimeException("이미 존재하는 상품입니다.");
+        Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId()).orElseThrow(
+                () -> new NotExistUserException("존재하지 않는 유저입니다."));
+
+        if (!member.getAuthority().equals(Authority.ROLE_ADMIN.getKey())) {
+            throw new AccessPrivilegeExceptions("접근 권한이 없습니다.");
         }
-        Product product = registration.toProduct();
+
+        Category category = categoryRepository.findById(registration.getCategoryId()).orElseThrow(
+                () -> new CategoryNotFoundException("카테고리를 찾을 수 없습니다."));
+
+        Product product = productRepository.save(
+                new Product(registration.getProductName(), registration.getContent(), registration.getPrice(),
+                        registration.getQuantity(), registration.getProductImg(), registration.getProductStatus(),
+                        category));
         product.newPurchaseCount();
-        return ProductDto.ProductResponse.of(productRepository.save(product));
+        return ProductDto.ProductResponse.of(product);
     }
 
     @Transactional
-    public ProductDto.ProductResponse modify(ProductDto.ProductRequest modification, Long productId) {
+    public ProductDto.ProductResponse modify(ProductDto.modifyRequest modification, Long productId) {
+
+        Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId()).orElseThrow(
+                () -> new NotExistUserException("존재하지 않는 유저입니다."));
+
+        if (!member.getAuthority().equals(Authority.ROLE_ADMIN.getKey())) {
+            throw new AccessPrivilegeExceptions("접근 권한이 없습니다.");
+        }
 
         Product product = productRepository.findById(productId).orElseThrow(RuntimeException::new);
         product.changeProductData(modification.getProductName(),
             modification.getContent(),
-            modification.getLargeCategoryCode(),
-            modification.getSmallCategoryCode(),
             modification.getPrice(),
             modification.getQuantity(),
             modification.getProductImg(),
@@ -56,6 +82,12 @@ public class ProductService {
 
     @Transactional
     public void delete(Long productId) {
+        Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId()).orElseThrow(
+                () -> new NotExistUserException("존재하지 않는 유저입니다."));
+
+        if (!member.getAuthority().equals(Authority.ROLE_ADMIN.getKey())) {
+            throw new AccessPrivilegeExceptions("접근 권한이 없습니다.");
+        }
         Product product = productRepository.findById(productId).orElseThrow(RuntimeException::new);
         productRepository.delete(product);
     }
@@ -68,8 +100,7 @@ public class ProductService {
 
     @Transactional(readOnly = true)
     public Page entireProductList(Pageable pageable){
-        Page<ProductDto.ProductResponse> pages = productRepository.findAll(pageable).map(product -> ProductDto.ProductResponse.of(product));
-        return pages;
+        return productRepository.findAll(pageable).map(ProductDto.ProductResponse::of);
     }
 
     @Transactional
@@ -87,6 +118,12 @@ public class ProductService {
 
     @Transactional
     public void addImage(Long productId, String image) {
+        Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId()).orElseThrow(
+                () -> new NotExistUserException("존재하지 않는 유저입니다."));
+
+        if (!member.getAuthority().equals(Authority.ROLE_ADMIN.getKey())) {
+            throw new AccessPrivilegeExceptions("접근 권한이 없습니다.");
+        }
         Product product = productRepository.findById(productId).orElseThrow(RuntimeException::new);
         product.insertImage(image);
     }
