@@ -5,6 +5,7 @@ import com.onulstore.domain.member.MemberRepository;
 import com.onulstore.service.CartService;
 import com.onulstore.web.dto.CartDto;
 import io.swagger.annotations.Api;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -29,14 +30,14 @@ public class CartController {
     return new ResponseEntity<>(HttpStatus.OK);
   }
 
-  @DeleteMapping("/carts/{cartId}")
-  public ResponseEntity deleteCart(@PathVariable Long cartId) {
-    cartService.deleteCart(cartId);
+  @DeleteMapping("/carts/{cartId}/{memberId}")
+  public ResponseEntity deleteCart(@PathVariable Long cartId, @PathVariable Long memberId) {
+    cartService.deleteCart(cartId, memberId);
     return new ResponseEntity<>(HttpStatus.OK);
   }
 
   @GetMapping("/carts/{cartId}")
-  public ResponseEntity<CartDto> shoppingCart(@PathVariable Long cartId) {
-    return ResponseEntity.ok(cartService.shoppingCart(cartId));
+  public ResponseEntity<List<CartDto>> getCartList(@PathVariable Long cartId) {
+    return ResponseEntity.ok(cartService.getCartList(cartId));
   }
 }
