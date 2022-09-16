@@ -33,4 +33,10 @@ public class AuthController {
         return ResponseEntity.ok(authService.login(loginDto));
     }
 
+    @ApiOperation(value = "Refresh Token 발급")
+    @PostMapping("/refresh")
+    public ResponseEntity<TokenDto> getRefreshToken(@RequestBody TokenDto.TokenRequest tokenRequest) {
+        return ResponseEntity.ok(authService.getRefreshToken(tokenRequest));
+    }
+
 }
