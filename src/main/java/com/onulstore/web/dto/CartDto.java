@@ -1,5 +1,6 @@
 package com.onulstore.web.dto;
 
+import com.onulstore.domain.cart.Cart;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -15,5 +16,16 @@ public class CartDto {
   private Long productId;
   private Integer quantity;
   private Long cartId;
+  private String image;
+
+  public static CartDto of(Cart cart){
+    return CartDto.builder()
+        .memberEmail(cart.getMember().getEmail())
+        .productId(cart.getProduct().getId())
+        .quantity(cart.getProductCount())
+        .cartId(cart.getId())
+        .image(cart.getProduct().getProductImg())
+        .build();
+  }
 
 }

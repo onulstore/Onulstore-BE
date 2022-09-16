@@ -50,14 +50,36 @@ public class CartService {
     Member member = memberRepository.findById(memberId).orElseThrow(RuntimeException::new);
     List<CartDto> cartDtoList = new ArrayList<CartDto>();
     for (Cart cart : member.getCarts()) {
-      CartDto cartDto = CartDto.builder()
-          .memberEmail(cart.getMember().getEmail())
-          .productId(cart.getProduct().getId())
-          .quantity(cart.getProductCount())
-          .cartId(cart.getId())
-          .build();
+      CartDto cartDto = CartDto.of(cart);
       cartDtoList.add(cartDto);
     }
     return cartDtoList;
+  }
+
+  public CartDto plus(Long cartId) {
+    Cart cart = cartRepository.findById(cartId).orElseThrow(RuntimeException::new);
+    if(cart.getProduct().getQuantity() > cart.getProductCount()){
+      cart.changeQuantity(cart.getProductCount()+1);
+    }
+    else{
+      throw new RuntimeException();
+    }
+
+    CartDto cartDto = CartDto.of(cart);
+
+    return cartDto;
+  }
+
+  public CartDto minus(Long cartId) {
+    Cart cart = cartRepository.findById(cartId).orElseThrow(RuntimeException::new);
+    if(1 < cart.getProductCount()){
+      cart.changeQuantity(cart.getProductCount()-1);
+    }
+    else{
+      throw new RuntimeException();
+    }
+    CartDto cartDto = CartDto.of(cart);
+
+    return cartDto;
   }
 }

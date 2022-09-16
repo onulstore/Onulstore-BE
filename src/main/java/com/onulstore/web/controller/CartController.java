@@ -5,6 +5,7 @@ import com.onulstore.domain.member.MemberRepository;
 import com.onulstore.service.CartService;
 import com.onulstore.web.dto.CartDto;
 import io.swagger.annotations.Api;
+import io.swagger.models.Response;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -40,4 +41,15 @@ public class CartController {
   public ResponseEntity<List<CartDto>> getCartList(@PathVariable Long cartId) {
     return ResponseEntity.ok(cartService.getCartList(cartId));
   }
+
+  @PostMapping("/carts/{cartId}/plus")
+  public ResponseEntity<CartDto> plusQuantity(@PathVariable Long cartId) {
+    return ResponseEntity.ok(cartService.plus(cartId));
+  }
+
+  @PostMapping("/carts/{cartId}/minus")
+  public ResponseEntity<CartDto> minusQuantity(@PathVariable Long cartId) {
+    return ResponseEntity.ok(cartService.minus(cartId));
+  }
+
 }

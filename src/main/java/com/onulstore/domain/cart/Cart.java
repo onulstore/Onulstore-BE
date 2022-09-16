@@ -37,4 +37,8 @@ public class Cart extends BaseTimeEntity {
     @JsonIgnore
     private Order order;
 
+    public void changeQuantity(Integer quantity){
+        this.productCount = quantity;
+    }
+
 }
