@@ -14,5 +14,6 @@ public class CartDto {
   private String memberEmail;
   private Long productId;
   private Integer quantity;
+  private Long cartId;
 
 }
