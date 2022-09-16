@@ -1,6 +1,8 @@
 package com.onulstore.service;
 
 import com.onulstore.config.SecurityUtil;
+import com.onulstore.config.jwt.RefreshToken;
+import com.onulstore.config.jwt.RefreshTokenRepository;
 import com.onulstore.config.jwt.TokenProvider;
 import com.onulstore.domain.enums.Authority;
 import com.onulstore.domain.member.Member;
@@ -30,6 +32,7 @@ public class AuthService {
     private final MemberRepository memberRepository;
     private final PasswordEncoder passwordEncoder;
     private final TokenProvider tokenProvider;
+    private final RefreshTokenRepository refreshTokenRepository;
 
     @Transactional
     public MemberDto.MemberResponse signup(MemberDto.MemberRequest signupRequest) {
@@ -46,7 +49,16 @@ public class AuthService {
         UsernamePasswordAuthenticationToken authenticationToken = loginDto.toAuthentication();
         Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
 
-        return tokenProvider.generateToken(authentication);
+        TokenDto tokenDto = tokenProvider.generateToken(authentication);
+
+        RefreshToken refreshToken = RefreshToken.builder()
+                .key(authentication.getName())
+                .value(tokenDto.getRefreshToken())
+                .build();
+
+        refreshTokenRepository.save(refreshToken);
+
+        return tokenDto;
     }
 
     // 관리자 회원가입
@@ -75,6 +87,28 @@ public class AuthService {
         resultMap.put("viewAllMember", allMemberList);
 
         return resultMap;
+    }
+
+    @Transactional
+    public TokenDto getRefreshToken(TokenDto.TokenRequest tokenRequest) {
+        if (!tokenProvider.validateToken(tokenRequest.getRefreshToken())) {
+            throw new RuntimeException("Refresh Token 이 유효하지 않습니다.");
+        }
+
+        Authentication authentication = tokenProvider.getAuthentication(tokenRequest.getAccessToken());
+        RefreshToken refreshToken = refreshTokenRepository.findByKey(authentication.getName())
+                .orElseThrow(() -> new RuntimeException("로그아웃 된 사용자입니다."));
+
+        if (!refreshToken.getValue().equals(tokenRequest.getRefreshToken())) {
+            throw new RuntimeException("토큰의 유저 정보가 일치하지 않습니다.");
+        }
+
+        TokenDto tokenDto = tokenProvider.generateToken(authentication);
+
+        RefreshToken newRefreshToken = refreshToken.updateValue(tokenDto.getRefreshToken());
+        refreshTokenRepository.save(newRefreshToken);
+
+        return tokenDto;
     }
 
 }
