@@ -1,0 +1,74 @@
+package com.onulstore.service;
+
+import com.onulstore.config.SecurityUtil;
+import com.onulstore.domain.member.Member;
+import com.onulstore.domain.member.MemberRepository;
+import com.onulstore.domain.order.Order;
+import com.onulstore.domain.order.OrderProduct;
+import com.onulstore.domain.order.OrderRepository;
+import com.onulstore.domain.product.Product;
+import com.onulstore.domain.product.ProductRepository;
+import com.onulstore.exception.NotExistUserException;
+import com.onulstore.web.dto.OrderDto;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import javax.persistence.EntityNotFoundException;
+import java.util.ArrayList;
+import java.util.List;
+
+@Service
+@Transactional
+@RequiredArgsConstructor
+public class OrderService {
+
+    private final ProductRepository productRepository;
+    private final MemberRepository memberRepository;
+    private final OrderRepository orderRepository;
+
+    public Long createOrder(OrderDto.OrderRequest orderRequest) {
+        List<OrderProduct> orderProductList = new ArrayList<>();
+        Product product = productRepository.findById(orderRequest.getProductId())
+                .orElseThrow(EntityNotFoundException::new);
+        orderProductList.add(OrderProduct.createOrderProduct(product, orderRequest.getCount()));
+
+        Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId()).orElseThrow(
+                () -> new NotExistUserException("존재하지 않는 유저입니다."));
+        Order order = Order.createOrder(member, orderProductList);
+
+        orderRepository.save(order);
+        return order.getId();
+    }
+
+    @Transactional(readOnly = true)
+    public Page<OrderDto.OrderHistory> getOrderList(Pageable pageable) {
+        Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId()).orElseThrow(
+                () -> new NotExistUserException("존재하지 않는 유저입니다."));
+
+        List<Order> orders = orderRepository.findOrders(member.getEmail(), pageable);
+        Long totalCount = orderRepository.countOrder(member.getEmail());
+
+        List<OrderDto.OrderHistory> orderHistories = new ArrayList<>();
+
+        for (Order order : orders) {
+            OrderDto.OrderHistory orderHistory = new OrderDto.OrderHistory(order);
+            List<OrderProduct> orderProductList = order.getOrderProducts();
+            for (OrderProduct orderProduct : orderProductList) {
+                OrderDto.OrderProduct orderProductDto = new OrderDto.OrderProduct(orderProduct);
+                orderHistory.addOrderProduct(orderProductDto);
+            }
+            orderHistories.add(orderHistory);
+        }
+        return new PageImpl<>(orderHistories, pageable, totalCount);
+    }
+
+    public void orderCancel(Long orderId) {
+        Order order = orderRepository.findById(orderId).orElseThrow(EntityNotFoundException::new);
+        order.orderCancel();
+    }
+
+}
