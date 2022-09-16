@@ -5,9 +5,11 @@ import com.onulstore.common.BaseTimeEntity;
 import com.onulstore.domain.cart.Cart;
 import com.onulstore.domain.curation.Curation;
 import com.onulstore.domain.enums.ProductStatus;
+import com.onulstore.domain.order.OrderProduct;
 import com.onulstore.domain.question.Question;
 import com.onulstore.domain.review.Review;
 import com.onulstore.domain.wishlist.Wishlist;
+import com.onulstore.exception.OutOfStockException;
 import lombok.*;
 
 import javax.persistence.*;
@@ -69,6 +71,10 @@ public class Product extends BaseTimeEntity {
     @JsonIgnore
     private List<Review> reviews = new ArrayList<>();
 
+    @OneToMany(mappedBy = "product", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JsonIgnore
+    private List<OrderProduct> orderProducts = new ArrayList<>();
+
     @ManyToOne
     @JoinColumn(name = "curation_id")
     @JsonIgnore
@@ -92,4 +98,18 @@ public class Product extends BaseTimeEntity {
     public void newPurchaseCount(){
         this.purchaseCount = 0;
     }
+
+    public void removeStock(int quantity) {
+
+        int restStock = this.quantity - quantity;
+        if (restStock < 1) {
+            throw new OutOfStockException("상품의 재고가 부족합니다. (현재 재고 수량: " + this.quantity + ")");
+        }
+        this.quantity = restStock;
+    }
+
+    public void addQuantity(int quantity) {
+        this.quantity += quantity;
+    }
+
 }
