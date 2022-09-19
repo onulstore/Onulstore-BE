@@ -45,4 +45,18 @@ public class QuestionService {
         questionRepository.save(question);
     }
 
+    // 질문 수정
+    @Transactional
+    public QuestionDto updateQuestion(Long questionId, QuestionDto questionDto) {
+        Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId()).orElseThrow(
+                () -> new NotExistUserException("존재하지 않는 유저입니다."));
+        Product product = productRepository.findById(questionDto.getProductId()).orElseThrow(
+                () -> new NotExistUserException("존재하지 않는 상품입니다."));
+
+        Question question = questionRepository.findById(questionId).orElseThrow();
+        question.setTitle(questionDto.getTitle());
+        question.setContent(questionDto.getContent());
+
+        return QuestionDto.of(questionRepository.save(question));
+    }
 }

@@ -26,4 +26,11 @@ public class QuestionController {
         return ResponseEntity.ok("해당 질문이 등록되었습니다.");
     }
 
+    // 질문 수정
+    @ApiOperation(value = "질문 수정")
+    @PutMapping("/questions/{questionId}")
+    public ResponseEntity<String> updateQuestion(@PathVariable Long questionId,@RequestBody QuestionDto questionDto) {
+        questionService.updateQuestion(questionId, questionDto);
+        return ResponseEntity.ok("해당 질문이 수정되었습니다.");
+    }
 }
