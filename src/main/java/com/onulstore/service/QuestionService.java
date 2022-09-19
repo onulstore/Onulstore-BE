@@ -8,10 +8,16 @@ import com.onulstore.domain.product.ProductRepository;
 import com.onulstore.domain.question.Question;
 import com.onulstore.domain.question.QuestionRepository;
 import com.onulstore.exception.NotExistUserException;
+import com.onulstore.web.dto.CartDto;
+import com.onulstore.web.dto.ProductDto;
 import com.onulstore.web.dto.QuestionDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -73,4 +79,20 @@ public class QuestionService {
 
         return QuestionDto.of(question);
     }
+
+    // 질문 전체 조회
+    @Transactional
+    public List<QuestionDto> getQuestionList(Long productId) {
+        Product product = productRepository.findById(productId).orElseThrow(
+                () -> new NotExistUserException("존재하지 않는 상품입니다."));
+
+        List<Question> questions = questionRepository.findAllByProductId(productId);
+        List<QuestionDto> questionList = new ArrayList<>();
+
+        for (Question question : questions) {
+            questionList.add(QuestionDto.of(question));
+        }
+        return questionList;
+    }
+
 }

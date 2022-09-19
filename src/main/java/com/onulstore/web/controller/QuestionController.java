@@ -8,6 +8,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 
 @RestController
 @RequiredArgsConstructor
@@ -45,5 +47,12 @@ public class QuestionController {
     @GetMapping("/questions/{productId}/{questionId}")
     public ResponseEntity<QuestionDto> getQuestion(@PathVariable Long productId, @PathVariable Long questionId) {
         return ResponseEntity.ok(questionService.getQuestion(productId,questionId));
+    }
+
+    // 질문 전체 조회
+    @ApiOperation(value = "질문 전체 조회")
+    @GetMapping("/questions/{productId}")
+    public ResponseEntity<List<QuestionDto>> getQuestionList(@PathVariable Long productId) {
+        return ResponseEntity.ok(questionService.getQuestionList(productId));
     }
 }
