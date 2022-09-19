@@ -33,7 +33,7 @@ jobs:
           ${{ runner.os }}-gradle-
 
     - name: make application-prod.yml
-      if: contains(github.ref, 'master')
+#      if: contains(github.ref, 'master')
       run: |
         cd ./src/main/resources
         touch ./application-prod.yml
@@ -45,9 +45,18 @@ jobs:
       shell: bash
 
     - name: Build with Gradle
-      run: ./gradlew clean build
+      run: ./gradlew clean build -x test
       shell: bash
 
+    - name: Deliver to AWS S3
+      env:
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        AWS-region: ap-northeast-2
+        AWS_EC2_METADATA_DISABLED: true
+      run: |
+        aws s3 sync ./build s3://onulstorebucket
+        
     - name: Docker build
       run: |
         docker login -u ${{ secrets.USERNAME }} -p ${{ secrets.PASSWORD }}

@@ -13,8 +13,14 @@ public class TokenDto {
 
     private String grantType;
     private String accessToken;
-//    private String refreshToken;
+    private String refreshToken;
     private Long accessTokenExpiresIn;
 
+    @Getter
+    @NoArgsConstructor
+    public static class TokenRequest {
+        private String accessToken;
+        private String refreshToken;
+    }
 
 }

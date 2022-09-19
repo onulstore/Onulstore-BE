@@ -6,5 +6,11 @@ spring:
   mvc:
     path match:
       matching-strategy: ant_path_matcher
+
   profiles:
     include: prod
+
+  servlet:
+    multipart:
+      max-file-size: 50MB
+      max-request-size: 50MB

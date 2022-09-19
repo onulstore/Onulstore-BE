@@ -24,7 +24,6 @@ public class WishlistDto {
                     .product(product)
                     .member(member)
                     .build();
-
         }
 
     }
@@ -37,8 +36,6 @@ public class WishlistDto {
 
         private String productName;
         private String content;
-        private String largeCategoryCode;
-        private String smallCategoryCode;
         private Integer price;
         private ProductStatus productStatus;
 
@@ -46,8 +43,6 @@ public class WishlistDto {
             return WishlistResponse.builder()
                     .productName(product.getProductName())
                     .content(product.getContent())
-                    .largeCategoryCode(product.getLargeCategoryCode())
-                    .smallCategoryCode(product.getSmallCategoryCode())
                     .price(product.getPrice())
                     .productStatus(product.getProductStatus())
                     .build();

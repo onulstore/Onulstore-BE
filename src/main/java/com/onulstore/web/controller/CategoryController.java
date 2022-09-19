@@ -35,7 +35,7 @@ public class CategoryController {
     @ApiOperation(value = "카테고리 수정")
     public ResponseEntity<String> addCategory(
             @Valid @RequestBody CategoryDto.updateCatRequest updateCatRequest,
-            @ApiParam(value = "카테고리 id", required = true)
+            @ApiParam(required = true)
             @PathVariable Long categoryId) {
         categoryService.updateCategory(updateCatRequest, categoryId);
         return ResponseEntity.ok("카테고리가 수정되었습니다.");
@@ -44,7 +44,7 @@ public class CategoryController {
     @DeleteMapping("/{categoryId}")
     @ApiOperation(value = "카테고리 삭제")
     public ResponseEntity<String> deleteCategory(
-            @ApiParam(value = "카테고리 id", required = true) @PathVariable Long categoryId) {
+            @ApiParam(required = true) @PathVariable Long categoryId) {
         categoryService.deleteCategory(categoryId);
         return ResponseEntity.ok("카테고리가 삭제되었습니다.");
     }
