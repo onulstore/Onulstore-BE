@@ -1,7 +1,6 @@
 package com.onulstore.web.controller;
 
 import com.onulstore.service.QuestionService;
-import com.onulstore.web.dto.ProductDto;
 import com.onulstore.web.dto.QuestionDto;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -9,7 +8,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -42,4 +40,10 @@ public class QuestionController {
         return ResponseEntity.ok("해당 질문이 삭제되었습니다.");
     }
 
+    // 질문 상세 조회
+    @ApiOperation(value = "질문 상세 조회")
+    @GetMapping("/questions/{productId}/{questionId}")
+    public ResponseEntity<QuestionDto> getQuestion(@PathVariable Long productId, @PathVariable Long questionId) {
+        return ResponseEntity.ok(questionService.getQuestion(productId,questionId));
+    }
 }
