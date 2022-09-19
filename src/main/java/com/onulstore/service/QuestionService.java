@@ -59,4 +59,12 @@ public class QuestionService {
 
         return QuestionDto.of(questionRepository.save(question));
     }
+
+    // 질문 삭제
+    @Transactional
+    public void deleteQuestion(Long questionId) {
+        Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId()).orElseThrow(
+                () -> new NotExistUserException("존재하지 않는 유저입니다."));
+        questionRepository.deleteById(questionId);
+    }
 }

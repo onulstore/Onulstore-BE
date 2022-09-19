@@ -33,4 +33,13 @@ public class QuestionController {
         questionService.updateQuestion(questionId, questionDto);
         return ResponseEntity.ok("해당 질문이 수정되었습니다.");
     }
+
+    // 질문 삭제
+    @ApiOperation(value = "질문 삭제")
+    @DeleteMapping("/questions/{questionId}")
+    public ResponseEntity<String> deleteQuestion(@PathVariable Long questionId) {
+        questionService.deleteQuestion(questionId);
+        return ResponseEntity.ok("해당 질문이 삭제되었습니다.");
+    }
+
 }
