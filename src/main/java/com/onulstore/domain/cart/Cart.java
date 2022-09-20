@@ -38,7 +38,7 @@ public class Cart extends BaseTimeEntity {
     private Order order;
 
     public void changeQuantity(Integer quantity){
-        this.productCount = quantity;
+        this.productCount = productCount + quantity;
     }
 
 }

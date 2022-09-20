@@ -15,7 +15,6 @@ public class CartDto {
   private String memberEmail;
   private Long productId;
   private Integer quantity;
-  private Long cartId;
   private String image;
 
   public static CartDto of(Cart cart){
@@ -23,7 +22,6 @@ public class CartDto {
         .memberEmail(cart.getMember().getEmail())
         .productId(cart.getProduct().getId())
         .quantity(cart.getProductCount())
-        .cartId(cart.getId())
         .image(cart.getProduct().getProductImg())
         .build();
   }
