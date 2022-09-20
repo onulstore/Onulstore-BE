@@ -25,20 +25,33 @@ public class CartService {
   public void addCart(CartDto cartDto){
     Member member = memberRepository.findByEmail(cartDto.getMemberEmail()).orElseThrow(RuntimeException::new);
     Product product = productRepository.findById(cartDto.getProductId()).orElseThrow(RuntimeException::new);
+    boolean duplicate = false;
+
     if(product.getQuantity() < cartDto.getQuantity()){
       throw new RuntimeException();
     }
-    Cart cart = Cart.builder()
-        .member(member)
-        .product(product)
-        .productCount(cartDto.getQuantity())
-        .build();
 
-    member.getCarts().add(cart);
-    product.getCarts().add(cart);
-    cartRepository.save(cart);
+    for(Cart carts : member.getCarts()){
+      if(carts.getProduct().getProductName().equals(product.getProductName())){
+        carts.changeQuantity(cartDto.getQuantity());
+        duplicate = true;
+      }
+    }
+
+    if(duplicate == false) {
+      Cart cart = Cart.builder()
+          .member(member)
+          .product(product)
+          .productCount(cartDto.getQuantity())
+          .build();
+
+      member.getCarts().add(cart);
+      product.getCarts().add(cart);
+      cartRepository.save(cart);
+    }
   }
 
+  @Transactional
   public void deleteCart(Long cartId, Long memberId) {
     Member member = memberRepository.findById(memberId).orElseThrow(RuntimeException::new);
     Cart cart = cartRepository.findById(cartId).orElseThrow(RuntimeException::new);
@@ -46,6 +59,7 @@ public class CartService {
     member.getCarts().remove(cart);
   }
 
+  @Transactional
   public List<CartDto> getCartList(Long memberId) {
     Member member = memberRepository.findById(memberId).orElseThrow(RuntimeException::new);
     List<CartDto> cartDtoList = new ArrayList<CartDto>();
@@ -56,10 +70,11 @@ public class CartService {
     return cartDtoList;
   }
 
+  @Transactional
   public CartDto plus(Long cartId) {
     Cart cart = cartRepository.findById(cartId).orElseThrow(RuntimeException::new);
     if(cart.getProduct().getQuantity() > cart.getProductCount()){
-      cart.changeQuantity(cart.getProductCount()+1);
+      cart.changeQuantity(1);
     }
     else{
       throw new RuntimeException();
@@ -70,10 +85,11 @@ public class CartService {
     return cartDto;
   }
 
+  @Transactional
   public CartDto minus(Long cartId) {
     Cart cart = cartRepository.findById(cartId).orElseThrow(RuntimeException::new);
     if(1 < cart.getProductCount()){
-      cart.changeQuantity(cart.getProductCount()-1);
+      cart.changeQuantity(-1);
     }
     else{
       throw new RuntimeException();
