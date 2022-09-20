@@ -2,9 +2,10 @@ package com.onulstore.domain.question;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.onulstore.common.BaseTimeEntity;
+import com.onulstore.domain.enums.AnswerStatus;
+import com.onulstore.domain.member.Member;
 import com.onulstore.domain.product.Product;
 import com.onulstore.domain.questionAnswer.QuestionAnswer;
-import com.onulstore.domain.member.Member;
 import lombok.*;
 
 import javax.persistence.*;
@@ -26,8 +27,9 @@ public class Question extends BaseTimeEntity {
     private String title;
 
     private String content;
-    
-    private boolean answerState;    // 답변 유무
+
+    @Column
+    private String answerState;    // 답변 유무
 
     @ManyToOne
     @JoinColumn(name = "member_id")
@@ -40,5 +42,13 @@ public class Question extends BaseTimeEntity {
     @OneToMany(mappedBy = "question", cascade = CascadeType.ALL)
     @JsonIgnore
     private List<QuestionAnswer> questionAnswers = new ArrayList<>();
+
+    public void unAnswered() {
+        this.answerState = AnswerStatus.NO.getKey();
+    }
+
+    public void Answered() {
+        this.answerState = AnswerStatus.YES.getKey();
+    }
 
 }

@@ -8,8 +8,6 @@ import com.onulstore.domain.product.ProductRepository;
 import com.onulstore.domain.question.Question;
 import com.onulstore.domain.question.QuestionRepository;
 import com.onulstore.exception.NotExistUserException;
-import com.onulstore.web.dto.CartDto;
-import com.onulstore.web.dto.ProductDto;
 import com.onulstore.web.dto.QuestionDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -17,7 +15,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 
 @Service
@@ -41,9 +38,10 @@ public class QuestionService {
                             .product(product)
                             .title(questionDto.getTitle())
                             .content(questionDto.getContent())
+                .answerState(questionDto.getAnswerStatus())
                             .build();
-
         questionRepository.save(question);
+        question.unAnswered();
     }
 
     // 질문 수정

@@ -16,6 +16,7 @@ public class QuestionDto {
     private Long productId;
     private String title;
     private String content;
+    private String answerStatus;
 
     public static QuestionDto of (Question question) {
         return QuestionDto.builder()
@@ -23,6 +24,7 @@ public class QuestionDto {
                 .productId(question.getProduct().getId())
                 .title(question.getTitle())
                 .content(question.getContent())
+                .answerStatus(question.getAnswerState())
                 .build();
     }
 
