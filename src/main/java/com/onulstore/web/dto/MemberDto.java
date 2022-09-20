@@ -30,7 +30,7 @@ public class MemberDto {
                     .roadAddress(roadAddress)
                     .buildingName(buildingName)
                     .detailAddress(detailAddress)
-                    .authority(Authority.ROLE_USER.getKey())
+                    .authority(Authority.ROLE_USER)
                     .activated(true)
                     .build();
         }
@@ -85,7 +85,7 @@ public class MemberDto {
                     .roadAddress(roadAddress)
                     .buildingName(buildingName)
                     .detailAddress(detailAddress)
-                    .authority(Authority.ROLE_ADMIN.getKey())
+                    .authority(Authority.ROLE_ADMIN)
                     .activated(true)
                     .build();
         }

@@ -44,7 +44,7 @@ public class ProductService {
         Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId()).orElseThrow(
                 () -> new NotExistUserException("존재하지 않는 유저입니다."));
 
-        if (!member.getAuthority().equals(Authority.ROLE_ADMIN.getKey())) {
+        if (!member.getAuthority().equals(Authority.ROLE_ADMIN)) {
             throw new AccessPrivilegeExceptions("접근 권한이 없습니다.");
         }
 
@@ -65,7 +65,7 @@ public class ProductService {
         Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId()).orElseThrow(
                 () -> new NotExistUserException("존재하지 않는 유저입니다."));
 
-        if (!member.getAuthority().equals(Authority.ROLE_ADMIN.getKey())) {
+        if (!member.getAuthority().equals(Authority.ROLE_ADMIN)) {
             throw new AccessPrivilegeExceptions("접근 권한이 없습니다.");
         }
 
@@ -85,7 +85,7 @@ public class ProductService {
         Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId()).orElseThrow(
                 () -> new NotExistUserException("존재하지 않는 유저입니다."));
 
-        if (!member.getAuthority().equals(Authority.ROLE_ADMIN.getKey())) {
+        if (!member.getAuthority().equals(Authority.ROLE_ADMIN)) {
             throw new AccessPrivilegeExceptions("접근 권한이 없습니다.");
         }
         Product product = productRepository.findById(productId).orElseThrow(RuntimeException::new);
@@ -121,7 +121,7 @@ public class ProductService {
         Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId()).orElseThrow(
                 () -> new NotExistUserException("존재하지 않는 유저입니다."));
 
-        if (!member.getAuthority().equals(Authority.ROLE_ADMIN.getKey())) {
+        if (!member.getAuthority().equals(Authority.ROLE_ADMIN)) {
             throw new AccessPrivilegeExceptions("접근 권한이 없습니다.");
         }
         Product product = productRepository.findById(productId).orElseThrow(RuntimeException::new);
