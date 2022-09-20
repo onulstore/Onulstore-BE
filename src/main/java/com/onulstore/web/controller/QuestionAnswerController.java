@@ -23,4 +23,10 @@ public class QuestionAnswerController {
         return ResponseEntity.ok("해당 질문에 답변이 등록되었습니다.");
     }
 
+    // 답변 조회
+    @ApiOperation(value = "답변 조회")
+    @GetMapping("/questions/{questionId}/answers/{answerId}")
+    public ResponseEntity<QuestionAnswerDto> getAnswer(@PathVariable Long questionId, @PathVariable Long answerId) {
+        return ResponseEntity.ok(questionAnswerService.getAnswer(questionId, answerId));
+    }
 }

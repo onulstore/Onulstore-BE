@@ -38,4 +38,13 @@ public class QuestionAnswerService {
         question.Answered();
     }
 
+    // 답변 조회
+    @Transactional
+    public QuestionAnswerDto getAnswer(Long questionId, Long answerId) {
+        Question question = questionRepository.findById(questionId).orElseThrow(() -> new NotExistUserException("등록되지 않은 질문입니다."));
+
+        QuestionAnswer answer = questionAnswerRepository.findById(answerId).orElseThrow();
+
+        return QuestionAnswerDto.of(answer);
+    }
 }
