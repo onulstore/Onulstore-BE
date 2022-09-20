@@ -3,6 +3,7 @@ package com.onulstore.domain.product;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.onulstore.common.BaseTimeEntity;
 import com.onulstore.domain.cart.Cart;
+import com.onulstore.domain.category.Category;
 import com.onulstore.domain.curation.Curation;
 import com.onulstore.domain.enums.ProductStatus;
 import com.onulstore.domain.order.OrderProduct;
@@ -11,6 +12,8 @@ import com.onulstore.domain.review.Review;
 import com.onulstore.domain.wishlist.Wishlist;
 import com.onulstore.exception.OutOfStockException;
 import lombok.*;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -33,12 +36,6 @@ public class Product extends BaseTimeEntity {
 
     @Column
     private String content;
-
-    @Column(length = 10)
-    private String largeCategoryCode;
-
-    @Column(length = 10)
-    private String smallCategoryCode;
 
     @Column
     private Integer price;
@@ -80,11 +77,26 @@ public class Product extends BaseTimeEntity {
     @JsonIgnore
     private Curation curation;
 
-    public void changeProductData(String productName, String content, String largeCategoryCode, String smallCategoryCode, Integer price, Integer quantity, String productImg, ProductStatus productStatus) {
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "category_id")
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    private Category category;
+
+    public Product(String productName, String content, Integer price,
+                   Integer quantity, String productImg, ProductStatus productStatus, Category category) {
         this.productName = productName;
         this.content = content;
-        this.largeCategoryCode = largeCategoryCode;
-        this.smallCategoryCode = smallCategoryCode;
+        this.price = price;
+        this.quantity = quantity;
+        this.productImg = productImg;
+        this.productStatus = productStatus;
+        this.category = category;
+    }
+
+    public void changeProductData(String productName, String content, Integer price,
+                                  Integer quantity, String productImg, ProductStatus productStatus) {
+        this.productName = productName;
+        this.content = content;
         this.price = price;
         this.quantity = quantity;
         this.productImg = productImg;

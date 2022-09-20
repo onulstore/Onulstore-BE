@@ -30,8 +30,8 @@ public class ProductController {
 
     @ApiOperation(value = "상품 수정")
     @PutMapping("/products/{productId}")
-    public ResponseEntity<ProductDto.ProductResponse> modifyProduct(@PathVariable Long productId, @RequestBody ProductDto.ProductRequest requestDto){
-        return ResponseEntity.ok(productService.modify(requestDto, productId));
+    public ResponseEntity<ProductDto.ProductResponse> modifyProduct(@PathVariable Long productId, @RequestBody ProductDto.modifyRequest modifyRequest){
+        return ResponseEntity.ok(productService.modify(modifyRequest, productId));
     }
 
     @ApiOperation(value = "상품 삭제")
