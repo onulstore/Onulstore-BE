@@ -1,6 +1,8 @@
 package com.onulstore.service;
 
 import com.onulstore.config.SecurityUtil;
+import com.onulstore.domain.cart.Cart;
+import com.onulstore.domain.cart.CartRepository;
 import com.onulstore.domain.member.Member;
 import com.onulstore.domain.member.MemberRepository;
 import com.onulstore.domain.order.Order;
@@ -28,6 +30,7 @@ public class OrderService {
 
     private final ProductRepository productRepository;
     private final MemberRepository memberRepository;
+    private final CartRepository cartRepository;
     private final OrderRepository orderRepository;
 
     public Long createOrder(OrderDto.OrderRequest orderRequest) {
@@ -71,4 +74,23 @@ public class OrderService {
         order.orderCancel();
     }
 
+    public Long createSelectedCartOrder(List<Long> cartList) {
+        Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId()).orElseThrow(
+            () -> new NotExistUserException("존재하지 않는 유저입니다."));
+        List<Cart> carts = new ArrayList<>();
+        List<OrderProduct> orderProductList = new ArrayList<>();
+
+        for(Long num : cartList){
+            carts.add(cartRepository.findById(num).orElseThrow());
+        }
+
+        for(Cart cart : carts){
+            orderProductList.add(OrderProduct.createOrderProduct(cart.getProduct(), cart.getProductCount()));
+        }
+
+        Order order = Order.createOrder(member, orderProductList);
+
+        orderRepository.save(order);
+        return order.getId();
+    }
 }
