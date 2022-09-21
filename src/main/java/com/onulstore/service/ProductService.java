@@ -10,6 +10,8 @@ import com.onulstore.domain.member.Member;
 import com.onulstore.domain.member.MemberRepository;
 import com.onulstore.domain.product.Product;
 import com.onulstore.domain.product.ProductRepository;
+import com.onulstore.domain.wishlist.Wishlist;
+import com.onulstore.domain.wishlist.WishlistRepository;
 import com.onulstore.exception.AccessPrivilegeExceptions;
 import com.onulstore.exception.CategoryNotFoundException;
 import com.onulstore.exception.NotExistUserException;
@@ -17,6 +19,7 @@ import com.onulstore.web.dto.ProductDto;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -41,6 +44,7 @@ public class ProductService {
   private final ProductRepository productRepository;
   private final MemberRepository memberRepository;
   private final CategoryRepository categoryRepository;
+  private final WishlistRepository wishlistRepository;
 
   @Transactional
   public ProductDto.ProductResponse register(ProductDto.ProductRequest registration) {
@@ -165,4 +169,24 @@ public class ProductService {
     Product product = productRepository.findById(productId).orElseThrow(RuntimeException::new);
     product.insertImage(image);
   }
+
+  /**
+   * Wishlist 여부
+   * @param memberId
+   * @param productId
+   */
+  public boolean isWishlist(Long memberId, Long productId) {
+    Member member = memberRepository.findById(memberId).orElseThrow(
+            () -> new NotExistUserException("존재하지 않는 유저입니다."));
+    List<Wishlist> wishlists = wishlistRepository.findAllByMember(member);
+    for (Wishlist wishlist : wishlists) {
+      if (Objects.equals(productId, wishlist.getProduct().getId())) {
+        return true;
+      } else {
+        continue;
+      }
+    }
+    return false;
+  }
+
 }
