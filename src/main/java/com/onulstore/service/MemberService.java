@@ -3,10 +3,17 @@ package com.onulstore.service;
 import com.onulstore.config.SecurityUtil;
 import com.onulstore.domain.member.Member;
 import com.onulstore.domain.member.MemberRepository;
+import com.onulstore.domain.product.Product;
 import com.onulstore.exception.NotExistUserException;
 import com.onulstore.exception.UpdatePasswordException;
 import com.onulstore.web.dto.MemberDto;
 import com.onulstore.web.dto.PasswordDto;
+import com.onulstore.web.dto.ProductDto;
+import com.onulstore.web.dto.ProductDto.ProductResponse;
+import java.util.ArrayList;
+import java.util.List;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -56,4 +63,18 @@ public class MemberService {
         memberRepository.save(updateMember);
     }
 
+    @Transactional
+    public ArrayList<ProductResponse> latestProduct(HttpServletRequest request) {
+
+      Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId()).orElseThrow(
+          () -> new NotExistUserException("존재하지 않는 유저입니다."));
+      HttpSession session = request.getSession();
+
+      ArrayList<Product> latest= (ArrayList)session.getAttribute("List");
+      ArrayList<ProductDto.ProductResponse> recentlyViewed = new ArrayList<>();
+      for(Product product : latest) {
+        recentlyViewed.add(ProductDto.ProductResponse.of(product));
+      }
+      return recentlyViewed;
+  }
 }

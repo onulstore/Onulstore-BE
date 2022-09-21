@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.onulstore.common.BaseTimeEntity;
 import com.onulstore.domain.cart.Cart;
 import com.onulstore.domain.category.Category;
-import com.onulstore.domain.curation.Curation;
+import com.onulstore.domain.curation.CurationProduct;
 import com.onulstore.domain.enums.ProductStatus;
 import com.onulstore.domain.order.OrderProduct;
 import com.onulstore.domain.question.Question;
@@ -72,12 +72,11 @@ public class Product extends BaseTimeEntity {
     @JsonIgnore
     private List<OrderProduct> orderProducts = new ArrayList<>();
 
-    @ManyToOne
-    @JoinColumn(name = "curation_id")
+    @OneToMany(mappedBy = "product", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JsonIgnore
-    private Curation curation;
+    private List<CurationProduct> curationProducts = new ArrayList<>();
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne
     @JoinColumn(name = "category_id")
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Category category;
