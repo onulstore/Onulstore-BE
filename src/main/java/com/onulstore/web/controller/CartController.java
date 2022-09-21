@@ -31,15 +31,15 @@ public class CartController {
     return new ResponseEntity<>(HttpStatus.OK);
   }
 
-  @DeleteMapping("/carts/{cartId}/{memberId}")
-  public ResponseEntity deleteCart(@PathVariable Long cartId, @PathVariable Long memberId) {
-    cartService.deleteCart(cartId, memberId);
+  @DeleteMapping("/carts/{cartId}")
+  public ResponseEntity deleteCart(@PathVariable Long cartId) {
+    cartService.deleteCart(cartId);
     return new ResponseEntity<>(HttpStatus.OK);
   }
 
-  @GetMapping("/carts/{cartId}")
-  public ResponseEntity<List<CartDto>> getCartList(@PathVariable Long cartId) {
-    return ResponseEntity.ok(cartService.getCartList(cartId));
+  @GetMapping("/carts")
+  public ResponseEntity<List<CartDto>> getCartList() {
+    return ResponseEntity.ok(cartService.getCartList());
   }
 
   @PostMapping("/carts/{cartId}/plus")

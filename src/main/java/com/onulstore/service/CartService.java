@@ -1,11 +1,13 @@
 package com.onulstore.service;
 
+import com.onulstore.config.SecurityUtil;
 import com.onulstore.domain.cart.Cart;
 import com.onulstore.domain.cart.CartRepository;
 import com.onulstore.domain.member.Member;
 import com.onulstore.domain.member.MemberRepository;
 import com.onulstore.domain.product.Product;
 import com.onulstore.domain.product.ProductRepository;
+import com.onulstore.exception.NotExistUserException;
 import com.onulstore.web.dto.CartDto;
 import java.util.ArrayList;
 import java.util.List;
@@ -39,15 +41,17 @@ public class CartService {
     cartRepository.save(cart);
   }
 
-  public void deleteCart(Long cartId, Long memberId) {
-    Member member = memberRepository.findById(memberId).orElseThrow(RuntimeException::new);
+  public void deleteCart(Long cartId) {
+    Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId()).orElseThrow(
+        () -> new NotExistUserException("존재하지 않는 유저입니다."));
     Cart cart = cartRepository.findById(cartId).orElseThrow(RuntimeException::new);
     cartRepository.delete(cart);
     member.getCarts().remove(cart);
   }
 
-  public List<CartDto> getCartList(Long memberId) {
-    Member member = memberRepository.findById(memberId).orElseThrow(RuntimeException::new);
+  public List<CartDto> getCartList() {
+    Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId()).orElseThrow(
+        () -> new NotExistUserException("존재하지 않는 유저입니다."));
     List<CartDto> cartDtoList = new ArrayList<CartDto>();
     for (Cart cart : member.getCarts()) {
       CartDto cartDto = CartDto.of(cart);
