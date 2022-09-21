@@ -3,13 +3,20 @@ package com.onulstore.web.controller;
 import com.onulstore.service.MemberService;
 import com.onulstore.web.dto.MemberDto;
 import com.onulstore.web.dto.PasswordDto;
+import com.onulstore.web.dto.ProductDto.ProductResponse;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import java.util.ArrayList;
+import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
-import javax.validation.Valid;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
@@ -44,6 +51,12 @@ public class MemberController {
     public ResponseEntity<String> updatePassword(@RequestBody @Valid PasswordDto passwordDto) {
         memberService.updatePassword(passwordDto);
         return ResponseEntity.ok().body("비밀번호 수정이 완료되었습니다.");
+    }
+
+    @GetMapping("/latest")
+    @ApiOperation(value = "최근 본 상품")
+    public ResponseEntity<ArrayList<ProductResponse>> latestProduct(HttpServletRequest request){
+        return ResponseEntity.ok(memberService.latestProduct(request));
     }
 
 }
