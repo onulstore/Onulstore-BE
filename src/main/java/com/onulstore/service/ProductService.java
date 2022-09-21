@@ -14,6 +14,12 @@ import com.onulstore.exception.AccessPrivilegeExceptions;
 import com.onulstore.exception.CategoryNotFoundException;
 import com.onulstore.exception.NotExistUserException;
 import com.onulstore.web.dto.ProductDto;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
@@ -21,110 +27,142 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.InputStream;
-import java.util.UUID;
-
 @Service
 @RequiredArgsConstructor
 public class ProductService {
 
-    @Value("${cloud.aws.s3.bucket}")
-    private String bucket;
+  @Value("${cloud.aws.s3.bucket}")
+  private String bucket;
 
-    @Value("${cloud.aws.s3.dir}")
-    private String dir;
+  @Value("${cloud.aws.s3.dir}")
+  private String dir;
 
-    private final AmazonS3Client s3Client;
-    private final ProductRepository productRepository;
-    private final MemberRepository memberRepository;
-    private final CategoryRepository categoryRepository;
+  private final AmazonS3Client s3Client;
+  private final ProductRepository productRepository;
+  private final MemberRepository memberRepository;
+  private final CategoryRepository categoryRepository;
 
-    @Transactional
-    public ProductDto.ProductResponse register(ProductDto.ProductRequest registration) {
-        Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId()).orElseThrow(
-                () -> new NotExistUserException("존재하지 않는 유저입니다."));
+  @Transactional
+  public ProductDto.ProductResponse register(ProductDto.ProductRequest registration) {
+    Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId()).orElseThrow(
+        () -> new NotExistUserException("존재하지 않는 유저입니다."));
 
-        if (!member.getAuthority().equals(Authority.ROLE_ADMIN.getKey())) {
-            throw new AccessPrivilegeExceptions("접근 권한이 없습니다.");
-        }
-
-        Category category = categoryRepository.findById(registration.getCategoryId()).orElseThrow(
-                () -> new CategoryNotFoundException("카테고리를 찾을 수 없습니다."));
-
-        Product product = productRepository.save(
-                new Product(registration.getProductName(), registration.getContent(), registration.getPrice(),
-                        registration.getQuantity(), registration.getProductImg(), registration.getProductStatus(),
-                        category));
-        product.newPurchaseCount();
-        return ProductDto.ProductResponse.of(product);
+    if (!member.getAuthority().equals(Authority.ROLE_ADMIN.getKey())) {
+      throw new AccessPrivilegeExceptions("접근 권한이 없습니다.");
     }
 
-    @Transactional
-    public ProductDto.ProductResponse modify(ProductDto.modifyRequest modification, Long productId) {
+    Category category = categoryRepository.findById(registration.getCategoryId()).orElseThrow(
+        () -> new CategoryNotFoundException("카테고리를 찾을 수 없습니다."));
 
-        Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId()).orElseThrow(
-                () -> new NotExistUserException("존재하지 않는 유저입니다."));
+    Product product = productRepository.save(
+        new Product(registration.getProductName(), registration.getContent(),
+            registration.getPrice(),
+            registration.getQuantity(), registration.getProductImg(),
+            registration.getProductStatus(),
+            category));
+    product.newPurchaseCount();
+    return ProductDto.ProductResponse.of(product);
+  }
 
-        if (!member.getAuthority().equals(Authority.ROLE_ADMIN.getKey())) {
-            throw new AccessPrivilegeExceptions("접근 권한이 없습니다.");
-        }
+  @Transactional
+  public ProductDto.ProductResponse modify(ProductDto.modifyRequest modification, Long productId) {
 
-        Product product = productRepository.findById(productId).orElseThrow(RuntimeException::new);
-        product.changeProductData(modification.getProductName(),
-            modification.getContent(),
-            modification.getPrice(),
-            modification.getQuantity(),
-            modification.getProductImg(),
-            modification.getProductStatus());
+    Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId()).orElseThrow(
+        () -> new NotExistUserException("존재하지 않는 유저입니다."));
 
-        return ProductDto.ProductResponse.of(productRepository.save(product));
+    if (!member.getAuthority().equals(Authority.ROLE_ADMIN.getKey())) {
+      throw new AccessPrivilegeExceptions("접근 권한이 없습니다.");
     }
 
-    @Transactional
-    public void delete(Long productId) {
-        Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId()).orElseThrow(
-                () -> new NotExistUserException("존재하지 않는 유저입니다."));
+    Product product = productRepository.findById(productId).orElseThrow(RuntimeException::new);
+    product.changeProductData(modification.getProductName(),
+        modification.getContent(),
+        modification.getPrice(),
+        modification.getQuantity(),
+        modification.getProductImg(),
+        modification.getProductStatus());
 
-        if (!member.getAuthority().equals(Authority.ROLE_ADMIN.getKey())) {
-            throw new AccessPrivilegeExceptions("접근 권한이 없습니다.");
-        }
-        Product product = productRepository.findById(productId).orElseThrow(RuntimeException::new);
-        productRepository.delete(product);
+    return ProductDto.ProductResponse.of(productRepository.save(product));
+  }
+
+  @Transactional
+  public void delete(Long productId) {
+    Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId()).orElseThrow(
+        () -> new NotExistUserException("존재하지 않는 유저입니다."));
+
+    if (!member.getAuthority().equals(Authority.ROLE_ADMIN.getKey())) {
+      throw new AccessPrivilegeExceptions("접근 권한이 없습니다.");
+    }
+    Product product = productRepository.findById(productId).orElseThrow(RuntimeException::new);
+    productRepository.delete(product);
+  }
+
+  @Transactional
+  public ProductDto.ProductResponse detailInquiry(Long productId,
+      HttpServletRequest request) {
+
+    HttpSession session = request.getSession();
+    boolean check = false;
+    ArrayList<Product> latestViewedProductList = (ArrayList)session.getAttribute("List");
+    if(latestViewedProductList==null){
+      latestViewedProductList = new ArrayList<>();
+    }
+    else{
+      for(Product products : latestViewedProductList){
+        System.out.println(products.getProductName());
+      }
     }
 
-    @Transactional(readOnly = true)
-    public ProductDto.ProductResponse detailInquiry(Long productId){
-        Product product = productRepository.findById(productId).orElseThrow();
-        return ProductDto.ProductResponse.of(product);
+    Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId()).orElseThrow(
+        () -> new NotExistUserException("존재하지 않는 유저입니다."));
+
+    Product product = productRepository.findById(productId).orElseThrow();
+
+    for(Product products : latestViewedProductList){
+      if(products.getProductName().equals(product.getProductName())) {
+        check = true;
+      }
     }
-
-    @Transactional(readOnly = true)
-    public Page entireProductList(Pageable pageable){
-        return productRepository.findAll(pageable).map(ProductDto.ProductResponse::of);
+    if(check==true){
+      latestViewedProductList.remove(product);
     }
-
-    @Transactional
-    public String upload(InputStream inputStream, String originFileName) {
-        String s3FileName = UUID.randomUUID() + "-" + originFileName;
-
-        ObjectMetadata objMeta = new ObjectMetadata();
-
-        s3Client.putObject(bucket, s3FileName, inputStream, objMeta);
-
-        return s3FileName;
-
-/*        return s3Client.getUrl(bucket, s3FileName).toString()*/
+    latestViewedProductList.add(product);
+    if(latestViewedProductList.size()>5){
+      latestViewedProductList.remove(0);
     }
+    session.setAttribute("List",latestViewedProductList);
 
-    @Transactional
-    public void addImage(Long productId, String image) {
-        Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId()).orElseThrow(
-                () -> new NotExistUserException("존재하지 않는 유저입니다."));
+    return ProductDto.ProductResponse.of(product);
 
-        if (!member.getAuthority().equals(Authority.ROLE_ADMIN.getKey())) {
-            throw new AccessPrivilegeExceptions("접근 권한이 없습니다.");
-        }
-        Product product = productRepository.findById(productId).orElseThrow(RuntimeException::new);
-        product.insertImage(image);
+  }
+
+  @Transactional(readOnly = true)
+  public Page entireProductList(Pageable pageable) {
+    return productRepository.findAll(pageable).map(ProductDto.ProductResponse::of);
+  }
+
+  @Transactional
+  public String upload(InputStream inputStream, String originFileName) {
+    String s3FileName = UUID.randomUUID() + "-" + originFileName;
+
+    ObjectMetadata objMeta = new ObjectMetadata();
+
+    s3Client.putObject(bucket, s3FileName, inputStream, objMeta);
+
+    return s3FileName;
+
+    /*        return s3Client.getUrl(bucket, s3FileName).toString()*/
+  }
+
+  @Transactional
+  public void addImage(Long productId, String image) {
+    Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId()).orElseThrow(
+        () -> new NotExistUserException("존재하지 않는 유저입니다."));
+
+    if (!member.getAuthority().equals(Authority.ROLE_ADMIN.getKey())) {
+      throw new AccessPrivilegeExceptions("접근 권한이 없습니다.");
     }
+    Product product = productRepository.findById(productId).orElseThrow(RuntimeException::new);
+    product.insertImage(image);
+  }
 }
