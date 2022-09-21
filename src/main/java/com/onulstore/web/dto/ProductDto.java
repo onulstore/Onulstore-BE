@@ -106,15 +106,4 @@ public class ProductDto {
 
     }
 
-    public static ProductRes of(Product product) {
-        return ProductRes.builder()
-                .productName(product.getProductName())
-                .content(product.getContent())
-                .price(product.getPrice())
-                .productImg(product.getProductImg())
-                .productStatus(product.getProductStatus())
-                .category(product.getCategory())
-                .build();
-    }
-
 }
