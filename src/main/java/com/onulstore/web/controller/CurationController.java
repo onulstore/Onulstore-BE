@@ -62,6 +62,13 @@ public class CurationController {
         return ResponseEntity.ok(curationService.getRecommend(pageable));
     }
 
+    @PutMapping("/{curationId}")
+    @ApiOperation(value = "큐레이션 수정")
+    public ResponseEntity<CurationDto.CurationResponse> updateCuration(
+            @RequestBody CurationDto.updateCuration updateCuration, @PathVariable Long curationId) {
+        return ResponseEntity.ok(curationService.updateCuration(updateCuration, curationId));
+    }
+
     @PostMapping("/{curationId}/image")
     @ApiOperation(value = "큐레이션 이미지 업로드")
     public ResponseEntity<String> uploadImage(
