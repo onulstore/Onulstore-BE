@@ -8,6 +8,8 @@ import com.onulstore.domain.product.Product;
 import com.onulstore.domain.product.ProductRepository;
 import com.onulstore.domain.wishlist.Wishlist;
 import com.onulstore.domain.wishlist.WishlistRepository;
+import com.onulstore.exception.NotExistUserException;
+import com.onulstore.exception.ProductNotFoundException;
 import com.onulstore.exception.UserException;
 import com.onulstore.web.dto.ProductDto;
 import com.onulstore.web.dto.WishlistDto;
@@ -15,20 +17,25 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
+@Transactional
 @RequiredArgsConstructor
 public class WishlistService {
 
     private final WishlistRepository wishlistRepository;
     private final MemberRepository memberRepository;
     private final ProductRepository productRepository;
+    private final ProductService productService;
 
-    // 찜 등록
-    @Transactional
-    public WishlistDto.WishlistResponse addWishlist(WishlistDto.WishlistRequest request) {
+    /**
+     * Wishlist 등록
+     * @param request
+     * @return ProductDto.ProductRes productRes
+     */
+    public ProductDto.ProductRes addWishlist(WishlistDto.WishlistRequest request) {
         Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId()).orElseThrow(
                 () -> new UserException(UserErrorResult.NOT_EXIST_USER));
         Product product = productRepository.findById(request.getProductId()).orElseThrow(
@@ -36,31 +43,80 @@ public class WishlistService {
 
         Wishlist wishlist = request.toWishlist(product,member);
 
+        Wishlist wishlist = request.toWishlist(product, member);
         Wishlist findWishlist = wishlistRepository.findByProductIdAndMemberId(product.getId(), member.getId());
 
         if (findWishlist != null) {
             throw new UserException(UserErrorResult.WISHLIST_ALREADY_EXIST);
         }
         wishlistRepository.save(wishlist);
-        return WishlistDto.WishlistResponse.of(product);
+        ProductDto.ProductRes productRes = new ProductDto.ProductRes(
+                product.getProductName(),
+                product.getContent(),
+                product.getPrice(),
+                product.getProductImg(),
+                product.getProductStatus(),
+                product.getCategory(),
+                productService.isWishlist(member.getId(), product.getId())
+        );
 
+        return productRes;
     }
 
-    // 찜 삭제
-    @Transactional
-    public void deleteWishlist(Long wishlistId) {
-        wishlistRepository.deleteById(wishlistId);
-    }
-    
-    // 찜 조회
+    /**
+     * Wishlist 조회
+     * @return List<ProductDto.ProductRes> wishlists
+     */
     @Transactional(readOnly = true)
-    public List<ProductDto.ProductResponse> getWishlist() {
+    public List<ProductDto.ProductRes> getWishlist() {
         Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId()).orElseThrow(
-                () -> new UserException(UserErrorResult.NOT_EXIST_USER));
+                () -> new NotExistUserException("존재하지 않는 유저입니다."));
 
-        return wishlistRepository.findAllByMemberId(member.getId())
-                .stream()
-                .map(wishlist -> ProductDto.ProductResponse.of(wishlist.getProduct()))
-                .collect(Collectors.toList());
+        List<Wishlist> findWishlists = wishlistRepository.findAllByMember(member);
+        List<ProductDto.ProductRes> wishlists = new ArrayList<>();
+
+        for (Wishlist wishlist : findWishlists) {
+            Product product = wishlist.getProduct();
+            ProductDto.ProductRes productRes = new ProductDto.ProductRes(
+                    product.getProductName(),
+                    product.getContent(),
+                    product.getPrice(),
+                    product.getProductImg(),
+                    product.getProductStatus(),
+                    product.getCategory(),
+                    productService.isWishlist(member.getId(), product.getId())
+            );
+            wishlists.add(productRes);
+        }
+        return wishlists;
     }
+
+
+    /**
+     * Wishlist 삭제
+     * @param productId
+     * @return ProductDto.ProductRes productRes
+     */
+    public ProductDto.ProductRes deleteWishlist(Long productId) {
+        Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId()).orElseThrow(
+                () -> new NotExistUserException("존재하지 않는 유저입니다."));
+        Product product = productRepository.findById(productId).orElseThrow(
+                () -> new ProductNotFoundException("존재하지 않는 상품입니다."));
+
+        Wishlist wishlist = wishlistRepository.findByProductIdAndMemberId(product.getId(), member.getId());
+        wishlistRepository.delete(wishlist);
+
+
+        ProductDto.ProductRes productRes = new ProductDto.ProductRes(
+                product.getProductName(),
+                product.getContent(),
+                product.getPrice(),
+                product.getProductImg(),
+                product.getProductStatus(),
+                product.getCategory(),
+                productService.isWishlist(member.getId(), product.getId())
+        );
+        return productRes;
+    }
+
 }

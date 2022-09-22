@@ -90,4 +90,20 @@ public class ProductDto {
         }
     }
 
+    @Getter
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Builder
+    public static class ProductRes {
+
+        private String productName;
+        private String content;
+        private Integer price;
+        private String productImg;
+        private ProductStatus productStatus;
+        private Category category;
+        private boolean wishlist;
+
+    }
+
 }
