@@ -10,8 +10,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
+import java.io.IOException;
 
 @Service
 @RequiredArgsConstructor
@@ -58,6 +60,15 @@ public class CurationController {
     @ApiOperation(value = "추천제품 조회")
     public ResponseEntity<Page<CurationDto.CurationResponse>> getRecommend(Pageable pageable) {
         return ResponseEntity.ok(curationService.getRecommend(pageable));
+    }
+
+    @PostMapping("/{curationId}/image")
+    @ApiOperation(value = "큐레이션 이미지 업로드")
+    public ResponseEntity<String> uploadImage(
+            @RequestParam("images") MultipartFile multipartFile, @PathVariable Long curationId) throws IOException {
+        String image = curationService.upload(multipartFile.getInputStream(), multipartFile.getOriginalFilename());
+        curationService.addImage(curationId, image);
+        return ResponseEntity.ok("이미지가 등록되었습니다.");
     }
 
 }
