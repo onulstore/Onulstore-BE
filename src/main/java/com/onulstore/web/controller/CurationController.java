@@ -48,4 +48,16 @@ public class CurationController {
         return ResponseEntity.ok("큐레이션 상품이 삭제되었습니다.");
     }
 
+    @GetMapping("/magazine")
+    @ApiOperation(value = "매거진 조회")
+    public ResponseEntity<Page<CurationDto.CurationResponse>> getMagazine(Pageable pageable) {
+        return ResponseEntity.ok(curationService.getMagazine(pageable));
+    }
+
+    @GetMapping("/recommend")
+    @ApiOperation(value = "추천제품 조회")
+    public ResponseEntity<Page<CurationDto.CurationResponse>> getRecommend(Pageable pageable) {
+        return ResponseEntity.ok(curationService.getRecommend(pageable));
+    }
+
 }
