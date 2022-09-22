@@ -1,5 +1,7 @@
 package com.onulstore.service;
 
+import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.onulstore.config.SecurityUtil;
 import com.onulstore.domain.curation.Curation;
 import com.onulstore.domain.curation.CurationRepository;
@@ -13,14 +15,14 @@ import com.onulstore.domain.product.ProductRepository;
 import com.onulstore.exception.UserException;
 import com.onulstore.web.dto.CurationDto;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.io.InputStream;
+import java.util.UUID;
 
 
 @Service
@@ -28,6 +30,9 @@ import java.util.List;
 @Transactional
 public class CurationService {
 
+    @Value("${cloud.aws.s3.bucket}")
+    private String bucket;
+    private final AmazonS3Client s3Client;
     private final CurationRepository curationRepository;
     private final ProductRepository productRepository;
     private final MemberRepository memberRepository;
@@ -123,5 +128,24 @@ public class CurationService {
                 .map(CurationDto.CurationResponse::of);
     }
 
+    public String upload(InputStream inputStream, String originFileName) {
+        String s3FileName = UUID.randomUUID() + "-" + originFileName;
+        ObjectMetadata objMeta = new ObjectMetadata();
+        s3Client.putObject(bucket, s3FileName, inputStream, objMeta);
+
+        return s3FileName;
+    }
+
+    public void addImage(Long curationId, String image) {
+        Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId()).orElseThrow(
+                () -> new UserException(UserErrorResult.NOT_EXIST_USER));
+        if (!member.getAuthority().equals(Authority.ROLE_ADMIN.getKey())) {
+            throw new UserException(UserErrorResult.ACCESS_PRIVILEGE);
+        }
+
+        Curation curation = curationRepository.findById(curationId).orElseThrow(
+                () -> new UserException(UserErrorResult.CURATION_NOT_FOUND));
+        curation.insertImage(image);
+    }
 
 }
