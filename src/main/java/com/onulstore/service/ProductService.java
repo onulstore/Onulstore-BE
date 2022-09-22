@@ -13,18 +13,12 @@ import com.onulstore.domain.product.Product;
 import com.onulstore.domain.product.ProductRepository;
 import com.onulstore.domain.wishlist.Wishlist;
 import com.onulstore.domain.wishlist.WishlistRepository;
-import com.onulstore.exception.AccessPrivilegeExceptions;
-import com.onulstore.exception.CategoryNotFoundException;
-import com.onulstore.exception.NotExistUserException;
 import com.onulstore.web.dto.ProductDto;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import com.onulstore.exception.UserException;
-import com.onulstore.web.dto.ProductDto;
-import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.UUID;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -186,7 +180,7 @@ public class ProductService {
    */
   public boolean isWishlist(Long memberId, Long productId) {
     Member member = memberRepository.findById(memberId).orElseThrow(
-            () -> new NotExistUserException("존재하지 않는 유저입니다."));
+            () -> new UserException(UserErrorResult.NOT_EXIST_USER));
     List<Wishlist> wishlists = wishlistRepository.findAllByMember(member);
     for (Wishlist wishlist : wishlists) {
       if (Objects.equals(productId, wishlist.getProduct().getId())) {
