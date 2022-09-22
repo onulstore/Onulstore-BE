@@ -44,8 +44,8 @@ public class CurationController {
     }
 
     @DeleteMapping("/{curationId}")
-    @ApiOperation(value = "큐레이션 상품 삭제")
-    public ResponseEntity<String> deleteOne(@PathVariable Long curationId) {
+    @ApiOperation(value = "큐레이션 삭제")
+    public ResponseEntity<String> deleteCuration(@PathVariable Long curationId) {
         curationService.deleteCuration(curationId);
         return ResponseEntity.ok("큐레이션 상품이 삭제되었습니다.");
     }

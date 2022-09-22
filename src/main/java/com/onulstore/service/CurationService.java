@@ -92,7 +92,7 @@ public class CurationService {
     }
 
     /**
-     * Curation 등록 상품 삭제
+     * Curation 삭제
      * @param curationId
      */
     public void deleteCuration(Long curationId) {
