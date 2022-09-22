@@ -84,7 +84,7 @@ public class CurationService {
     /**
      * Curation 전체 조회
      * @param pageable
-     * @return PageImpl<>(curationResponses, pageable, totalCount)
+     * @return 전체 Curation 정보
      */
     @Transactional(readOnly = true)
     public Page<CurationDto.CurationResponse> getCuration(Pageable pageable) {
@@ -127,6 +127,27 @@ public class CurationService {
         return curationRepository.findAllByCurationForm(CurationForm.RECOMMEND.getKey(), pageable)
                 .map(CurationDto.CurationResponse::of);
     }
+
+    /**
+     * Curation 수정
+     * @param updateCuration
+     * @param curationId
+     * @return 수정된 Curation 내용
+     */
+    public CurationDto.CurationResponse updateCuration(CurationDto.updateCuration updateCuration, Long curationId) {
+        Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId()).orElseThrow(
+                () -> new UserException(UserErrorResult.NOT_EXIST_USER));
+        if (!member.getAuthority().equals(Authority.ROLE_ADMIN.getKey())) {
+            throw new UserException(UserErrorResult.ACCESS_PRIVILEGE);
+        }
+
+        Curation findCuration = curationRepository.findById(curationId).orElseThrow(
+                () -> new UserException(UserErrorResult.CURATION_NOT_FOUND));
+        Curation curation = findCuration.updateCuration(updateCuration);
+
+        return CurationDto.CurationResponse.of(curationRepository.save(curation));
+    }
+
 
     public String upload(InputStream inputStream, String originFileName) {
         String s3FileName = UUID.randomUUID() + "-" + originFileName;
