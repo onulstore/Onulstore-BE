@@ -4,6 +4,7 @@ import com.onulstore.common.BaseTimeEntity;
 import com.onulstore.domain.enums.CurationForm;
 import com.onulstore.domain.member.Member;
 import com.onulstore.domain.product.Product;
+import com.onulstore.web.dto.CurationDto;
 import lombok.*;
 
 import javax.persistence.*;
@@ -40,6 +41,13 @@ public class Curation extends BaseTimeEntity {
 
     public void insertImage(String image) {
         this.curationImg = image;
+    }
+
+    public Curation updateCuration(CurationDto.updateCuration updateCuration) {
+        this.title = updateCuration.getTitle();
+        this.content = updateCuration.getContent();
+        this.curationImg = updateCuration.getCurationImg();
+        return this;
     }
 
     public static Curation createCurationM(String title, String content, String curationImg,
