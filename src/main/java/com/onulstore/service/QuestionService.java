@@ -1,13 +1,14 @@
 package com.onulstore.service;
 
 import com.onulstore.config.SecurityUtil;
+import com.onulstore.domain.enums.UserErrorResult;
 import com.onulstore.domain.member.Member;
 import com.onulstore.domain.member.MemberRepository;
 import com.onulstore.domain.product.Product;
 import com.onulstore.domain.product.ProductRepository;
 import com.onulstore.domain.question.Question;
 import com.onulstore.domain.question.QuestionRepository;
-import com.onulstore.exception.NotExistUserException;
+import com.onulstore.exception.UserException;
 import com.onulstore.web.dto.QuestionDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -29,9 +30,9 @@ public class QuestionService {
     @Transactional
     public void insertQuestion(QuestionDto questionDto) {
         Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId()).orElseThrow(
-                () -> new NotExistUserException("존재하지 않는 유저입니다."));
+                () -> new UserException(UserErrorResult.NOT_EXIST_USER));
         Product product = productRepository.findById(questionDto.getProductId()).orElseThrow(
-                () -> new NotExistUserException("존재하지 않는 상품입니다."));
+                () -> new UserException(UserErrorResult.PRODUCT_NOT_FOUND));
 
         Question question = Question.builder()
                             .member(member)
@@ -48,11 +49,12 @@ public class QuestionService {
     @Transactional
     public QuestionDto updateQuestion(Long questionId, QuestionDto questionDto) {
         Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId()).orElseThrow(
-                () -> new NotExistUserException("존재하지 않는 유저입니다."));
+                () -> new UserException(UserErrorResult.NOT_EXIST_USER));
         Product product = productRepository.findById(questionDto.getProductId()).orElseThrow(
-                () -> new NotExistUserException("존재하지 않는 상품입니다."));
+                () -> new UserException(UserErrorResult.PRODUCT_NOT_FOUND));
 
-        Question question = questionRepository.findById(questionId).orElseThrow();
+        Question question = questionRepository.findById(questionId).orElseThrow(
+            () -> new UserException(UserErrorResult.NOT_EXIST_QUESTION));
         question.setTitle(questionDto.getTitle());
         question.setContent(questionDto.getContent());
 
@@ -63,7 +65,7 @@ public class QuestionService {
     @Transactional
     public void deleteQuestion(Long questionId) {
         Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId()).orElseThrow(
-                () -> new NotExistUserException("존재하지 않는 유저입니다."));
+                () -> new UserException(UserErrorResult.NOT_EXIST_USER));
         questionRepository.deleteById(questionId);
     }
 
@@ -71,9 +73,10 @@ public class QuestionService {
     @Transactional
     public QuestionDto getQuestion(Long productId, Long questionId) {
         Product product = productRepository.findById(productId).orElseThrow(
-                () -> new NotExistUserException("존재하지 않는 상품입니다."));
+                () -> new UserException(UserErrorResult.PRODUCT_NOT_FOUND));
 
-        Question question = questionRepository.findById(questionId).orElseThrow();
+        Question question = questionRepository.findById(questionId).orElseThrow(
+            () -> new UserException(UserErrorResult.NOT_EXIST_QUESTION));
 
         return QuestionDto.of(question);
     }
@@ -82,7 +85,7 @@ public class QuestionService {
     @Transactional
     public List<QuestionDto> getQuestionList(Long productId) {
         Product product = productRepository.findById(productId).orElseThrow(
-                () -> new NotExistUserException("존재하지 않는 상품입니다."));
+                () -> new UserException(UserErrorResult.PRODUCT_NOT_FOUND));
 
         List<Question> questions = questionRepository.findAllByProductId(productId);
         List<QuestionDto> questionList = new ArrayList<>();

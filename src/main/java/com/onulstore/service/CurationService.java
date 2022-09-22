@@ -5,13 +5,12 @@ import com.onulstore.domain.curation.Curation;
 import com.onulstore.domain.curation.CurationProduct;
 import com.onulstore.domain.curation.CurationRepository;
 import com.onulstore.domain.enums.Authority;
+import com.onulstore.domain.enums.UserErrorResult;
 import com.onulstore.domain.member.Member;
 import com.onulstore.domain.member.MemberRepository;
 import com.onulstore.domain.product.Product;
 import com.onulstore.domain.product.ProductRepository;
-import com.onulstore.exception.AccessPrivilegeExceptions;
-import com.onulstore.exception.NotExistUserException;
-import com.onulstore.exception.ProductNotFoundException;
+import com.onulstore.exception.UserException;
 import com.onulstore.web.dto.CurationDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -42,13 +41,13 @@ public class CurationService {
         List<CurationProduct> curationProductList = new ArrayList<>();
 
         Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId()).orElseThrow(
-                () -> new NotExistUserException("존재하지 않는 유저입니다."));
+                () -> new UserException(UserErrorResult.NOT_EXIST_USER));
         if (!member.getAuthority().equals(Authority.ROLE_ADMIN.getKey())) {
-            throw new AccessPrivilegeExceptions("접근 권한이 없습니다.");
+            throw new UserException(UserErrorResult.ACCESS_PRIVILEGE);
         }
 
         Product product = productRepository.findById(curationRequest.getProductId()).orElseThrow(
-                () -> new ProductNotFoundException("해당 상품이 존재하지 않습니다."));
+                () -> new UserException(UserErrorResult.PRODUCT_NOT_FOUND));
         curationProductList.add(CurationProduct.createCurationProduct(
                 curationRequest.getTitle(), curationRequest.getContent(), curationRequest.getCurationImg(), product));
 
@@ -67,13 +66,13 @@ public class CurationService {
         List<CurationProduct> curationProducts = new ArrayList<>();
 
         Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId()).orElseThrow(
-                () -> new NotExistUserException("존재하지 않는 유저입니다."));
+                () -> new UserException(UserErrorResult.NOT_EXIST_USER));
         if (!member.getAuthority().equals(Authority.ROLE_ADMIN.getKey())) {
-            throw new AccessPrivilegeExceptions("접근 권한이 없습니다.");
+            throw new UserException(UserErrorResult.ACCESS_PRIVILEGE);
         }
 
         Product product = productRepository.findById(curationRequest.getProductId()).orElseThrow(
-                () -> new ProductNotFoundException("해당 상품이 존재하지 않습니다."));
+                () -> new UserException(UserErrorResult.PRODUCT_NOT_FOUND));
         curationProducts.add(CurationProduct.createCurationProduct(
                 curationRequest.getTitle(), curationRequest.getContent(), curationRequest.getCurationImg(), product));
 
@@ -92,7 +91,7 @@ public class CurationService {
     public Page<CurationDto.CurationResponse> getCuration(Pageable pageable) {
         List<CurationDto.CurationResponse> curationResponses = new ArrayList<>();
         Member member = memberRepository.findById(1L).orElseThrow(
-                () -> new NotExistUserException("존재하지 않는 유저입니다."));
+                () -> new UserException(UserErrorResult.NOT_EXIST_USER));
 
         List<Curation> curationList = curationRepository.findCurations(member.getEmail(), pageable);
         Long totalCount = curationRepository.countCuration(member.getEmail());
@@ -115,9 +114,9 @@ public class CurationService {
      */
     public void deleteCuration(Long curationId) {
         Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId()).orElseThrow(
-                () -> new NotExistUserException("존재하지 않는 유저입니다."));
+                () -> new UserException(UserErrorResult.NOT_EXIST_USER));
         if (!member.getAuthority().equals(Authority.ROLE_ADMIN.getKey())) {
-            throw new AccessPrivilegeExceptions("접근 권한이 없습니다.");
+            throw new UserException(UserErrorResult.ACCESS_PRIVILEGE);
         }
         curationRepository.deleteById(curationId);
     }
