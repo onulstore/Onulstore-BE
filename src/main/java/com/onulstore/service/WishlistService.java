@@ -8,8 +8,6 @@ import com.onulstore.domain.product.Product;
 import com.onulstore.domain.product.ProductRepository;
 import com.onulstore.domain.wishlist.Wishlist;
 import com.onulstore.domain.wishlist.WishlistRepository;
-import com.onulstore.exception.NotExistUserException;
-import com.onulstore.exception.ProductNotFoundException;
 import com.onulstore.exception.UserException;
 import com.onulstore.web.dto.ProductDto;
 import com.onulstore.web.dto.WishlistDto;
@@ -41,8 +39,6 @@ public class WishlistService {
         Product product = productRepository.findById(request.getProductId()).orElseThrow(
                 () -> new UserException(UserErrorResult.PRODUCT_NOT_FOUND));
 
-        Wishlist wishlist = request.toWishlist(product,member);
-
         Wishlist wishlist = request.toWishlist(product, member);
         Wishlist findWishlist = wishlistRepository.findByProductIdAndMemberId(product.getId(), member.getId());
 
@@ -70,7 +66,7 @@ public class WishlistService {
     @Transactional(readOnly = true)
     public List<ProductDto.ProductRes> getWishlist() {
         Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId()).orElseThrow(
-                () -> new NotExistUserException("존재하지 않는 유저입니다."));
+                () -> new UserException(UserErrorResult.NOT_EXIST_USER));
 
         List<Wishlist> findWishlists = wishlistRepository.findAllByMember(member);
         List<ProductDto.ProductRes> wishlists = new ArrayList<>();
@@ -99,9 +95,9 @@ public class WishlistService {
      */
     public ProductDto.ProductRes deleteWishlist(Long productId) {
         Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId()).orElseThrow(
-                () -> new NotExistUserException("존재하지 않는 유저입니다."));
+                () -> new UserException(UserErrorResult.NOT_EXIST_USER));
         Product product = productRepository.findById(productId).orElseThrow(
-                () -> new ProductNotFoundException("존재하지 않는 상품입니다."));
+                () -> new UserException(UserErrorResult.PRODUCT_NOT_FOUND));
 
         Wishlist wishlist = wishlistRepository.findByProductIdAndMemberId(product.getId(), member.getId());
         wishlistRepository.delete(wishlist);
