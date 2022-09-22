@@ -8,8 +8,9 @@ import lombok.RequiredArgsConstructor;
 public enum CurationForm {
 
     MAGAZINE("MAGAZINE", "매거진"),
-    RECOMMEND("RECOMMEND", "추천 제품");
+    RECOMMEND("RECOMMEND", "추천제품");
 
     private final String key;
     private final String title;
+
 }
