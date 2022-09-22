@@ -36,21 +36,21 @@ public class MemberController {
     @ApiOperation(value = "프로필 수정")
     public ResponseEntity<String> updateProfile(@RequestBody @Valid MemberDto.updateRequest updateRequest) {
         memberService.updateProfile(updateRequest);
-        return ResponseEntity.ok().body("프로필 수정이 완료되었습니다.");
+        return ResponseEntity.ok("프로필 수정이 완료되었습니다.");
     }
 
     @DeleteMapping
     @ApiOperation(value = "회원 탈퇴")
     public ResponseEntity<String> deleteProfile() {
         memberService.deleteProfile();
-        return ResponseEntity.ok().body("회원 탈퇴가 완료되었습니다.");
+        return ResponseEntity.ok("회원 탈퇴가 완료되었습니다.");
     }
 
     @PutMapping("/password")
     @ApiOperation(value = "회원 비밀번호 수정")
     public ResponseEntity<String> updatePassword(@RequestBody @Valid PasswordDto passwordDto) {
         memberService.updatePassword(passwordDto);
-        return ResponseEntity.ok().body("비밀번호 수정이 완료되었습니다.");
+        return ResponseEntity.ok("비밀번호 수정이 완료되었습니다.");
     }
 
     @GetMapping("/latest")
