@@ -16,7 +16,7 @@ import javax.validation.Valid;
 @RestController
 @RequestMapping("/orders")
 @RequiredArgsConstructor
-@Api(tags = {"Order Controller"})
+@Api(tags = {"Order-Controller"})
 public class OrderController {
 
     private final OrderService orderService;
