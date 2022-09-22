@@ -5,10 +5,10 @@ import com.onulstore.config.jwt.RefreshToken;
 import com.onulstore.config.jwt.RefreshTokenRepository;
 import com.onulstore.config.jwt.TokenProvider;
 import com.onulstore.domain.enums.Authority;
+import com.onulstore.domain.enums.UserErrorResult;
 import com.onulstore.domain.member.Member;
 import com.onulstore.domain.member.MemberRepository;
-import com.onulstore.exception.AccessPrivilegeExceptions;
-import com.onulstore.exception.NotExistUserException;
+import com.onulstore.exception.UserException;
 import com.onulstore.web.dto.LoginDto;
 import com.onulstore.web.dto.MemberDto;
 import com.onulstore.web.dto.TokenDto;
@@ -37,7 +37,7 @@ public class AuthService {
     @Transactional
     public MemberDto.MemberResponse signup(MemberDto.MemberRequest signupRequest) {
         if (memberRepository.existsByEmail(signupRequest.getEmail())) {
-            throw new RuntimeException("이미 존재하는 이메일입니다.");
+            throw new UserException(UserErrorResult.DUPLICATE_USER_ID);
         }
 
         Member member = signupRequest.toMember(passwordEncoder);
@@ -65,7 +65,7 @@ public class AuthService {
     @Transactional
     public MemberDto.MemberResponse admin(MemberDto.AdminRequest adminRequest) {
         if (memberRepository.existsByEmail(adminRequest.getEmail())) {
-            throw new RuntimeException("이미 존재하는 이메일입니다.");
+            throw new UserException(UserErrorResult.DUPLICATE_USER_ID);
         }
 
         Member member = adminRequest.toMember(passwordEncoder);
@@ -77,10 +77,10 @@ public class AuthService {
         HashMap<String, Object> resultMap = new HashMap<>();
 
         Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId()).orElseThrow(
-                () -> new NotExistUserException("존재하지 않는 유저입니다."));
+                () -> new UserException(UserErrorResult.NOT_EXIST_USER));
 
         if (!member.getAuthority().equals(Authority.ROLE_ADMIN.getKey())) {
-            throw new AccessPrivilegeExceptions("접근 권한이 없습니다.");
+            throw new UserException(UserErrorResult.ACCESS_PRIVILEGE);
         }
 
         List<Member> allMemberList = memberRepository.findAll();
@@ -92,15 +92,15 @@ public class AuthService {
     @Transactional
     public TokenDto getRefreshToken(TokenDto.TokenRequest tokenRequest) {
         if (!tokenProvider.validateToken(tokenRequest.getRefreshToken())) {
-            throw new RuntimeException("Refresh Token 이 유효하지 않습니다.");
+            throw new UserException(UserErrorResult.INVALID_REFRESH_TOKEN);
         }
 
         Authentication authentication = tokenProvider.getAuthentication(tokenRequest.getAccessToken());
         RefreshToken refreshToken = refreshTokenRepository.findByKey(authentication.getName())
-                .orElseThrow(() -> new RuntimeException("로그아웃 된 사용자입니다."));
+                .orElseThrow(() -> new UserException(UserErrorResult.LOGOUT_USER));
 
         if (!refreshToken.getValue().equals(tokenRequest.getRefreshToken())) {
-            throw new RuntimeException("토큰의 유저 정보가 일치하지 않습니다.");
+            throw new UserException(UserErrorResult.TOKEN_INFO_NOT_MATCH);
         }
 
         TokenDto tokenDto = tokenProvider.generateToken(authentication);

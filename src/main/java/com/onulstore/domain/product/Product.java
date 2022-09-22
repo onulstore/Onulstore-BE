@@ -6,11 +6,12 @@ import com.onulstore.domain.cart.Cart;
 import com.onulstore.domain.category.Category;
 import com.onulstore.domain.curation.CurationProduct;
 import com.onulstore.domain.enums.ProductStatus;
+import com.onulstore.domain.enums.UserErrorResult;
 import com.onulstore.domain.order.OrderProduct;
 import com.onulstore.domain.question.Question;
 import com.onulstore.domain.review.Review;
 import com.onulstore.domain.wishlist.Wishlist;
-import com.onulstore.exception.OutOfStockException;
+import com.onulstore.exception.UserException;
 import lombok.*;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
@@ -114,7 +115,7 @@ public class Product extends BaseTimeEntity {
 
         int restStock = this.quantity - quantity;
         if (restStock < 1) {
-            throw new OutOfStockException("상품의 재고가 부족합니다. (현재 재고 수량: " + this.quantity + ")");
+            throw new UserException(UserErrorResult.OUT_OF_STOCK);
         }
         this.quantity = restStock;
     }

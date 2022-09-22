@@ -1,13 +1,14 @@
 package com.onulstore.service;
 
 import com.onulstore.config.SecurityUtil;
+import com.onulstore.domain.enums.UserErrorResult;
 import com.onulstore.domain.member.Member;
 import com.onulstore.domain.member.MemberRepository;
 import com.onulstore.domain.product.Product;
 import com.onulstore.domain.product.ProductRepository;
 import com.onulstore.domain.wishlist.Wishlist;
 import com.onulstore.domain.wishlist.WishlistRepository;
-import com.onulstore.exception.NotExistUserException;
+import com.onulstore.exception.UserException;
 import com.onulstore.web.dto.ProductDto;
 import com.onulstore.web.dto.WishlistDto;
 import lombok.RequiredArgsConstructor;
@@ -29,16 +30,16 @@ public class WishlistService {
     @Transactional
     public WishlistDto.WishlistResponse addWishlist(WishlistDto.WishlistRequest request) {
         Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId()).orElseThrow(
-                () -> new NotExistUserException("존재하지 않는 유저입니다."));
+                () -> new UserException(UserErrorResult.NOT_EXIST_USER));
         Product product = productRepository.findById(request.getProductId()).orElseThrow(
-                () -> new NotExistUserException("존재하지 않는 상품입니다."));
+                () -> new UserException(UserErrorResult.PRODUCT_NOT_FOUND));
 
         Wishlist wishlist = request.toWishlist(product,member);
 
         Wishlist findWishlist = wishlistRepository.findByProductIdAndMemberId(product.getId(), member.getId());
 
         if (findWishlist != null) {
-            throw new RuntimeException("이미 찜 등록이 되어있습니다.");
+            throw new UserException(UserErrorResult.WISHLIST_ALREADY_EXIST);
         }
         wishlistRepository.save(wishlist);
         return WishlistDto.WishlistResponse.of(product);
@@ -55,7 +56,7 @@ public class WishlistService {
     @Transactional(readOnly = true)
     public List<ProductDto.ProductResponse> getWishlist() {
         Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId()).orElseThrow(
-                () -> new NotExistUserException("존재하지 않는 유저입니다."));
+                () -> new UserException(UserErrorResult.NOT_EXIST_USER));
 
         return wishlistRepository.findAllByMemberId(member.getId())
                 .stream()

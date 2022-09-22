@@ -6,17 +6,15 @@ import com.onulstore.config.SecurityUtil;
 import com.onulstore.domain.category.Category;
 import com.onulstore.domain.category.CategoryRepository;
 import com.onulstore.domain.enums.Authority;
+import com.onulstore.domain.enums.UserErrorResult;
 import com.onulstore.domain.member.Member;
 import com.onulstore.domain.member.MemberRepository;
 import com.onulstore.domain.product.Product;
 import com.onulstore.domain.product.ProductRepository;
-import com.onulstore.exception.AccessPrivilegeExceptions;
-import com.onulstore.exception.CategoryNotFoundException;
-import com.onulstore.exception.NotExistUserException;
+import com.onulstore.exception.UserException;
 import com.onulstore.web.dto.ProductDto;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -45,14 +43,14 @@ public class ProductService {
   @Transactional
   public ProductDto.ProductResponse register(ProductDto.ProductRequest registration) {
     Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId()).orElseThrow(
-        () -> new NotExistUserException("존재하지 않는 유저입니다."));
+        () -> new UserException(UserErrorResult.NOT_EXIST_USER));
 
     if (!member.getAuthority().equals(Authority.ROLE_ADMIN.getKey())) {
-      throw new AccessPrivilegeExceptions("접근 권한이 없습니다.");
+      throw new UserException(UserErrorResult.ACCESS_PRIVILEGE);
     }
 
     Category category = categoryRepository.findById(registration.getCategoryId()).orElseThrow(
-        () -> new CategoryNotFoundException("카테고리를 찾을 수 없습니다."));
+        () -> new UserException(UserErrorResult.CATEGORY_NOT_FOUND));
 
     Product product = productRepository.save(
         new Product(registration.getProductName(), registration.getContent(),
@@ -68,13 +66,14 @@ public class ProductService {
   public ProductDto.ProductResponse modify(ProductDto.modifyRequest modification, Long productId) {
 
     Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId()).orElseThrow(
-        () -> new NotExistUserException("존재하지 않는 유저입니다."));
+        () -> new UserException(UserErrorResult.NOT_EXIST_USER));
 
     if (!member.getAuthority().equals(Authority.ROLE_ADMIN.getKey())) {
-      throw new AccessPrivilegeExceptions("접근 권한이 없습니다.");
+      throw new UserException(UserErrorResult.ACCESS_PRIVILEGE);
     }
 
-    Product product = productRepository.findById(productId).orElseThrow(RuntimeException::new);
+    Product product = productRepository.findById(productId).orElseThrow(
+        () -> new UserException(UserErrorResult.PRODUCT_NOT_FOUND));
     product.changeProductData(modification.getProductName(),
         modification.getContent(),
         modification.getPrice(),
@@ -88,12 +87,13 @@ public class ProductService {
   @Transactional
   public void delete(Long productId) {
     Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId()).orElseThrow(
-        () -> new NotExistUserException("존재하지 않는 유저입니다."));
+        () -> new UserException(UserErrorResult.NOT_EXIST_USER));
 
     if (!member.getAuthority().equals(Authority.ROLE_ADMIN.getKey())) {
-      throw new AccessPrivilegeExceptions("접근 권한이 없습니다.");
+      throw new UserException(UserErrorResult.ACCESS_PRIVILEGE);
     }
-    Product product = productRepository.findById(productId).orElseThrow(RuntimeException::new);
+    Product product = productRepository.findById(productId).orElseThrow(
+        () -> new UserException(UserErrorResult.ACCESS_PRIVILEGE));
     productRepository.delete(product);
   }
 
@@ -114,9 +114,10 @@ public class ProductService {
     }
 
     Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId()).orElseThrow(
-        () -> new NotExistUserException("존재하지 않는 유저입니다."));
+        () -> new UserException(UserErrorResult.NOT_EXIST_USER));
 
-    Product product = productRepository.findById(productId).orElseThrow();
+    Product product = productRepository.findById(productId).orElseThrow(
+        () -> new UserException(UserErrorResult.PRODUCT_NOT_FOUND));
 
     for(Product products : latestViewedProductList){
       if(products.getProductName().equals(product.getProductName())) {
@@ -157,12 +158,13 @@ public class ProductService {
   @Transactional
   public void addImage(Long productId, String image) {
     Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId()).orElseThrow(
-        () -> new NotExistUserException("존재하지 않는 유저입니다."));
+        () -> new UserException(UserErrorResult.NOT_EXIST_USER));
 
     if (!member.getAuthority().equals(Authority.ROLE_ADMIN.getKey())) {
-      throw new AccessPrivilegeExceptions("접근 권한이 없습니다.");
+      throw new UserException(UserErrorResult.ACCESS_PRIVILEGE);
     }
-    Product product = productRepository.findById(productId).orElseThrow(RuntimeException::new);
+    Product product = productRepository.findById(productId).orElseThrow(
+        () -> new UserException(UserErrorResult.PRODUCT_NOT_FOUND));
     product.insertImage(image);
   }
 }
