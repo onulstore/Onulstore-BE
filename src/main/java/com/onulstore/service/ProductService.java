@@ -13,19 +13,21 @@ import com.onulstore.domain.product.Product;
 import com.onulstore.domain.product.ProductRepository;
 import com.onulstore.domain.wishlist.Wishlist;
 import com.onulstore.domain.wishlist.WishlistRepository;
+import com.onulstore.exception.UserException;
 import com.onulstore.web.dto.ProductDto;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import com.onulstore.exception.UserException;
 import java.util.UUID;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -144,7 +146,24 @@ public class ProductService {
 
   @Transactional(readOnly = true)
   public Page entireProductList(Pageable pageable) {
-    return productRepository.findAll(pageable).map(ProductDto.ProductResponse::of);
+    List<Product> productList = productRepository.findAll();
+    if(!SecurityContextHolder.getContext().getAuthentication().getAuthorities().toString().equals("[ROLE_ANONYMOUS]"))
+    {
+      Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId())
+          .orElseThrow(() -> new UserException(UserErrorResult.NOT_EXIST_USER));
+
+      for (Product product : productList) {
+        for (Wishlist wishlist : member.getWishlists()) {
+          if (wishlist.getProduct().getId() == product.getId()) {
+            product.bookmarked();
+          }
+        }
+      }
+    }
+    final int start = (int)pageable.getOffset();
+    final int end = Math.min((start + pageable.getPageSize()), productList.size());
+    final Page<Product> page = new PageImpl<>(productList.subList(start, end), pageable, productList.size());
+    return page;
   }
 
   @Transactional
@@ -180,7 +199,7 @@ public class ProductService {
    */
   public boolean isWishlist(Long memberId, Long productId) {
     Member member = memberRepository.findById(memberId).orElseThrow(
-            () -> new UserException(UserErrorResult.NOT_EXIST_USER));
+        () -> new UserException(UserErrorResult.NOT_EXIST_USER));
     List<Wishlist> wishlists = wishlistRepository.findAllByMember(member);
     for (Wishlist wishlist : wishlists) {
       if (Objects.equals(productId, wishlist.getProduct().getId())) {

@@ -50,6 +50,9 @@ public class Product extends BaseTimeEntity {
     @Column
     private String productImg;
 
+    @Column
+    private boolean bookmark = false;
+
     @Enumerated(EnumType.STRING)
     private ProductStatus productStatus;
 
@@ -122,6 +125,10 @@ public class Product extends BaseTimeEntity {
 
     public void addQuantity(int quantity) {
         this.quantity += quantity;
+    }
+
+    public void bookmarked() {
+        this.bookmark = true;
     }
 
 }
