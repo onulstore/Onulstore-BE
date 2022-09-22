@@ -40,4 +40,13 @@ public class CurationDto {
         }
     }
 
+    @Getter
+    @Setter
+    @ToString
+    public static class updateCuration {
+        private String title;
+        private String content;
+        private String curationImg;
+    }
+
 }
