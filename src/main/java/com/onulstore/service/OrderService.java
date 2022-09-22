@@ -3,6 +3,7 @@ package com.onulstore.service;
 import com.onulstore.config.SecurityUtil;
 import com.onulstore.domain.cart.Cart;
 import com.onulstore.domain.cart.CartRepository;
+import com.onulstore.domain.enums.UserErrorResult;
 import com.onulstore.domain.member.Member;
 import com.onulstore.domain.member.MemberRepository;
 import com.onulstore.domain.order.Order;
@@ -10,7 +11,7 @@ import com.onulstore.domain.order.OrderProduct;
 import com.onulstore.domain.order.OrderRepository;
 import com.onulstore.domain.product.Product;
 import com.onulstore.domain.product.ProductRepository;
-import com.onulstore.exception.NotExistUserException;
+import com.onulstore.exception.UserException;
 import com.onulstore.web.dto.OrderDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -36,11 +37,11 @@ public class OrderService {
     public Long createOrder(OrderDto.OrderRequest orderRequest) {
         List<OrderProduct> orderProductList = new ArrayList<>();
         Product product = productRepository.findById(orderRequest.getProductId())
-                .orElseThrow(EntityNotFoundException::new);
+                .orElseThrow(() -> new UserException(UserErrorResult.PRODUCT_NOT_FOUND));
         orderProductList.add(OrderProduct.createOrderProduct(product, orderRequest.getCount()));
 
         Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId()).orElseThrow(
-                () -> new NotExistUserException("존재하지 않는 유저입니다."));
+                () -> new UserException(UserErrorResult.NOT_EXIST_USER));
         Order order = Order.createOrder(member, orderProductList);
 
         orderRepository.save(order);
@@ -50,7 +51,7 @@ public class OrderService {
     @Transactional(readOnly = true)
     public Page<OrderDto.OrderHistory> getOrderList(Pageable pageable) {
         Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId()).orElseThrow(
-                () -> new NotExistUserException("존재하지 않는 유저입니다."));
+                () -> new UserException(UserErrorResult.NOT_EXIST_USER));
 
         List<Order> orders = orderRepository.findOrders(member.getEmail(), pageable);
         Long totalCount = orderRepository.countOrder(member.getEmail());
@@ -76,7 +77,7 @@ public class OrderService {
 
     public Long createSelectedCartOrder(List<Long> cartList) {
         Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId()).orElseThrow(
-            () -> new NotExistUserException("존재하지 않는 유저입니다."));
+            () -> new UserException(UserErrorResult.NOT_EXIST_USER));
         List<Cart> carts = new ArrayList<>();
         List<OrderProduct> orderProductList = new ArrayList<>();
 
@@ -85,7 +86,8 @@ public class OrderService {
         }
 
         for(Cart cart : carts){
-            orderProductList.add(OrderProduct.createOrderProduct(cart.getProduct(), cart.getProductCount()));
+            orderProductList.add(OrderProduct
+                .createOrderProduct(cart.getProduct(), cart.getProductCount()));
         }
 
         Order order = Order.createOrder(member, orderProductList);

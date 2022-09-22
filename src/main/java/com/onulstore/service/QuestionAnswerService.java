@@ -1,13 +1,14 @@
 package com.onulstore.service;
 
 import com.onulstore.config.SecurityUtil;
+import com.onulstore.domain.enums.UserErrorResult;
 import com.onulstore.domain.member.Member;
 import com.onulstore.domain.member.MemberRepository;
 import com.onulstore.domain.question.Question;
 import com.onulstore.domain.question.QuestionRepository;
 import com.onulstore.domain.questionAnswer.QuestionAnswer;
 import com.onulstore.domain.questionAnswer.QuestionAnswerRepository;
-import com.onulstore.exception.NotExistUserException;
+import com.onulstore.exception.UserException;
 import com.onulstore.web.dto.QuestionAnswerDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -25,8 +26,9 @@ public class QuestionAnswerService {
     @Transactional
     public void insertAnswer(Long questionId, QuestionAnswerDto questionAnswerDto) {
         Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId()).orElseThrow(
-                () -> new NotExistUserException("존재하지 않는 유저입니다."));
-        Question question = questionRepository.findById(questionId).orElseThrow(() -> new NotExistUserException("등록되지 않은 질문입니다."));
+                () -> new UserException(UserErrorResult.NOT_EXIST_USER));
+        Question question = questionRepository.findById(questionId).orElseThrow(
+            () -> new UserException(UserErrorResult.NOT_EXIST_QUESTION));
 
         QuestionAnswer answer = QuestionAnswer.builder()
                 .member(member)
@@ -41,9 +43,11 @@ public class QuestionAnswerService {
     // 답변 조회
     @Transactional
     public QuestionAnswerDto getAnswer(Long questionId, Long answerId) {
-        Question question = questionRepository.findById(questionId).orElseThrow(() -> new NotExistUserException("등록되지 않은 질문입니다."));
+        Question question = questionRepository.findById(questionId).orElseThrow(
+            () -> new UserException(UserErrorResult.NOT_EXIST_QUESTION));
 
-        QuestionAnswer answer = questionAnswerRepository.findById(answerId).orElseThrow();
+        QuestionAnswer answer = questionAnswerRepository.findById(answerId).orElseThrow(
+            () -> new UserException(UserErrorResult.NOT_EXIST_ANSWER));
 
         return QuestionAnswerDto.of(answer);
     }
