@@ -1,11 +1,9 @@
 package com.onulstore.web.controller;
 
-import com.onulstore.domain.member.Member;
 import com.onulstore.domain.member.MemberRepository;
 import com.onulstore.service.CartService;
 import com.onulstore.web.dto.CartDto;
 import io.swagger.annotations.Api;
-import io.swagger.models.Response;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -19,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-@Api(tags = {"Cart Controller"})
+@Api(tags = {"Cart-Controller"})
 public class CartController {
 
   private final CartService cartService;

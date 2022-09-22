@@ -10,8 +10,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
+import java.io.IOException;
 
 @Service
 @RequiredArgsConstructor
@@ -42,10 +44,38 @@ public class CurationController {
     }
 
     @DeleteMapping("/{curationId}")
-    @ApiOperation(value = "큐레이션 상품 삭제")
-    public ResponseEntity<String> deleteOne(@PathVariable Long curationId) {
+    @ApiOperation(value = "큐레이션 삭제")
+    public ResponseEntity<String> deleteCuration(@PathVariable Long curationId) {
         curationService.deleteCuration(curationId);
         return ResponseEntity.ok("큐레이션 상품이 삭제되었습니다.");
+    }
+
+    @GetMapping("/magazine")
+    @ApiOperation(value = "매거진 조회")
+    public ResponseEntity<Page<CurationDto.CurationResponse>> getMagazine(Pageable pageable) {
+        return ResponseEntity.ok(curationService.getMagazine(pageable));
+    }
+
+    @GetMapping("/recommend")
+    @ApiOperation(value = "추천제품 조회")
+    public ResponseEntity<Page<CurationDto.CurationResponse>> getRecommend(Pageable pageable) {
+        return ResponseEntity.ok(curationService.getRecommend(pageable));
+    }
+
+    @PutMapping("/{curationId}")
+    @ApiOperation(value = "큐레이션 수정")
+    public ResponseEntity<CurationDto.CurationResponse> updateCuration(
+            @RequestBody CurationDto.updateCuration updateCuration, @PathVariable Long curationId) {
+        return ResponseEntity.ok(curationService.updateCuration(updateCuration, curationId));
+    }
+
+    @PostMapping("/{curationId}/image")
+    @ApiOperation(value = "큐레이션 이미지 업로드")
+    public ResponseEntity<String> uploadImage(
+            @RequestParam("images") MultipartFile multipartFile, @PathVariable Long curationId) throws IOException {
+        String image = curationService.upload(multipartFile.getInputStream(), multipartFile.getOriginalFilename());
+        curationService.addImage(curationId, image);
+        return ResponseEntity.ok("이미지가 등록되었습니다.");
     }
 
 }

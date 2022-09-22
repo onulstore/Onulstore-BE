@@ -1,10 +1,8 @@
 package com.onulstore.web.dto;
 
 import com.onulstore.domain.curation.Curation;
+import com.onulstore.domain.product.Product;
 import lombok.*;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class CurationDto {
 
@@ -21,32 +19,34 @@ public class CurationDto {
 
     @Getter
     @Setter
+    @Builder
     public static class CurationResponse {
-        private Long curationId;
+        private Long id;
         private String curationForm;
-        private List<CurationProduct> curationProducts = new ArrayList<>();
+        private String title;
+        private String content;
+        private String curationImg;
+        private Product product;
 
-        public CurationResponse(Curation curation) {
-            this.curationId = curation.getId();
-            this.curationForm = curation.getCurationForm();
-        }
-
-        public void addCurationProduct(CurationDto.CurationProduct curationDetails) {
-            curationProducts.add(curationDetails);
+        public static CurationResponse of(Curation curation) {
+            return CurationResponse.builder()
+                    .id(curation.getId())
+                    .curationForm(curation.getCurationForm())
+                    .title(curation.getTitle())
+                    .content(curation.getContent())
+                    .curationImg(curation.getCurationImg())
+                    .product(curation.getProduct())
+                    .build();
         }
     }
 
     @Getter
     @Setter
-    public static class CurationProduct {
+    @ToString
+    public static class updateCuration {
         private String title;
         private String content;
         private String curationImg;
-
-        public CurationProduct(com.onulstore.domain.curation.CurationProduct curationProduct) {
-            this.title = curationProduct.getTitle();
-            this.content = curationProduct.getContent();
-            this.curationImg = curationProduct.getCurationImg();
-        }
     }
+
 }
