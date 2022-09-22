@@ -38,6 +38,10 @@ public class Curation extends BaseTimeEntity {
     @JoinColumn(name = "product_id")
     private Product product;
 
+    public void insertImage(String image) {
+        this.curationImg = image;
+    }
+
     public static Curation createCurationM(String title, String content, String curationImg,
                                            Member member, Product product) {
         Curation curation = new Curation();
