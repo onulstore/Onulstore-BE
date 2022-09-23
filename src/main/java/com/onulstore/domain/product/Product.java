@@ -6,11 +6,12 @@ import com.onulstore.domain.cart.Cart;
 import com.onulstore.domain.category.Category;
 import com.onulstore.domain.curation.Curation;
 import com.onulstore.domain.enums.ProductStatus;
+import com.onulstore.domain.enums.UserErrorResult;
 import com.onulstore.domain.order.OrderProduct;
 import com.onulstore.domain.question.Question;
 import com.onulstore.domain.review.Review;
 import com.onulstore.domain.wishlist.Wishlist;
-import com.onulstore.exception.OutOfStockException;
+import com.onulstore.exception.UserException;
 import lombok.*;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
@@ -49,6 +50,9 @@ public class Product extends BaseTimeEntity {
     @Column
     private String productImg;
 
+    @Column
+    private boolean bookmark = false;
+
     @Enumerated(EnumType.STRING)
     private ProductStatus productStatus;
 
@@ -72,12 +76,11 @@ public class Product extends BaseTimeEntity {
     @JsonIgnore
     private List<OrderProduct> orderProducts = new ArrayList<>();
 
-    @ManyToOne
-    @JoinColumn(name = "curation_id")
+    @OneToMany(mappedBy = "product", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JsonIgnore
-    private Curation curation;
+    private List<Curation> curations = new ArrayList<>();
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne
     @JoinColumn(name = "category_id")
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Category category;
@@ -115,13 +118,17 @@ public class Product extends BaseTimeEntity {
 
         int restStock = this.quantity - quantity;
         if (restStock < 1) {
-            throw new OutOfStockException("상품의 재고가 부족합니다. (현재 재고 수량: " + this.quantity + ")");
+            throw new UserException(UserErrorResult.OUT_OF_STOCK);
         }
         this.quantity = restStock;
     }
 
     public void addQuantity(int quantity) {
         this.quantity += quantity;
+    }
+
+    public void bookmarked() {
+        this.bookmark = true;
     }
 
 }

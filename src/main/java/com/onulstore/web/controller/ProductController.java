@@ -5,6 +5,7 @@ import com.onulstore.web.dto.ProductDto;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import java.io.IOException;
+import javax.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -17,7 +18,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequiredArgsConstructor
-@Api(tags = {"Product Controller"})
+@Api(tags = {"Product-Controller"})
 public class ProductController {
 
     private final ProductService productService;
@@ -43,8 +44,8 @@ public class ProductController {
 
     @ApiOperation(value = "상품 상세 조회")
     @GetMapping("/products/{productId}")
-    public ResponseEntity<ProductDto.ProductResponse> detailInquiryProduct(@PathVariable Long productId){
-        return ResponseEntity.ok(productService.detailInquiry(productId));
+    public ResponseEntity<ProductDto.ProductResponse> detailInquiryProduct(@PathVariable Long productId, HttpServletRequest request){
+        return ResponseEntity.ok(productService.detailInquiry(productId, request));
     }
 
     @ApiOperation(value = "상품 전체 조회")

@@ -42,6 +42,7 @@ public class ProductDto {
     @Builder
     public static class ProductResponse {
 
+        private Long id;
         private String productName;
         private String content;
         private Integer price;
@@ -53,15 +54,16 @@ public class ProductDto {
 
         public static ProductResponse of(Product product) {
             return ProductResponse.builder()
-                    .productName(product.getProductName())
-                    .content(product.getContent())
-                    .price(product.getPrice())
-                    .quantity(product.getQuantity())
-                    .purchaseCount(product.getPurchaseCount())
-                    .productImg(product.getProductImg())
-                    .productStatus(product.getProductStatus())
-                    .category(product.getCategory())
-                    .build();
+                .id(product.getId())
+                .productName(product.getProductName())
+                .content(product.getContent())
+                .price(product.getPrice())
+                .quantity(product.getQuantity())
+                .purchaseCount(product.getPurchaseCount())
+                .productImg(product.getProductImg())
+                .productStatus(product.getProductStatus())
+                .category(product.getCategory())
+                .build();
         }
     }
 
@@ -88,6 +90,22 @@ public class ProductDto {
                     .productStatus(productStatus)
                     .build();
         }
+    }
+
+    @Getter
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Builder
+    public static class ProductRes {
+
+        private String productName;
+        private String content;
+        private Integer price;
+        private String productImg;
+        private ProductStatus productStatus;
+        private Category category;
+        private boolean wishlist;
+
     }
 
 }

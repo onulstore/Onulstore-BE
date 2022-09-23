@@ -4,6 +4,7 @@ import com.onulstore.service.OrderService;
 import com.onulstore.web.dto.OrderDto;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -15,7 +16,7 @@ import javax.validation.Valid;
 @RestController
 @RequestMapping("/orders")
 @RequiredArgsConstructor
-@Api(tags = {"Order Controller"})
+@Api(tags = {"Order-Controller"})
 public class OrderController {
 
     private final OrderService orderService;
@@ -30,6 +31,13 @@ public class OrderController {
     @ApiOperation(value = "단일 상품 주문 생성")
     public ResponseEntity<String> addCategory(@Valid @RequestBody OrderDto.OrderRequest orderRequest) {
         orderService.createOrder(orderRequest);
+        return ResponseEntity.ok("상품 주문이 완료되었습니다.");
+    }
+
+    @PostMapping("/cartorder")
+    @ApiOperation(value = "장바구니 선택 상품 주문 생성")
+    public ResponseEntity<String> CreateOrderList(@RequestBody List<Long> cartList) {
+        orderService.createSelectedCartOrder(cartList);
         return ResponseEntity.ok("상품 주문이 완료되었습니다.");
     }
 

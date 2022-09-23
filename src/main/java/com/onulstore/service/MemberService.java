@@ -1,12 +1,18 @@
 package com.onulstore.service;
 
 import com.onulstore.config.SecurityUtil;
+import com.onulstore.domain.enums.UserErrorResult;
 import com.onulstore.domain.member.Member;
 import com.onulstore.domain.member.MemberRepository;
-import com.onulstore.exception.NotExistUserException;
-import com.onulstore.exception.UpdatePasswordException;
+import com.onulstore.domain.product.Product;
+import com.onulstore.exception.UserException;
 import com.onulstore.web.dto.MemberDto;
 import com.onulstore.web.dto.PasswordDto;
+import com.onulstore.web.dto.ProductDto;
+import com.onulstore.web.dto.ProductDto.ProductResponse;
+import java.util.ArrayList;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -25,13 +31,13 @@ public class MemberService {
     public MemberDto.MemberResponse getMyInfo() {
         return memberRepository.findById(SecurityUtil.getCurrentMemberId())
                 .map(MemberDto.MemberResponse::of)
-                .orElseThrow(() -> new NotExistUserException("로그인 유저 정보가 없습니다."));
+                .orElseThrow(() -> new UserException(UserErrorResult.NOT_EXIST_USER));
     }
 
     @Transactional
     public MemberDto.MemberResponse updateProfile(MemberDto.updateRequest updateRequest) {
         Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId()).orElseThrow(
-                () -> new NotExistUserException("존재하지 않는 유저입니다."));
+                () -> new UserException(UserErrorResult.NOT_EXIST_USER));
         Member updateMember = member.updateProfile(updateRequest);
         return MemberDto.MemberResponse.of(memberRepository.save(updateMember));
     }
@@ -39,21 +45,35 @@ public class MemberService {
     @Transactional
     public void deleteProfile() {
         Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId()).orElseThrow(
-                () -> new NotExistUserException("존재하지 않는 유저입니다."));
+                () -> new UserException(UserErrorResult.NOT_EXIST_USER));
         memberRepository.delete(member);
     }
 
     @Transactional
     public void updatePassword(PasswordDto passwordDto) {
         Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId()).orElseThrow(
-                () -> new NotExistUserException("존재하지 않는 유저입니다."));
+                () -> new UserException(UserErrorResult.NOT_EXIST_USER));
 
         if (!passwordDto.getNewPassword().equals(passwordDto.getNewPasswordConfirm())) {
-            throw new UpdatePasswordException("입력한 새 비밀번호가 일치하지 않습니다.");
+            throw new UserException(UserErrorResult.UPDATE_PASSWORD);
         }
 
         Member updateMember = member.updatePassword(passwordEncoder.encode(passwordDto.getNewPassword()));
         memberRepository.save(updateMember);
     }
 
+    @Transactional
+    public ArrayList<ProductResponse> latestProduct(HttpServletRequest request) {
+
+      Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId()).orElseThrow(
+          () -> new UserException(UserErrorResult.NOT_EXIST_USER));
+      HttpSession session = request.getSession();
+
+      ArrayList<Product> latest= (ArrayList)session.getAttribute("List");
+      ArrayList<ProductDto.ProductResponse> recentlyViewed = new ArrayList<>();
+      for(Product product : latest) {
+        recentlyViewed.add(ProductDto.ProductResponse.of(product));
+      }
+      return recentlyViewed;
+  }
 }

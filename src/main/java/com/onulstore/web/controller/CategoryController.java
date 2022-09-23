@@ -2,6 +2,7 @@ package com.onulstore.web.controller;
 
 import com.onulstore.service.CategoryService;
 import com.onulstore.web.dto.CategoryDto;
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import lombok.RequiredArgsConstructor;
@@ -14,6 +15,7 @@ import java.util.HashMap;
 @RestController
 @RequestMapping("/categories")
 @RequiredArgsConstructor
+@Api(tags = {"Category-Controller"})
 public class CategoryController {
 
     private final CategoryService categoryService;
