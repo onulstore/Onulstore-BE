@@ -60,11 +60,8 @@ public class ProductService {
         () -> new UserException(UserErrorResult.CATEGORY_NOT_FOUND));
 
     Product product = productRepository.save(
-        new Product(registration.getProductName(), registration.getContent(),
-            registration.getPrice(),
-            registration.getQuantity(), registration.getProductImg(),
-            registration.getProductStatus(),
-            category));
+        new Product(registration.getProductName(), registration.getContent(), registration.getPrice(),
+                registration.getQuantity(), registration.getProductImg(), registration.getProductStatus(), category));
     product.newPurchaseCount();
     return ProductDto.ProductResponse.of(product);
   }
