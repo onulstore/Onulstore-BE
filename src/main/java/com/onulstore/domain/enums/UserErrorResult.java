@@ -22,7 +22,8 @@ public enum UserErrorResult implements SuperErrorResult{
   NOT_EXIST_QUESTION(HttpStatus.NOT_FOUND, "질문을 찾을 수 없습니다."),
   NOT_EXIST_ANSWER(HttpStatus.NOT_FOUND, "질문에 대한 답글을 찾을 수 없습니다."),
   WISHLIST_ALREADY_EXIST(HttpStatus.BAD_REQUEST, "이미 찜 등록이 되어있습니다."),
-  NOT_FOUND_NOTICE(HttpStatus.NOT_FOUND, "해당 공지를 찾을 수 없습니다.");
+  NOT_FOUND_NOTICE(HttpStatus.NOT_FOUND, "해당 공지를 찾을 수 없습니다."),
+  USER_NOT_MATCH(HttpStatus.BAD_REQUEST, "유저 정보가 일치하지 않습니다.");
 
   private final HttpStatus httpStatus;
   private final String message;
