@@ -120,8 +120,6 @@ public class ProductService {
       }
     }
 
-    Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId()).orElseThrow(
-        () -> new UserException(UserErrorResult.NOT_EXIST_USER));
 
     Product product = productRepository.findById(productId).orElseThrow(
         () -> new UserException(UserErrorResult.PRODUCT_NOT_FOUND));
