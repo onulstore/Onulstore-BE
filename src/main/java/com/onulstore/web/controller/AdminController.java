@@ -18,10 +18,10 @@ public class AdminController {
 
     private final AuthService authService;
 
-    @ApiOperation(value = "회원 가입")
+    @ApiOperation(value = "입점사 회원가입")
     @PostMapping("/signup")
-    public ResponseEntity<MemberDto.MemberResponse> admin(@RequestBody MemberDto.AdminRequest requestDto) {
-        return ResponseEntity.ok(authService.admin(requestDto));
+    public ResponseEntity<MemberDto.MemberResponse> sellerRegistration(@RequestBody MemberDto.SellerRequest request) {
+        return ResponseEntity.ok(authService.sellerRegistration(request));
     }
 
     @ApiOperation(value = "전체 회원 조회")
