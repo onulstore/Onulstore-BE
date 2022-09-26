@@ -1,5 +1,6 @@
 package com.onulstore.web.controller;
 
+import com.onulstore.domain.curation.CurationProduct;
 import com.onulstore.service.CurationService;
 import com.onulstore.web.dto.CurationDto;
 import io.swagger.annotations.Api;
@@ -14,6 +15,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
 import java.io.IOException;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -29,17 +31,31 @@ public class CurationController {
         return ResponseEntity.ok(curationService.getCuration(pageable));
     }
 
+    @GetMapping("/{curationId}")
+    @ApiOperation(value = "특정 큐레이션 조회")
+    public ResponseEntity<List<CurationProduct>> getCuration(@PathVariable Long curationId) {
+        return ResponseEntity.ok(curationService.getCurationList(curationId));
+    }
+
     @PostMapping("/magazine")
     @ApiOperation(value = "매거진 등록")
-    public ResponseEntity<String> addMagazine(@Valid @RequestBody CurationDto.CurationRequest curationRequest) {
-        curationService.createMagazine(curationRequest);
-        return ResponseEntity.ok("매거진 등록이 완료되었습니다.");
+    public ResponseEntity<CurationDto.CurationResponse> addMagazine(
+            @Valid @RequestBody CurationDto.MagazineRequest magazineRequest) {
+        return ResponseEntity.ok(curationService.createMagazine(magazineRequest));
+    }
+
+    @PostMapping("/magazine/add")
+    @ApiOperation(value = "매거진 상품 등록")
+    public ResponseEntity<String> addProductIntoMagazine(
+            @Valid @RequestBody CurationDto.AddProductRequest addProductRequest) {
+        curationService.addProductIntoMagazine(addProductRequest);
+        return ResponseEntity.ok("매거진에 상품이 등록되었습니다.");
     }
 
     @PostMapping("/recommend")
     @ApiOperation(value = "추천제품 등록")
-    public ResponseEntity<String> addRecommend(@Valid @RequestBody CurationDto.CurationRequest curationRequest) {
-        curationService.createRecommend(curationRequest);
+    public ResponseEntity<String> addRecommend(@Valid @RequestBody CurationDto.RecommendRequest recommendRequest) {
+        curationService.createRecommend(recommendRequest);
         return ResponseEntity.ok("추천제품 등록이 완료되었습니다.");
     }
 
@@ -65,7 +81,7 @@ public class CurationController {
     @PutMapping("/{curationId}")
     @ApiOperation(value = "큐레이션 수정")
     public ResponseEntity<CurationDto.CurationResponse> updateCuration(
-            @RequestBody CurationDto.updateCuration updateCuration, @PathVariable Long curationId) {
+            @RequestBody CurationDto.UpdateCuration updateCuration, @PathVariable Long curationId) {
         return ResponseEntity.ok(curationService.updateCuration(updateCuration, curationId));
     }
 

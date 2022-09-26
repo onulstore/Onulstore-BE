@@ -84,7 +84,7 @@ public class Member extends BaseTimeEntity {
     @JsonIgnore
     private List<Curation> curations = new ArrayList<>();
 
-    public Member updateProfile(MemberDto.updateRequest updateRequest) {
+    public Member updateProfile(MemberDto.UpdateRequest updateRequest) {
         this.phoneNum = updateRequest.getPhoneNum();
         this.roadAddress = updateRequest.getRoadAddress();
         this.buildingName = updateRequest.getBuildingName();

@@ -4,6 +4,8 @@ import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.onulstore.config.SecurityUtil;
 import com.onulstore.domain.curation.Curation;
+import com.onulstore.domain.curation.CurationProduct;
+import com.onulstore.domain.curation.CurationProductRepository;
 import com.onulstore.domain.curation.CurationRepository;
 import com.onulstore.domain.enums.Authority;
 import com.onulstore.domain.enums.CurationForm;
@@ -22,6 +24,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 
@@ -36,51 +40,84 @@ public class CurationService {
     private final CurationRepository curationRepository;
     private final ProductRepository productRepository;
     private final MemberRepository memberRepository;
+    private final CurationProductRepository curationProductRepository;
 
     /**
-     * Magazine 등록
-     * @param curationRequest
-     * @return curation.getId()
+     * Magazine 내용 등록
+     * @param magazineRequest
+     * @return Magazine 내용 등록 정보
      */
-    public Long createMagazine(CurationDto.CurationRequest curationRequest) {
+    public CurationDto.CurationResponse createMagazine(CurationDto.MagazineRequest magazineRequest) {
         Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId()).orElseThrow(
                 () -> new UserException(UserErrorResult.NOT_EXIST_USER));
         if (!member.getAuthority().equals(Authority.ROLE_ADMIN.getKey())) {
             throw new UserException(UserErrorResult.ACCESS_PRIVILEGE);
         }
 
-        Product product = productRepository.findById(curationRequest.getProductId()).orElseThrow(
-                () -> new UserException(UserErrorResult.PRODUCT_NOT_FOUND));
+        Curation curation = Curation.createMagazine(magazineRequest.getTitle(), magazineRequest.getContent(),
+                magazineRequest.getCurationImg(), member);
 
-        Curation curation = Curation.createCurationM(curationRequest.getTitle(), curationRequest.getContent(),
-                curationRequest.getCurationImg(), member, product);
-        curationRepository.save(curation);
-
-        return curation.getId();
+        return CurationDto.CurationResponse.of(curationRepository.save(curation));
     }
 
     /**
-     * Recommend 등록
-     * @param curationRequest
-     * @return curation.getId()
+     * Magazine 상품 등록
+     * @param addProductRequest
+     * @return curationProduct.getId()
      */
-    public Long createRecommend(CurationDto.CurationRequest curationRequest) {
+    public Long addProductIntoMagazine(CurationDto.AddProductRequest addProductRequest) {
         Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId()).orElseThrow(
                 () -> new UserException(UserErrorResult.NOT_EXIST_USER));
         if (!member.getAuthority().equals(Authority.ROLE_ADMIN.getKey())) {
             throw new UserException(UserErrorResult.ACCESS_PRIVILEGE);
         }
 
-        Product product = productRepository.findById(curationRequest.getProductId()).orElseThrow(
+        Product product = productRepository.findById(addProductRequest.getProductId()).orElseThrow(
+                () -> new UserException(UserErrorResult.PRODUCT_NOT_FOUND));
+        Curation curation = curationRepository.findById(addProductRequest.getCurationId()).orElseThrow();
+
+        CurationProduct curationProduct = CurationProduct.addProductMagazine(curation, product);
+        curationProductRepository.save(curationProduct);
+        return curationProduct.getId();
+    }
+
+    /**
+     * MD Recommend 등록
+     * @param recommendRequest
+     * @return curation.getId()
+     */
+    public Long createRecommend(CurationDto.RecommendRequest recommendRequest) {
+        List<CurationProduct> curationProductList = new ArrayList<>();
+        Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId()).orElseThrow(
+                () -> new UserException(UserErrorResult.NOT_EXIST_USER));
+        if (!member.getAuthority().equals(Authority.ROLE_ADMIN.getKey())) {
+            throw new UserException(UserErrorResult.ACCESS_PRIVILEGE);
+        }
+
+        Product product = productRepository.findById(recommendRequest.getProductId()).orElseThrow(
                 () -> new UserException(UserErrorResult.PRODUCT_NOT_FOUND));
 
-        Curation curation = Curation.createCurationR(curationRequest.getTitle(), curationRequest.getContent(),
-                curationRequest.getCurationImg(), member, product);
+        curationProductList.add(CurationProduct.createCurationProduct(product));
+
+        Curation curation = Curation.createRecommend(recommendRequest.getTitle(), recommendRequest.getContent(),
+                recommendRequest.getCurationImg(), member, curationProductList);
         curationRepository.save(curation);
+
 
         return curation.getId();
     }
 
+    /**
+     * 특정 큐레이션 정보 조회
+     * @param curationId
+     * @return 해당 curation 정보
+     */   
+    @Transactional(readOnly = true)
+    public List<CurationProduct> getCurationList(Long curationId) {
+        Curation curation = curationRepository.findById(curationId).orElseThrow();
+        return curationProductRepository.findAllByCuration(curation);
+    }
+    
     /**
      * Curation 전체 조회
      * @param pageable
@@ -134,7 +171,7 @@ public class CurationService {
      * @param curationId
      * @return 수정된 Curation 내용
      */
-    public CurationDto.CurationResponse updateCuration(CurationDto.updateCuration updateCuration, Long curationId) {
+    public CurationDto.CurationResponse updateCuration(CurationDto.UpdateCuration updateCuration, Long curationId) {
         Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId()).orElseThrow(
                 () -> new UserException(UserErrorResult.NOT_EXIST_USER));
         if (!member.getAuthority().equals(Authority.ROLE_ADMIN.getKey())) {
