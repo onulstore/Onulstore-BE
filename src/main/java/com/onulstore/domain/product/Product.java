@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.onulstore.common.BaseTimeEntity;
 import com.onulstore.domain.cart.Cart;
 import com.onulstore.domain.category.Category;
-import com.onulstore.domain.curation.Curation;
+import com.onulstore.domain.curation.CurationProduct;
 import com.onulstore.domain.enums.ProductStatus;
 import com.onulstore.domain.enums.UserErrorResult;
 import com.onulstore.domain.order.OrderProduct;
@@ -78,7 +78,7 @@ public class Product extends BaseTimeEntity {
 
     @OneToMany(mappedBy = "product", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JsonIgnore
-    private List<Curation> curations = new ArrayList<>();
+    private List<CurationProduct> curationProducts = new ArrayList<>();
 
     @ManyToOne
     @JoinColumn(name = "category_id")
