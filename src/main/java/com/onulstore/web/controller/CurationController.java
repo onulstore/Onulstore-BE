@@ -81,7 +81,7 @@ public class CurationController {
     @PutMapping("/{curationId}")
     @ApiOperation(value = "큐레이션 수정")
     public ResponseEntity<CurationDto.CurationResponse> updateCuration(
-            @RequestBody CurationDto.updateCuration updateCuration, @PathVariable Long curationId) {
+            @RequestBody CurationDto.UpdateCuration updateCuration, @PathVariable Long curationId) {
         return ResponseEntity.ok(curationService.updateCuration(updateCuration, curationId));
     }
 
