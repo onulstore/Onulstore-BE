@@ -94,7 +94,7 @@ public class MemberDto {
     @Getter
     @Setter
     @ToString
-    public static class updateRequest {
+    public static class UpdateRequest {
         private String phoneNum;
         private String roadAddress;
         private String buildingName;
