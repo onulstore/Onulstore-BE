@@ -14,6 +14,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class ReviewService {
@@ -71,5 +74,20 @@ public class ReviewService {
     public ReviewDto.ReviewResponse getReview(Long reviewId) {
         Review review = reviewRepository.findById(reviewId).orElseThrow();
         return ReviewDto.ReviewResponse.of(review);
+    }
+
+    // 리뷰 목록 조회(멤버별)
+    @Transactional
+    public List<ReviewDto.ReviewResponse> getMemberReviewList() {
+        Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId()).orElseThrow(
+                () -> new UserException(UserErrorResult.NOT_EXIST_USER));
+
+        List<Review> reviews = reviewRepository.findAllByMemberId(member.getId());
+        List<ReviewDto.ReviewResponse> reviewList = new ArrayList<>();
+
+        for(Review review : reviews) {
+            reviewList.add(ReviewDto.ReviewResponse.of(review));
+        }
+        return reviewList;
     }
 }

@@ -8,6 +8,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequiredArgsConstructor
 @Api(tags = {"Review Controller"})
@@ -43,5 +45,12 @@ public class ReviewController {
     @GetMapping("/reviews/{reviewId}")
     public ResponseEntity<ReviewDto.ReviewResponse> getReview(@PathVariable Long reviewId) {
         return ResponseEntity.ok(reviewService.getReview(reviewId));
+    }
+
+    // 리뷰 목록 조회(사용자별)
+    @ApiOperation(value = "리뷰 목록 조회(멤버별)")
+    @GetMapping("/members/reviews")
+    public ResponseEntity<List<ReviewDto.ReviewResponse>> getMemberReviewList() {
+        return ResponseEntity.ok(reviewService.getMemberReviewList());
     }
 }
