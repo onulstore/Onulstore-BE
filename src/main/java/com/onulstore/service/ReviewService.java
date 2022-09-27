@@ -11,6 +11,9 @@ import com.onulstore.domain.review.ReviewRepository;
 import com.onulstore.exception.UserException;
 import com.onulstore.web.dto.ReviewDto;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -89,5 +92,20 @@ public class ReviewService {
             reviewList.add(ReviewDto.ReviewResponse.of(review));
         }
         return reviewList;
+    }
+
+    // 리뷰 목록 조회(상품별)
+    @Transactional
+    public Page<ReviewDto.ReviewResponse> getProductReviewList(Long productId, Pageable pageable) {
+        Product product = productRepository.findById(productId).orElseThrow(
+                () -> new UserException(UserErrorResult.PRODUCT_NOT_FOUND));
+
+        List<Review> reviews = reviewRepository.findAllByProductId(product.getId(),pageable);
+        List<ReviewDto.ReviewResponse> reviewList = new ArrayList<>();
+
+        for (Review review : reviews) {
+            reviewList.add(ReviewDto.ReviewResponse.of(review));
+        }
+        return new PageImpl<>(reviewList, pageable,reviews.size());
     }
 }

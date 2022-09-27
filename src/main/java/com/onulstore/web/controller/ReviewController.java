@@ -5,6 +5,10 @@ import com.onulstore.web.dto.ReviewDto;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -52,5 +56,13 @@ public class ReviewController {
     @GetMapping("/members/reviews")
     public ResponseEntity<List<ReviewDto.ReviewResponse>> getMemberReviewList() {
         return ResponseEntity.ok(reviewService.getMemberReviewList());
+    }
+
+    // 리뷰 목록 조회(상품별)
+    @ApiOperation(value = "리뷰 목록 조회(상품별)")
+    @GetMapping("/products/{productId}/reviews")
+    public ResponseEntity<Page<ReviewDto.ReviewResponse>> getProductReviewList(@PathVariable Long productId,
+                                                                               @PageableDefault(sort = "id", size = 10, direction = Sort.Direction.DESC) Pageable pageable) {
+        return ResponseEntity.ok(reviewService.getProductReviewList(productId, pageable));
     }
 }
