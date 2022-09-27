@@ -65,4 +65,11 @@ public class ReviewService {
         }
         reviewRepository.delete(review);
     }
+
+    // 리뷰 상세 조회
+    @Transactional
+    public ReviewDto.ReviewResponse getReview(Long reviewId) {
+        Review review = reviewRepository.findById(reviewId).orElseThrow();
+        return ReviewDto.ReviewResponse.of(review);
+    }
 }

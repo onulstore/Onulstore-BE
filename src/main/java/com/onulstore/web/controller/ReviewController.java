@@ -37,4 +37,11 @@ public class ReviewController {
         reviewService.deleteReview(reviewId);
         return ResponseEntity.ok("해당 리뷰가 삭제되었습니다.");
     }
+
+    // 리뷰 상세 조회
+    @ApiOperation(value = "리뷰 상세 조회")
+    @GetMapping("/reviews/{reviewId}")
+    public ResponseEntity<ReviewDto.ReviewResponse> getReview(@PathVariable Long reviewId) {
+        return ResponseEntity.ok(reviewService.getReview(reviewId));
+    }
 }
