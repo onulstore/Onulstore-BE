@@ -35,10 +35,25 @@ public class Member extends BaseTimeEntity {
     private String password;
 
     @Column
+    private String firstName;
+
+    @Column
+    private String lastName;
+
+    @Column
+    private String firstKana;
+
+    @Column
+    private String lastKana;
+
+    @Column
     private String username;
 
     @Column
     private String phoneNum;
+
+    @Column
+    private String postalCode;
 
     @Column
     private String roadAddress;
@@ -86,6 +101,7 @@ public class Member extends BaseTimeEntity {
 
     public Member updateProfile(MemberDto.UpdateRequest updateRequest) {
         this.phoneNum = updateRequest.getPhoneNum();
+        this.postalCode = updateRequest.getPostalCode();
         this.roadAddress = updateRequest.getRoadAddress();
         this.buildingName = updateRequest.getBuildingName();
         this.detailAddress = updateRequest.getDetailAddress();
