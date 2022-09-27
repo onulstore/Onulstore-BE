@@ -66,7 +66,7 @@ public class MemberDto {
     @AllArgsConstructor
     @NoArgsConstructor
     @Builder
-    public static class AdminRequest {
+    public static class SellerRequest {
 
         private String email;
         private String password;
@@ -85,7 +85,7 @@ public class MemberDto {
                     .roadAddress(roadAddress)
                     .buildingName(buildingName)
                     .detailAddress(detailAddress)
-                    .authority(Authority.ROLE_ADMIN.getKey())
+                    .authority(Authority.ROLE_SELLER.getKey())
                     .activated(true)
                     .build();
         }
@@ -94,7 +94,7 @@ public class MemberDto {
     @Getter
     @Setter
     @ToString
-    public static class updateRequest {
+    public static class UpdateRequest {
         private String phoneNum;
         private String roadAddress;
         private String buildingName;

@@ -34,7 +34,7 @@ public class MemberController {
 
     @PutMapping
     @ApiOperation(value = "프로필 수정")
-    public ResponseEntity<String> updateProfile(@RequestBody @Valid MemberDto.updateRequest updateRequest) {
+    public ResponseEntity<String> updateProfile(@RequestBody @Valid MemberDto.UpdateRequest updateRequest) {
         memberService.updateProfile(updateRequest);
         return ResponseEntity.ok("프로필 수정이 완료되었습니다.");
     }
