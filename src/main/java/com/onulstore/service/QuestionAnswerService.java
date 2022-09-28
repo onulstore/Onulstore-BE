@@ -1,6 +1,7 @@
 package com.onulstore.service;
 
 import com.onulstore.config.SecurityUtil;
+import com.onulstore.domain.enums.Authority;
 import com.onulstore.domain.enums.UserErrorResult;
 import com.onulstore.domain.member.Member;
 import com.onulstore.domain.member.MemberRepository;
@@ -29,6 +30,10 @@ public class QuestionAnswerService {
                 () -> new UserException(UserErrorResult.NOT_EXIST_USER));
         Question question = questionRepository.findById(questionId).orElseThrow(
             () -> new UserException(UserErrorResult.NOT_EXIST_QUESTION));
+
+        if (!member.getAuthority().equals(Authority.ROLE_ADMIN.getKey())) {
+            throw new UserException(UserErrorResult.ACCESS_PRIVILEGE);
+        }
 
         QuestionAnswer answer = QuestionAnswer.builder()
                 .member(member)

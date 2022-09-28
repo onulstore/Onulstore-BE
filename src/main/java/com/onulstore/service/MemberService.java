@@ -35,7 +35,7 @@ public class MemberService {
     }
 
     @Transactional
-    public MemberDto.MemberResponse updateProfile(MemberDto.updateRequest updateRequest) {
+    public MemberDto.MemberResponse updateProfile(MemberDto.UpdateRequest updateRequest) {
         Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId()).orElseThrow(
                 () -> new UserException(UserErrorResult.NOT_EXIST_USER));
         Member updateMember = member.updateProfile(updateRequest);

@@ -3,16 +3,13 @@ package com.onulstore.web.dto;
 import com.onulstore.domain.curation.Curation;
 import lombok.*;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class CurationDto {
 
     @Getter
     @AllArgsConstructor
     @NoArgsConstructor
     @Builder
-    public static class CurationRequest {
+    public static class RecommendRequest {
         private String title;
         private String content;
         private String curationImg;
@@ -20,33 +17,52 @@ public class CurationDto {
     }
 
     @Getter
-    @Setter
-    public static class CurationResponse {
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Builder
+    public static class MagazineRequest {
+        private String title;
+        private String content;
+        private String curationImg;
+    }
+
+    @Getter
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Builder
+    public static class AddProductRequest {
+        private Long productId;
         private Long curationId;
+    }
+
+    @Getter
+    @Setter
+    @Builder
+    public static class CurationResponse {
+        private Long id;
+        private String title;
+        private String content;
+        private String curationImg;
         private String curationForm;
-        private List<CurationProduct> curationProducts = new ArrayList<>();
 
-        public CurationResponse(Curation curation) {
-            this.curationId = curation.getId();
-            this.curationForm = curation.getCurationForm();
-        }
-
-        public void addCurationProduct(CurationDto.CurationProduct curationDetails) {
-            curationProducts.add(curationDetails);
+        public static CurationResponse of(Curation curation) {
+            return CurationResponse.builder()
+                    .id(curation.getId())
+                    .curationForm(curation.getCurationForm())
+                    .title(curation.getTitle())
+                    .content(curation.getContent())
+                    .curationImg(curation.getCurationImg())
+                    .build();
         }
     }
 
     @Getter
     @Setter
-    public static class CurationProduct {
+    @ToString
+    public static class UpdateCuration {
         private String title;
         private String content;
         private String curationImg;
-
-        public CurationProduct(com.onulstore.domain.curation.CurationProduct curationProduct) {
-            this.title = curationProduct.getTitle();
-            this.content = curationProduct.getContent();
-            this.curationImg = curationProduct.getCurationImg();
-        }
     }
+
 }
