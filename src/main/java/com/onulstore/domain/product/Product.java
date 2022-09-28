@@ -48,9 +48,6 @@ public class Product extends BaseTimeEntity {
     private Integer purchaseCount;
 
     @Column
-    private String productImg;
-
-    @Column
     private boolean bookmark = false;
 
     @Enumerated(EnumType.STRING)
@@ -85,29 +82,27 @@ public class Product extends BaseTimeEntity {
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Category category;
 
+    @OneToMany(mappedBy = "product", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JsonIgnore
+    private List<ProductImage> productImages = new ArrayList<>();
+
     public Product(String productName, String content, Integer price,
-                   Integer quantity, String productImg, ProductStatus productStatus, Category category) {
+                   Integer quantity, ProductStatus productStatus, Category category) {
         this.productName = productName;
         this.content = content;
         this.price = price;
         this.quantity = quantity;
-        this.productImg = productImg;
         this.productStatus = productStatus;
         this.category = category;
     }
 
     public void changeProductData(String productName, String content, Integer price,
-                                  Integer quantity, String productImg, ProductStatus productStatus) {
+                                  Integer quantity, ProductStatus productStatus) {
         this.productName = productName;
         this.content = content;
         this.price = price;
         this.quantity = quantity;
-        this.productImg = productImg;
         this.productStatus = productStatus;
-    }
-
-    public void insertImage(String image) {
-        this.productImg = image;
     }
 
     public void newPurchaseCount(){
