@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 public class GlobalExceptionHandler {
 
   @ExceptionHandler(UserException.class)
-  public ResponseEntity<ErrorResponse> duplicateLoginId(final UserException userException) {
+  public ResponseEntity<ErrorResponse> exception(UserException userException) {
     return createErrorResponse(userException.getErrorResult());
   }
 
