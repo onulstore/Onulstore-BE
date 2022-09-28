@@ -1,10 +1,14 @@
 package com.onulstore.web.controller;
 
+import com.onulstore.domain.product.ProductImage;
 import com.onulstore.service.ProductService;
 import com.onulstore.web.dto.ProductDto;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -31,7 +35,7 @@ public class ProductController {
 
     @ApiOperation(value = "상품 수정")
     @PutMapping("/products/{productId}")
-    public ResponseEntity<ProductDto.ProductResponse> modifyProduct(@PathVariable Long productId, @RequestBody ProductDto.modifyRequest modifyRequest){
+    public ResponseEntity<ProductDto.ProductResponse> modifyProduct(@PathVariable Long productId, @RequestBody ProductDto.ProductRequest modifyRequest){
         return ResponseEntity.ok(productService.modify(modifyRequest, productId));
     }
 
@@ -62,9 +66,15 @@ public class ProductController {
 
     @ApiOperation(value = "상품 이미지 업로드")
     @PostMapping("/products/{productId}/image")
-    public ResponseEntity uploadFile(@RequestParam("images") MultipartFile multipartFile, @PathVariable Long productId) throws IOException {
-        String image = productService.upload(multipartFile.getInputStream(), multipartFile.getOriginalFilename());
-        productService.addImage(productId, image);
+    public ResponseEntity uploadFile(@RequestParam("images") List<MultipartFile> multipartFile, @PathVariable Long productId) throws IOException {
+        productService.upload(multipartFile, productId);
+        return new ResponseEntity(HttpStatus.OK);
+    }
+
+    @ApiOperation(value = "상품 이미지 제거")
+    @DeleteMapping("/products/{productId}/image")
+    public ResponseEntity deleteImage(@PathVariable Long productId){
+        productService.deleteImage(productId);
         return new ResponseEntity(HttpStatus.OK);
     }
 

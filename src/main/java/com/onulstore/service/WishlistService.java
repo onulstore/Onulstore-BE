@@ -50,11 +50,11 @@ public class WishlistService {
                 product.getProductName(),
                 product.getContent(),
                 product.getPrice(),
-                product.getProductImg(),
                 product.getProductStatus(),
                 product.getCategory(),
                 productService.isWishlist(member.getId(), product.getId())
         );
+        product.getWishlists().add(wishlist);
 
         return productRes;
     }
@@ -77,7 +77,6 @@ public class WishlistService {
                     product.getProductName(),
                     product.getContent(),
                     product.getPrice(),
-                    product.getProductImg(),
                     product.getProductStatus(),
                     product.getCategory(),
                     productService.isWishlist(member.getId(), product.getId())
@@ -107,7 +106,6 @@ public class WishlistService {
                 product.getProductName(),
                 product.getContent(),
                 product.getPrice(),
-                product.getProductImg(),
                 product.getProductStatus(),
                 product.getCategory(),
                 productService.isWishlist(member.getId(), product.getId())

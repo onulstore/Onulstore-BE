@@ -1,7 +1,6 @@
 package com.onulstore.web.dto;
 
 import com.onulstore.domain.curation.Curation;
-import com.onulstore.domain.product.Product;
 import lombok.*;
 
 public class CurationDto {
@@ -10,7 +9,7 @@ public class CurationDto {
     @AllArgsConstructor
     @NoArgsConstructor
     @Builder
-    public static class CurationRequest {
+    public static class RecommendRequest {
         private String title;
         private String content;
         private String curationImg;
@@ -18,15 +17,33 @@ public class CurationDto {
     }
 
     @Getter
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Builder
+    public static class MagazineRequest {
+        private String title;
+        private String content;
+        private String curationImg;
+    }
+
+    @Getter
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Builder
+    public static class AddProductRequest {
+        private Long productId;
+        private Long curationId;
+    }
+
+    @Getter
     @Setter
     @Builder
     public static class CurationResponse {
         private Long id;
-        private String curationForm;
         private String title;
         private String content;
         private String curationImg;
-        private Product product;
+        private String curationForm;
 
         public static CurationResponse of(Curation curation) {
             return CurationResponse.builder()
@@ -35,7 +52,6 @@ public class CurationDto {
                     .title(curation.getTitle())
                     .content(curation.getContent())
                     .curationImg(curation.getCurationImg())
-                    .product(curation.getProduct())
                     .build();
         }
     }
@@ -43,7 +59,7 @@ public class CurationDto {
     @Getter
     @Setter
     @ToString
-    public static class updateCuration {
+    public static class UpdateCuration {
         private String title;
         private String content;
         private String curationImg;

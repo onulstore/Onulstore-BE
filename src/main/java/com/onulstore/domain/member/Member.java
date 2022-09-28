@@ -3,6 +3,7 @@ package com.onulstore.domain.member;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.onulstore.common.BaseTimeEntity;
 import com.onulstore.domain.cart.Cart;
+import com.onulstore.domain.coupon.Coupon;
 import com.onulstore.domain.curation.Curation;
 import com.onulstore.domain.order.Order;
 import com.onulstore.domain.question.Question;
@@ -35,10 +36,25 @@ public class Member extends BaseTimeEntity {
     private String password;
 
     @Column
+    private String firstName;
+
+    @Column
+    private String lastName;
+
+    @Column
+    private String firstKana;
+
+    @Column
+    private String lastKana;
+
+    @Column
     private String username;
 
     @Column
     private String phoneNum;
+
+    @Column
+    private String postalCode;
 
     @Column
     private String roadAddress;
@@ -84,8 +100,13 @@ public class Member extends BaseTimeEntity {
     @JsonIgnore
     private List<Curation> curations = new ArrayList<>();
 
-    public Member updateProfile(MemberDto.updateRequest updateRequest) {
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
+    @JsonIgnore
+    private List<Coupon> coupons = new ArrayList<>();
+
+    public Member updateProfile(MemberDto.UpdateRequest updateRequest) {
         this.phoneNum = updateRequest.getPhoneNum();
+        this.postalCode = updateRequest.getPostalCode();
         this.roadAddress = updateRequest.getRoadAddress();
         this.buildingName = updateRequest.getBuildingName();
         this.detailAddress = updateRequest.getDetailAddress();
