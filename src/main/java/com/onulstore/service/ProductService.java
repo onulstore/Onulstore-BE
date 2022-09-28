@@ -3,6 +3,8 @@ package com.onulstore.service;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.onulstore.config.SecurityUtil;
+import com.onulstore.domain.brand.Brand;
+import com.onulstore.domain.brand.BrandRepository;
 import com.onulstore.domain.category.Category;
 import com.onulstore.domain.category.CategoryRepository;
 import com.onulstore.domain.enums.Authority;
@@ -47,6 +49,7 @@ public class ProductService {
   private String dir;
 
   private final AmazonS3Client s3Client;
+  private final BrandRepository brandRepository;
   private final ProductRepository productRepository;
   private final MemberRepository memberRepository;
   private final CategoryRepository categoryRepository;
@@ -65,8 +68,12 @@ public class ProductService {
 
     Category category = categoryRepository.findById(registration.getCategoryId()).orElseThrow(
         () -> new UserException(UserErrorResult.CATEGORY_NOT_FOUND));
+        
+    Brand brand = brandRepository.findById(registration.getBrandId()).orElseThrow(
+        () -> new UserException(UserErrorResult.BRAND_NOT_FOUND));
 
-    Product product = productRepository.save(registration.toProduct(category));
+    Product product = productRepository.save(registration.toProduct(category, brand));
+
     product.newPurchaseCount();
     return ProductDto.ProductResponse.of(product);
   }

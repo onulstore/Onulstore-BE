@@ -2,6 +2,7 @@ package com.onulstore.domain.product;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.onulstore.common.BaseTimeEntity;
+import com.onulstore.domain.brand.Brand;
 import com.onulstore.domain.cart.Cart;
 import com.onulstore.domain.category.Category;
 import com.onulstore.domain.curation.CurationProduct;
@@ -78,6 +79,11 @@ public class Product extends BaseTimeEntity {
     private List<CurationProduct> curationProducts = new ArrayList<>();
 
     @ManyToOne
+    @JoinColumn(name = "brand_id")
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    private Brand brand;
+
+    @ManyToOne
     @JoinColumn(name = "category_id")
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Category category;
@@ -87,13 +93,15 @@ public class Product extends BaseTimeEntity {
     private List<ProductImage> productImages = new ArrayList<>();
 
     public Product(String productName, String content, Integer price,
-                   Integer quantity, ProductStatus productStatus, Category category) {
+                   Integer quantity, String productImg, ProductStatus productStatus, Category category, Brand brand) {
+
         this.productName = productName;
         this.content = content;
         this.price = price;
         this.quantity = quantity;
         this.productStatus = productStatus;
         this.category = category;
+        this.brand = brand;
     }
 
     public void changeProductData(String productName, String content, Integer price,

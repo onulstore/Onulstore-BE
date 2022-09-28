@@ -15,21 +15,22 @@ public class MemberDto {
 
         private String email;
         private String password;
-        private String username;
+        private String firstName;
+        private String lastName;
+        private String firstKana;
+        private String lastKana;
         private String phoneNum;
-        private String roadAddress;
-        private String buildingName;
-        private String detailAddress;
 
         public Member toMember(PasswordEncoder passwordEncoder) {
             return Member.builder()
                     .email(email)
                     .password(passwordEncoder.encode(password))
-                    .username(username)
+                    .firstName(firstName)
+                    .lastName(lastName)
+                    .firstKana(firstKana)
+                    .lastKana(lastKana)
+                    .username("CUSTOMER")
                     .phoneNum(phoneNum)
-                    .roadAddress(roadAddress)
-                    .buildingName(buildingName)
-                    .detailAddress(detailAddress)
                     .authority(Authority.ROLE_USER.getKey())
                     .activated(true)
                     .build();
@@ -43,8 +44,13 @@ public class MemberDto {
     public static class MemberResponse {
 
         private String email;
+        private String firstName;
+        private String lastName;
+        private String firstKana;
+        private String lastKana;
         private String username;
         private String phoneNum;
+        private String postalCode;
         private String roadAddress;
         private String buildingName;
         private String detailAddress;
@@ -52,8 +58,13 @@ public class MemberDto {
         public static MemberResponse of(Member member) {
             return MemberResponse.builder()
                     .email(member.getEmail())
+                    .firstName(member.getFirstName())
+                    .lastName(member.getLastName())
+                    .firstKana(member.getFirstKana())
+                    .lastKana(member.getLastKana())
                     .username(member.getUsername())
                     .phoneNum(member.getPhoneNum())
+                    .postalCode(member.getPostalCode())
                     .roadAddress(member.getRoadAddress())
                     .buildingName(member.getBuildingName())
                     .detailAddress(member.getDetailAddress())
@@ -66,12 +77,13 @@ public class MemberDto {
     @AllArgsConstructor
     @NoArgsConstructor
     @Builder
-    public static class AdminRequest {
+    public static class SellerRequest {
 
         private String email;
         private String password;
         private String username;
         private String phoneNum;
+        private String postalCode;
         private String roadAddress;
         private String buildingName;
         private String detailAddress;
@@ -80,12 +92,17 @@ public class MemberDto {
             return Member.builder()
                     .email(email)
                     .password(passwordEncoder.encode(password))
+                    .firstName("ENTRY_COMPANY")
+                    .lastName("ENTRY_COMPANY")
+                    .firstKana("ENTRY_COMPANY")
+                    .lastKana("ENTRY_COMPANY")
                     .username(username)
                     .phoneNum(phoneNum)
+                    .postalCode(postalCode)
                     .roadAddress(roadAddress)
                     .buildingName(buildingName)
                     .detailAddress(detailAddress)
-                    .authority(Authority.ROLE_ADMIN.getKey())
+                    .authority(Authority.ROLE_SELLER.getKey())
                     .activated(true)
                     .build();
         }
@@ -94,8 +111,9 @@ public class MemberDto {
     @Getter
     @Setter
     @ToString
-    public static class updateRequest {
+    public static class UpdateRequest {
         private String phoneNum;
+        private String postalCode;
         private String roadAddress;
         private String buildingName;
         private String detailAddress;

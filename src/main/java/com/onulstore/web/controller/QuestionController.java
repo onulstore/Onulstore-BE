@@ -10,10 +10,9 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-
 @RestController
 @RequiredArgsConstructor
-@Api(tags = {"Question Controller"})
+@Api(tags = {"Question-Controller"})
 public class QuestionController {
 
     private final QuestionService questionService;

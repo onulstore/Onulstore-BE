@@ -34,6 +34,11 @@ public class AuthService {
     private final TokenProvider tokenProvider;
     private final RefreshTokenRepository refreshTokenRepository;
 
+    /**
+     * 회원가입
+     * @param signupRequest
+     * @return 회원가입 정보
+     */
     @Transactional
     public MemberDto.MemberResponse signup(MemberDto.MemberRequest signupRequest) {
         if (memberRepository.existsByEmail(signupRequest.getEmail())) {
@@ -44,6 +49,11 @@ public class AuthService {
         return MemberDto.MemberResponse.of(memberRepository.save(member));
     }
 
+    /**
+     * 로그인
+     * @param loginDto
+     * @return token 발급
+     */
     @Transactional
     public TokenDto login(LoginDto loginDto) {
         UsernamePasswordAuthenticationToken authenticationToken = loginDto.toAuthentication();
@@ -61,18 +71,25 @@ public class AuthService {
         return tokenDto;
     }
 
-    // 관리자 회원가입
+    /**
+     * 입점사 회원가입
+     * @param sellerRequest
+     * @return 회원가입 정보
+     */
     @Transactional
-    public MemberDto.MemberResponse admin(MemberDto.AdminRequest adminRequest) {
-        if (memberRepository.existsByEmail(adminRequest.getEmail())) {
+    public MemberDto.MemberResponse sellerRegistration(MemberDto.SellerRequest sellerRequest) {
+        if (memberRepository.existsByEmail(sellerRequest.getEmail())) {
             throw new UserException(UserErrorResult.DUPLICATE_USER_ID);
         }
 
-        Member member = adminRequest.toMember(passwordEncoder);
+        Member member = sellerRequest.toMember(passwordEncoder);
         return MemberDto.MemberResponse.of(memberRepository.save(member));
     }
 
-    // 전체 회원 조회
+    /**
+     * 전체 회원 조회(Admin)
+     * @return 전체 회원 정보
+     */
     public HashMap<String, Object> viewAllMember() {
         HashMap<String, Object> resultMap = new HashMap<>();
 
@@ -89,6 +106,11 @@ public class AuthService {
         return resultMap;
     }
 
+    /**
+     * Refresh Token 발급
+     * @param tokenRequest
+     * @return Refresh Token 발급
+     */
     @Transactional
     public TokenDto getRefreshToken(TokenDto.TokenRequest tokenRequest) {
         if (!tokenProvider.validateToken(tokenRequest.getRefreshToken())) {
