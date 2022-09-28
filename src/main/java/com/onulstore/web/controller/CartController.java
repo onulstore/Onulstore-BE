@@ -42,12 +42,12 @@ public class CartController {
 
   @PostMapping("/carts/{cartId}/plus")
   public ResponseEntity<CartDto> plusQuantity(@PathVariable Long cartId) {
-    return ResponseEntity.ok(cartService.plus(cartId));
+    return ResponseEntity.ok(cartService.plusOne(cartId));
   }
 
   @PostMapping("/carts/{cartId}/minus")
   public ResponseEntity<CartDto> minusQuantity(@PathVariable Long cartId) {
-    return ResponseEntity.ok(cartService.minus(cartId));
+    return ResponseEntity.ok(cartService.minusOne(cartId));
   }
 
 }
