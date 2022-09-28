@@ -6,6 +6,7 @@ import com.onulstore.domain.enums.ProductStatus;
 import com.onulstore.domain.product.Product;
 import com.onulstore.domain.product.ProductImage;
 import com.onulstore.web.dto.ProductImageDto.ProductImageMaker;
+import java.util.ArrayList;
 import java.util.List;
 
 import io.swagger.annotations.ApiModelProperty;
@@ -27,7 +28,6 @@ public class ProductDto {
         private String content;
         private Integer price;
         private Integer quantity;
-        private String productImg;
         
         @ApiModelProperty(value = "상품 상태", example = "SALE / NEW")
         private ProductStatus productStatus;
@@ -43,6 +43,8 @@ public class ProductDto {
                 .productStatus(productStatus)
                 .category(category)
                 .brand(brand)
+                .productImages(new ArrayList<>())
+                .wishlists(new ArrayList<>())
                 .build();
         }
     }
