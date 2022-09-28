@@ -3,6 +3,9 @@ package com.onulstore.web.dto;
 import com.onulstore.domain.category.Category;
 import com.onulstore.domain.enums.ProductStatus;
 import com.onulstore.domain.product.Product;
+import com.onulstore.domain.product.ProductImage;
+import com.onulstore.web.dto.ProductImageDto.ProductImageMaker;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -20,19 +23,18 @@ public class ProductDto {
         private String content;
         private Integer price;
         private Integer quantity;
-        private String productImg;
         private ProductStatus productStatus;
         private Long categoryId;
 
-        public Product toProduct() {
+        public Product toProduct(Category category) {
             return Product.builder()
-                    .productName(productName)
-                    .content(content)
-                    .price(price)
-                    .quantity(quantity)
-                    .productImg(productImg)
-                    .productStatus(productStatus)
-                    .build();
+                .productName(productName)
+                .content(content)
+                .price(price)
+                .quantity(quantity)
+                .productStatus(productStatus)
+                .category(category)
+                .build();
         }
     }
 
@@ -48,9 +50,10 @@ public class ProductDto {
         private Integer price;
         private Integer quantity;
         private Integer purchaseCount;
-        private String productImg;
         private ProductStatus productStatus;
         private Category category;
+        private List<ProductImageMaker> productImage;
+        private Integer wishListCount;
 
         public static ProductResponse of(Product product) {
             return ProductResponse.builder()
@@ -60,35 +63,11 @@ public class ProductDto {
                 .price(product.getPrice())
                 .quantity(product.getQuantity())
                 .purchaseCount(product.getPurchaseCount())
-                .productImg(product.getProductImg())
                 .productStatus(product.getProductStatus())
                 .category(product.getCategory())
+                .productImage(ProductImageMaker.of(product.getProductImages()))
+                .wishListCount(product.getWishlists().size())
                 .build();
-        }
-    }
-
-    @Getter
-    @AllArgsConstructor
-    @NoArgsConstructor
-    @Builder
-    public static class modifyRequest {
-
-        private String productName;
-        private String content;
-        private Integer price;
-        private Integer quantity;
-        private String productImg;
-        private ProductStatus productStatus;
-
-        public Product toProduct() {
-            return Product.builder()
-                    .productName(productName)
-                    .content(content)
-                    .price(price)
-                    .quantity(quantity)
-                    .productImg(productImg)
-                    .productStatus(productStatus)
-                    .build();
         }
     }
 
@@ -101,7 +80,6 @@ public class ProductDto {
         private String productName;
         private String content;
         private Integer price;
-        private String productImg;
         private ProductStatus productStatus;
         private Category category;
         private boolean wishlist;
