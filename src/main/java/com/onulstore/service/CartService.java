@@ -43,7 +43,7 @@ public class CartService {
       }
     }
 
-    if(duplicate == false) {
+    if(!duplicate) {
       Cart cart = Cart.builder()
           .member(member)
           .product(product)
@@ -56,14 +56,17 @@ public class CartService {
     }
   }
 
+  @Transactional
   public void deleteCart(Long cartId) {
     Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId()).orElseThrow(
         () -> new UserException(UserErrorResult.NOT_EXIST_USER));
+
     Cart cart = cartRepository.findById(cartId).orElseThrow(RuntimeException::new);
     cartRepository.delete(cart);
     member.getCarts().remove(cart);
   }
 
+  @Transactional
   public List<CartDto> getCartList() {
     Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId()).orElseThrow(
         () -> new UserException(UserErrorResult.NOT_EXIST_USER));
@@ -77,33 +80,22 @@ public class CartService {
   }
 
   @Transactional
-  public CartDto plus(Long cartId) {
+  public CartDto plusOne(Long cartId) {
     Cart cart = cartRepository.findById(cartId).orElseThrow(
         () -> new UserException(UserErrorResult.CART_NOT_FOUND));
-    if(cart.getProduct().getQuantity() > cart.getProductCount()){
-      cart.changeQuantity(1);
-    }
-    else{
-      throw new UserException(UserErrorResult.OUT_OF_STOCK);
-    }
 
+    cart.plusOne();
     CartDto cartDto = CartDto.of(cart);
-
     return cartDto;
   }
 
   @Transactional
-  public CartDto minus(Long cartId) {
+  public CartDto minusOne(Long cartId) {
     Cart cart = cartRepository.findById(cartId).orElseThrow(
         () -> new UserException(UserErrorResult.CART_NOT_FOUND));
-    if(1 < cart.getProductCount()){
-      cart.changeQuantity(-1);
-    }
-    else{
-      throw new UserException(UserErrorResult.OUT_OF_STOCK);
-    }
-    CartDto cartDto = CartDto.of(cart);
 
+    cart.minusOne();
+    CartDto cartDto = CartDto.of(cart);
     return cartDto;
   }
 }
