@@ -55,9 +55,12 @@ public class QuestionService {
 
         Question question = questionRepository.findById(questionId).orElseThrow(
             () -> new UserException(UserErrorResult.NOT_EXIST_QUESTION));
+
+        if (!member.getId().equals(question.getMember().getId())) {
+            throw new UserException(UserErrorResult.USER_NOT_MATCH);
+        }
         question.setTitle(questionDto.getTitle());
         question.setContent(questionDto.getContent());
-
         return QuestionDto.of(questionRepository.save(question));
     }
 
@@ -66,6 +69,13 @@ public class QuestionService {
     public void deleteQuestion(Long questionId) {
         Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId()).orElseThrow(
                 () -> new UserException(UserErrorResult.NOT_EXIST_USER));
+
+        Question question = questionRepository.findById(questionId).orElseThrow(
+                () -> new UserException(UserErrorResult.NOT_EXIST_QUESTION));
+
+        if (!member.getId().equals(question.getMember().getId())){
+            throw new UserException(UserErrorResult.USER_NOT_MATCH);
+        }
         questionRepository.deleteById(questionId);
     }
 
@@ -87,7 +97,7 @@ public class QuestionService {
         Product product = productRepository.findById(productId).orElseThrow(
                 () -> new UserException(UserErrorResult.PRODUCT_NOT_FOUND));
 
-        List<Question> questions = questionRepository.findAllByProductId(productId);
+        List<Question> questions = questionRepository.findAllByProductId(product.getId());
         List<QuestionDto> questionList = new ArrayList<>();
 
         for (Question question : questions) {

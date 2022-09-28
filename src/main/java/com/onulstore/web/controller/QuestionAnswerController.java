@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
-@Api(tags = {"QuestionAnswer Controller"})
+@Api(tags = {"QuestionAnswer-Controller"})
 public class QuestionAnswerController {
 
     private final QuestionAnswerService questionAnswerService;

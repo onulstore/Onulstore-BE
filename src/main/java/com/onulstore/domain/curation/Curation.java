@@ -1,11 +1,11 @@
 package com.onulstore.domain.curation;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.onulstore.common.BaseTimeEntity;
 import com.onulstore.domain.enums.CurationForm;
 import com.onulstore.domain.member.Member;
+import com.onulstore.web.dto.CurationDto;
 import lombok.*;
-import org.hibernate.annotations.OnDelete;
-import org.hibernate.annotations.OnDeleteAction;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -14,7 +14,9 @@ import java.util.List;
 @Getter
 @Setter
 @NoArgsConstructor
+@AllArgsConstructor
 @Entity
+@Builder
 public class Curation extends BaseTimeEntity {
 
     @Id
@@ -22,40 +24,66 @@ public class Curation extends BaseTimeEntity {
     private Long id;
 
     @Column
+    private String title;
+
+    @Column
+    private String content;
+
+    @Column
+    private String curationImg;
+
+    @Column
     private String curationForm;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
+    @JsonIgnore
     private Member member;
 
-    @OneToMany(mappedBy = "curation", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "curation", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
     private List<CurationProduct> curationProducts = new ArrayList<>();
+
+    public void insertImage(String image) {
+        this.curationImg = image;
+    }
 
     public void addCurationProduct(CurationProduct curationProduct) {
         curationProducts.add(curationProduct);
         curationProduct.setCuration(this);
     }
 
-    // Magazine 등록
-    public static Curation createCurationM(Member member, List<CurationProduct> curationProducts) {
-        Curation curationM = new Curation();
-        curationM.setMember(member);
+    public static Curation createRecommend(String title, String content, String curationImg,
+                                           Member member, List<CurationProduct> curationProducts) {
+        Curation curation = new Curation();
+        curation.setMember(member);
         for (CurationProduct curationProduct : curationProducts) {
-            curationM.addCurationProduct(curationProduct);
+            curation.addCurationProduct(curationProduct);
         }
-        curationM.setCurationForm(CurationForm.MAGAZINE.getKey());
-        return curationM;
+        curation.setTitle(title);
+        curation.setContent(content);
+        curation.setCurationImg(curationImg);
+        curation.setCurationForm(CurationForm.RECOMMEND.getKey());
+        return curation;
     }
 
-    // Recommend 등록
-    public static Curation createCurationR(Member member, List<CurationProduct> curationProducts) {
-        Curation curationR = new Curation();
-        curationR.setMember(member);
-        for (CurationProduct curationProduct : curationProducts) {
-            curationR.addCurationProduct(curationProduct);
-        }
-        curationR.setCurationForm(CurationForm.RECOMMEND.getKey());
-        return curationR;
+    public Curation updateCuration(CurationDto.UpdateCuration updateCuration) {
+        this.title = updateCuration.getTitle();
+        this.content = updateCuration.getContent();
+        this.curationImg = updateCuration.getCurationImg();
+        return this;
+    }
+
+    public static Curation createMagazine(String title, String content, String curationImg,
+                                           Member member) {
+        Curation curation = new Curation();
+        curation.setTitle(title);
+        curation.setContent(content);
+        curation.setCurationImg(curationImg);
+        curation.setCurationForm(CurationForm.MAGAZINE.getKey());
+        curation.setMember(member);
+
+        return curation;
     }
 
 }

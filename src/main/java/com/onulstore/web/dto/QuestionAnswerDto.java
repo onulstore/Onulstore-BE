@@ -12,13 +12,11 @@ import lombok.NoArgsConstructor;
 @Builder
 public class QuestionAnswerDto {
 
-    private Long memberId;
     private Long questionId;
     private String answer;
 
     public static QuestionAnswerDto of (QuestionAnswer questionAnswer) {
         return QuestionAnswerDto.builder()
-                .memberId(questionAnswer.getMember().getId())
                 .questionId(questionAnswer.getQuestion().getId())
                 .answer(questionAnswer.getAnswer())
                 .build();

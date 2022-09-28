@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-@Api(tags = {"Cart Controller"})
+@Api(tags = {"Cart-Controller"})
 public class CartController {
 
   private final CartService cartService;

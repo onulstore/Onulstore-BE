@@ -1,8 +1,10 @@
 package com.onulstore.web.dto;
 
+import com.onulstore.domain.brand.Brand;
 import com.onulstore.domain.category.Category;
 import com.onulstore.domain.enums.ProductStatus;
 import com.onulstore.domain.product.Product;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -21,8 +23,10 @@ public class ProductDto {
         private Integer price;
         private Integer quantity;
         private String productImg;
+        @ApiModelProperty(value = "상품 상태", example = "SALE / NEW")
         private ProductStatus productStatus;
         private Long categoryId;
+        private Long brandId;
 
         public Product toProduct() {
             return Product.builder()
@@ -51,6 +55,7 @@ public class ProductDto {
         private String productImg;
         private ProductStatus productStatus;
         private Category category;
+        private Brand brand;
 
         public static ProductResponse of(Product product) {
             return ProductResponse.builder()
@@ -63,6 +68,7 @@ public class ProductDto {
                 .productImg(product.getProductImg())
                 .productStatus(product.getProductStatus())
                 .category(product.getCategory())
+                .brand(product.getBrand())
                 .build();
         }
     }
@@ -78,18 +84,9 @@ public class ProductDto {
         private Integer price;
         private Integer quantity;
         private String productImg;
+        @ApiModelProperty(value = "상품 상태", example = "SALE / NEW / SOLD_OUT")
         private ProductStatus productStatus;
 
-        public Product toProduct() {
-            return Product.builder()
-                    .productName(productName)
-                    .content(content)
-                    .price(price)
-                    .quantity(quantity)
-                    .productImg(productImg)
-                    .productStatus(productStatus)
-                    .build();
-        }
     }
 
     @Getter
