@@ -194,6 +194,7 @@ public class ProductService {
       String originFileName = multipartFile.getOriginalFilename();
       String s3FileName = UUID.randomUUID() + "-" + originFileName;
       ObjectMetadata objMeta = new ObjectMetadata();
+      objMeta.setContentType(multipartFile.getContentType());
       s3Client.putObject(bucket, s3FileName, inputStream, objMeta);
 
       productImage.setImageName(s3FileName);
