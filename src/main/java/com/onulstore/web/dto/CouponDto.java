@@ -3,16 +3,22 @@ package com.onulstore.web.dto;
 import com.onulstore.domain.coupon.Coupon;
 import com.onulstore.domain.enums.CouponStatus;
 import com.onulstore.domain.enums.DiscountType;
+import com.onulstore.domain.member.Member;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Date;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-@Data
+@Getter
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 public class CouponDto {
+
   private String memberId;
   private String couponTitle;
   private LocalDate createdDate;
@@ -24,7 +30,7 @@ public class CouponDto {
   private CouponStatus couponStatus;
   private String categoryCode;
 
-  public Coupon toCoupon(){
+  public Coupon toCoupon(Member member){
     Coupon coupon = Coupon.builder()
         .couponTitle(couponTitle)
         .discountValue(discountValue)
@@ -33,8 +39,9 @@ public class CouponDto {
         .discountType(discountType)
         .couponStatus(CouponStatus.DEFAULT)
         .categoryCode(categoryCode)
+        .member(member)
+        .expirationDate(LocalDateTime.now().plusDays(duration))
         .build();
-    coupon.setExpirationDate(coupon.extendExpirationDate(duration));
     return coupon;
   }
 }
