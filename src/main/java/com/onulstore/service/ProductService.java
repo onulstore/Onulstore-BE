@@ -12,11 +12,15 @@ import com.onulstore.domain.enums.UserErrorResult;
 import com.onulstore.domain.member.Member;
 import com.onulstore.domain.member.MemberRepository;
 import com.onulstore.domain.product.Product;
+import com.onulstore.domain.product.ProductImage;
+import com.onulstore.domain.product.ProductImageRepository;
 import com.onulstore.domain.product.ProductRepository;
 import com.onulstore.domain.wishlist.Wishlist;
 import com.onulstore.domain.wishlist.WishlistRepository;
 import com.onulstore.exception.UserException;
 import com.onulstore.web.dto.ProductDto;
+import com.onulstore.web.dto.ProductDto.ProductRequest;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -32,6 +36,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 @RequiredArgsConstructor
@@ -49,9 +54,11 @@ public class ProductService {
   private final MemberRepository memberRepository;
   private final CategoryRepository categoryRepository;
   private final WishlistRepository wishlistRepository;
+  private final ProductImageRepository productImageRepository;
 
   @Transactional
   public ProductDto.ProductResponse register(ProductDto.ProductRequest registration) {
+
     Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId()).orElseThrow(
         () -> new UserException(UserErrorResult.NOT_EXIST_USER));
 
@@ -61,20 +68,18 @@ public class ProductService {
 
     Category category = categoryRepository.findById(registration.getCategoryId()).orElseThrow(
         () -> new UserException(UserErrorResult.CATEGORY_NOT_FOUND));
-
+        
     Brand brand = brandRepository.findById(registration.getBrandId()).orElseThrow(
-            () -> new UserException(UserErrorResult.BRAND_NOT_FOUND));
+        () -> new UserException(UserErrorResult.BRAND_NOT_FOUND));
 
-    Product product = productRepository.save(
-        new Product(registration.getProductName(), registration.getContent(), registration.getPrice(),
-                registration.getQuantity(), registration.getProductImg(), registration.getProductStatus(),
-                category, brand));
+    Product product = productRepository.save(registration.toProduct(category, brand));
+
     product.newPurchaseCount();
     return ProductDto.ProductResponse.of(product);
   }
 
   @Transactional
-  public ProductDto.ProductResponse modify(ProductDto.modifyRequest modification, Long productId) {
+  public ProductDto.ProductResponse modify(ProductDto.ProductRequest modification, Long productId) {
 
     Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId()).orElseThrow(
         () -> new UserException(UserErrorResult.NOT_EXIST_USER));
@@ -85,11 +90,11 @@ public class ProductService {
 
     Product product = productRepository.findById(productId).orElseThrow(
         () -> new UserException(UserErrorResult.PRODUCT_NOT_FOUND));
+
     product.changeProductData(modification.getProductName(),
         modification.getContent(),
         modification.getPrice(),
         modification.getQuantity(),
-        modification.getProductImg(),
         modification.getProductStatus());
 
     return ProductDto.ProductResponse.of(productRepository.save(product));
@@ -97,6 +102,7 @@ public class ProductService {
 
   @Transactional
   public void delete(Long productId) {
+
     Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId()).orElseThrow(
         () -> new UserException(UserErrorResult.NOT_EXIST_USER));
 
@@ -105,17 +111,17 @@ public class ProductService {
     }
     Product product = productRepository.findById(productId).orElseThrow(
         () -> new UserException(UserErrorResult.ACCESS_PRIVILEGE));
+
     productRepository.delete(product);
   }
 
   @Transactional
-  public ProductDto.ProductResponse detailInquiry(Long productId,
-      HttpServletRequest request) {
+  public ProductDto.ProductResponse detailInquiry(Long productId, HttpServletRequest request) {
 
     HttpSession session = request.getSession();
     boolean check = false;
     ArrayList<Product> latestViewedProductList = (ArrayList)session.getAttribute("List");
-    if(latestViewedProductList==null){
+    if(latestViewedProductList == null) {
       latestViewedProductList = new ArrayList<>();
     }
     else{
@@ -128,16 +134,16 @@ public class ProductService {
     Product product = productRepository.findById(productId).orElseThrow(
         () -> new UserException(UserErrorResult.PRODUCT_NOT_FOUND));
 
-    for(Product products : latestViewedProductList){
+    for(Product products : latestViewedProductList) {
       if(products.getProductName().equals(product.getProductName())) {
         check = true;
       }
     }
-    if(check==true){
+    if(check) {
       latestViewedProductList.remove(product);
     }
     latestViewedProductList.add(product);
-    if(latestViewedProductList.size()>5){
+    if(latestViewedProductList.size()>10) {
       latestViewedProductList.remove(0);
     }
     session.setAttribute("List",latestViewedProductList);
@@ -149,49 +155,53 @@ public class ProductService {
   @Transactional(readOnly = true)
   public Page entireProductList(Pageable pageable) {
     List<Product> productList = productRepository.findAll();
-    if(!SecurityContextHolder.getContext().getAuthentication().getAuthorities().toString().equals("[ROLE_ANONYMOUS]"))
+    if(!SecurityContextHolder.getContext().getAuthentication().getPrincipal().equals("anonymousUser"))
     {
       Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId())
           .orElseThrow(() -> new UserException(UserErrorResult.NOT_EXIST_USER));
 
       for (Product product : productList) {
         for (Wishlist wishlist : member.getWishlists()) {
-          if (wishlist.getProduct().getId() == product.getId()) {
+          if (wishlist.getProduct().getId().equals(product.getId())) {
             product.bookmarked();
           }
         }
       }
     }
-    final int start = (int)pageable.getOffset();
-    final int end = Math.min((start + pageable.getPageSize()), productList.size());
-    final Page<Product> page = new PageImpl<>(productList.subList(start, end), pageable, productList.size());
+    int start = (int)pageable.getOffset();
+    int end = Math.min((start + pageable.getPageSize()), productList.size());
+    Page<Product> page = new PageImpl<>(productList.subList(start, end), pageable, productList.size());
     return page;
   }
 
   @Transactional
-  public String upload(InputStream inputStream, String originFileName) {
-    String s3FileName = UUID.randomUUID() + "-" + originFileName;
+  public void upload(List<MultipartFile> multipartFiles, Long productId) throws IOException {
 
-    ObjectMetadata objMeta = new ObjectMetadata();
-
-    s3Client.putObject(bucket, s3FileName, inputStream, objMeta);
-
-    return s3FileName;
-
-    /*        return s3Client.getUrl(bucket, s3FileName).toString()*/
-  }
-
-  @Transactional
-  public void addImage(Long productId, String image) {
     Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId()).orElseThrow(
         () -> new UserException(UserErrorResult.NOT_EXIST_USER));
 
     if (!member.getAuthority().equals(Authority.ROLE_ADMIN.getKey())) {
       throw new UserException(UserErrorResult.ACCESS_PRIVILEGE);
     }
+
     Product product = productRepository.findById(productId).orElseThrow(
         () -> new UserException(UserErrorResult.PRODUCT_NOT_FOUND));
-    product.insertImage(image);
+
+    for(MultipartFile multipartFile : multipartFiles) {
+      ProductImage productImage = new ProductImage();
+      InputStream inputStream = multipartFile.getInputStream();
+
+      String originFileName = multipartFile.getOriginalFilename();
+      String s3FileName = UUID.randomUUID() + "-" + originFileName;
+      ObjectMetadata objMeta = new ObjectMetadata();
+      s3Client.putObject(bucket, s3FileName, inputStream, objMeta);
+
+      productImage.setImageName(s3FileName);
+      productImage.setProduct(product);
+      productImageRepository.save(productImage);
+      product.getProductImages().add(productImage);
+
+    }
   }
 
   /**
@@ -199,18 +209,33 @@ public class ProductService {
    * @param memberId
    * @param productId
    */
+  @Transactional
   public boolean isWishlist(Long memberId, Long productId) {
+
     Member member = memberRepository.findById(memberId).orElseThrow(
         () -> new UserException(UserErrorResult.NOT_EXIST_USER));
     List<Wishlist> wishlists = wishlistRepository.findAllByMember(member);
     for (Wishlist wishlist : wishlists) {
       if (Objects.equals(productId, wishlist.getProduct().getId())) {
         return true;
-      } else {
-        continue;
       }
     }
     return false;
   }
 
+  @Transactional
+  public void deleteImage(Long productId) {
+
+    Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId()).orElseThrow(
+        () -> new UserException(UserErrorResult.NOT_EXIST_USER));
+
+    if (!member.getAuthority().equals(Authority.ROLE_ADMIN.getKey())) {
+      throw new UserException(UserErrorResult.ACCESS_PRIVILEGE);
+    }
+
+    Product product = productRepository.findById(productId).orElseThrow(
+        () -> new UserException(UserErrorResult.PRODUCT_NOT_FOUND));
+
+    product.getProductImages().clear();
+  }
 }
