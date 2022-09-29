@@ -3,6 +3,7 @@ package com.onulstore.domain.question;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.onulstore.common.BaseTimeEntity;
 import com.onulstore.domain.enums.AnswerStatus;
+import com.onulstore.domain.enums.QuestionType;
 import com.onulstore.domain.member.Member;
 import com.onulstore.domain.product.Product;
 import com.onulstore.domain.questionAnswer.QuestionAnswer;
@@ -30,6 +31,9 @@ public class Question extends BaseTimeEntity {
 
     @Column
     private String answerState;    // 답변 유무
+
+    @Enumerated(EnumType.STRING)
+    private QuestionType questionType;
 
     @ManyToOne
     @JoinColumn(name = "member_id")

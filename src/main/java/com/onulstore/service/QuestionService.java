@@ -39,7 +39,8 @@ public class QuestionService {
                             .product(product)
                             .title(questionDto.getTitle())
                             .content(questionDto.getContent())
-                .answerState(questionDto.getAnswerStatus())
+                            .answerState(questionDto.getAnswerStatus())
+                            .questionType(questionDto.getQuestionType())
                             .build();
         questionRepository.save(question);
         question.unAnswered();
@@ -61,6 +62,7 @@ public class QuestionService {
         }
         question.setTitle(questionDto.getTitle());
         question.setContent(questionDto.getContent());
+
         return QuestionDto.of(questionRepository.save(question));
     }
 
@@ -91,7 +93,7 @@ public class QuestionService {
         return QuestionDto.of(question);
     }
 
-    // 질문 전체 조회
+    // 질문 전체 조회(상품별)
     @Transactional
     public List<QuestionDto> getQuestionList(Long productId) {
         Product product = productRepository.findById(productId).orElseThrow(
@@ -106,4 +108,18 @@ public class QuestionService {
         return questionList;
     }
 
+    // 질문 전체 조회(멤버별)
+    @Transactional
+    public List<QuestionDto> getMemberQuestionList() {
+        Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId()).orElseThrow(
+                () -> new UserException(UserErrorResult.NOT_EXIST_USER));
+
+        List<Question> questions = questionRepository.findAllByMemberId(member.getId());
+        List<QuestionDto> questionList = new ArrayList<>();
+
+        for (Question question : questions) {
+            questionList.add(QuestionDto.of(question));
+        }
+        return questionList;
+    }
 }
