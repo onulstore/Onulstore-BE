@@ -48,10 +48,17 @@ public class QuestionController {
         return ResponseEntity.ok(questionService.getQuestion(productId,questionId));
     }
 
-    // 질문 전체 조회
-    @ApiOperation(value = "질문 전체 조회")
+    // 질문 전체 조회(상품별)
+    @ApiOperation(value = "질문 전체 조회(상품별)")
     @GetMapping("/questions/{productId}")
     public ResponseEntity<List<QuestionDto>> getQuestionList(@PathVariable Long productId) {
         return ResponseEntity.ok(questionService.getQuestionList(productId));
+    }
+
+    // 질문 전체 조회(멤버별)
+    @ApiOperation(value = "질문 전체 조회(멤버별)")
+    @GetMapping("/members/questions")
+    public ResponseEntity<List<QuestionDto>> getMemberQuestionList() {
+        return ResponseEntity.ok(questionService.getMemberQuestionList());
     }
 }
