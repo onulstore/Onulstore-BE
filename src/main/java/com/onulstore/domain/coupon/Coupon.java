@@ -10,6 +10,8 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -51,9 +53,11 @@ public class Coupon extends BaseTimeEntity {
   private Integer maxDiscountValue;
 
   @Column
+  @Enumerated(EnumType.STRING)
   private CouponStatus couponStatus;
 
   @Column
+  @Enumerated(EnumType.STRING)
   private DiscountType discountType;
 
   @Column
@@ -71,7 +75,6 @@ public class Coupon extends BaseTimeEntity {
 
   @ManyToOne
   @JoinColumn(name = "member_id")
-  @OnDelete(action = OnDeleteAction.CASCADE)
   private Member member;
 
   public void changeStatus(CouponStatus couponStatus){

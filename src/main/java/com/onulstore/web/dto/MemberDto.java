@@ -2,6 +2,7 @@ package com.onulstore.web.dto;
 
 import com.onulstore.domain.enums.Authority;
 import com.onulstore.domain.member.Member;
+import java.util.ArrayList;
 import lombok.*;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
@@ -33,6 +34,7 @@ public class MemberDto {
                     .phoneNum(phoneNum)
                     .authority(Authority.ROLE_USER.getKey())
                     .activated(true)
+                    .coupons(new ArrayList<>())
                     .build();
         }
     }
