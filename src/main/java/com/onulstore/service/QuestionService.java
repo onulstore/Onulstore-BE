@@ -40,6 +40,7 @@ public class QuestionService {
                             .title(questionDto.getTitle())
                             .content(questionDto.getContent())
                             .answerState(questionDto.getAnswerStatus())
+                            .questionType(questionDto.getQuestionType())
                             .build();
         questionRepository.save(question);
         question.unAnswered();
