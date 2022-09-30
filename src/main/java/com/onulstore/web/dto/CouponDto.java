@@ -12,17 +12,13 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-@Getter
-@AllArgsConstructor
-@NoArgsConstructor
-@Builder
 public class CouponDto {
 
   @Getter
   @AllArgsConstructor
   @NoArgsConstructor
   @Builder
-  public class RequestCoupon {
+  public static class RequestCoupon {
 
     private Long memberId;
     private String couponTitle;
