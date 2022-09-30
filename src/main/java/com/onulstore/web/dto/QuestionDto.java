@@ -24,7 +24,7 @@ public class QuestionDto {
                 .productId(question.getProduct().getId())
                 .title(question.getTitle())
                 .content(question.getContent())
-                .answerStatus(question.getAnswerState())
+                .answerStatus(question.getAnswerStatus())
                 .questionType(question.getQuestionType())
                 .build();
     }

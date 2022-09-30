@@ -39,11 +39,12 @@ public class QuestionService {
                             .product(product)
                             .title(questionDto.getTitle())
                             .content(questionDto.getContent())
-                            .answerState(questionDto.getAnswerStatus())
+                            .answerStatus(questionDto.getAnswerStatus())
                             .questionType(questionDto.getQuestionType())
                             .build();
-        questionRepository.save(question);
+
         question.unAnswered();
+        questionRepository.save(question);
     }
 
     // 질문 수정

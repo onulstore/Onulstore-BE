@@ -30,7 +30,7 @@ public class Question extends BaseTimeEntity {
     private String content;
 
     @Column
-    private String answerState;    // 답변 유무
+    private String answerStatus;    // 답변 유무
 
     @Enumerated(EnumType.STRING)
     private QuestionType questionType;
@@ -48,11 +48,11 @@ public class Question extends BaseTimeEntity {
     private List<QuestionAnswer> questionAnswers = new ArrayList<>();
 
     public void unAnswered() {
-        this.answerState = AnswerStatus.NO.getKey();
+        this.answerStatus = AnswerStatus.NO.getKey();
     }
 
     public void Answered() {
-        this.answerState = AnswerStatus.YES.getKey();
+        this.answerStatus = AnswerStatus.YES.getKey();
     }
 
 }
