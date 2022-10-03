@@ -3,6 +3,7 @@ package com.onulstore.service;
 import com.onulstore.config.SecurityUtil;
 import com.onulstore.domain.cart.Cart;
 import com.onulstore.domain.cart.CartRepository;
+import com.onulstore.domain.enums.Authority;
 import com.onulstore.domain.enums.UserErrorResult;
 import com.onulstore.domain.member.Member;
 import com.onulstore.domain.member.MemberRepository;
@@ -77,17 +78,17 @@ public class OrderService {
 
     public Long createSelectedCartOrder(List<Long> cartList) {
         Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId()).orElseThrow(
-            () -> new UserException(UserErrorResult.NOT_EXIST_USER));
+                () -> new UserException(UserErrorResult.NOT_EXIST_USER));
         List<Cart> carts = new ArrayList<>();
         List<OrderProduct> orderProductList = new ArrayList<>();
 
-        for(Long num : cartList){
+        for (Long num : cartList) {
             carts.add(cartRepository.findById(num).orElseThrow());
         }
 
-        for(Cart cart : carts){
+        for (Cart cart : carts) {
             orderProductList.add(OrderProduct
-                .createOrderProduct(cart.getProduct(), cart.getProductCount()));
+                    .createOrderProduct(cart.getProduct(), cart.getProductCount()));
         }
 
         Order order = Order.createOrder(member, orderProductList);
@@ -95,4 +96,20 @@ public class OrderService {
         orderRepository.save(order);
         return order.getId();
     }
+
+    public OrderDto.StatusResponse updateStatus(OrderDto.StatusRequest statusRequest) {
+        Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId()).orElseThrow(
+                () -> new UserException(UserErrorResult.NOT_EXIST_USER));
+
+        if (!member.getAuthority().equals(Authority.ROLE_ADMIN.getKey())) {
+            throw new UserException(UserErrorResult.ACCESS_PRIVILEGE);
+        }
+
+        Order order = orderRepository.findById(statusRequest.getOrderId()).orElseThrow(
+                () -> new UserException(UserErrorResult.ORDER_NOT_FOUND));
+
+        Order updateOrder = order.updateStatus(statusRequest.getOrderStatus());
+        return OrderDto.StatusResponse.of(updateOrder);
+    }
+
 }

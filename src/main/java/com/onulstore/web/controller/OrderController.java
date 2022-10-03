@@ -48,4 +48,10 @@ public class OrderController {
         return ResponseEntity.ok("상품 주문이 취소되었습니다.");
     }
 
+    @PutMapping
+    @ApiOperation(value = "주문 상태 변경")
+    public ResponseEntity<OrderDto.StatusResponse> updateStatus(@Valid @RequestBody OrderDto.StatusRequest request) {
+        return ResponseEntity.ok(orderService.updateStatus(request));
+    }
+
 }
