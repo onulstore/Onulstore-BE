@@ -22,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @Transactional(readOnly = true)
@@ -90,8 +91,8 @@ public class AuthService {
      * 전체 회원 조회(Admin)
      * @return 전체 회원 정보
      */
-    public HashMap<String, Object> viewAllMember() {
-        HashMap<String, Object> resultMap = new HashMap<>();
+    public Map<String, List<Member>> viewAllMember() {
+        Map<String, List<Member>> resultMap = new HashMap<>();
 
         Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId()).orElseThrow(
                 () -> new UserException(UserErrorResult.NOT_EXIST_USER));
