@@ -1,6 +1,9 @@
 package com.onulstore.web.dto;
 
 import com.onulstore.domain.order.Order;
+import io.swagger.annotations.ApiModelProperty;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -57,5 +60,30 @@ public class OrderDto {
         }
     }
 
+    @Getter
+    @Setter
+    public static class StatusRequest {
+        private Long orderId;
+        @ApiModelProperty(value = "주문 상태", required = true, example = "PREPARE_DELIVERY/PREPARE_ITEM")
+        private String orderStatus;
+    }
+
+    @Getter
+    @Setter
+    @Builder
+    @AllArgsConstructor
+    public static class StatusResponse {
+        private Long orderId;
+        private String orderDate;
+        private String orderStatus;
+
+        public static OrderDto.StatusResponse of(Order order) {
+            return StatusResponse.builder()
+                    .orderId(order.getId())
+                    .orderDate(order.getOrderDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")))
+                    .orderStatus(order.getOrderStatus())
+                    .build();
+        }
+    }
 
 }
