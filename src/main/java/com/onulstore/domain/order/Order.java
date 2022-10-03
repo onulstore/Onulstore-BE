@@ -67,4 +67,9 @@ public class Order extends BaseTimeEntity {
             orderProduct.cancel();
         }
     }
+
+    public Order updateStatus(String orderStatus) {
+        this.orderStatus = orderStatus;
+        return this;
+    }
 }
