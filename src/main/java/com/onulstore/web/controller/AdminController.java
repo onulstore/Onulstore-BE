@@ -1,5 +1,6 @@
 package com.onulstore.web.controller;
 
+import com.onulstore.domain.member.Member;
 import com.onulstore.service.AuthService;
 import com.onulstore.web.dto.MemberDto;
 import io.swagger.annotations.Api;
@@ -8,7 +9,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/admin")
@@ -26,7 +28,7 @@ public class AdminController {
 
     @ApiOperation(value = "전체 회원 조회")
     @GetMapping("/find")
-    public ResponseEntity<HashMap<String, Object>> viewAllMember() {
+    public ResponseEntity<Map<String, List<Member>>> viewAllMember() {
         return ResponseEntity.ok().body(authService.viewAllMember());
     }
 
