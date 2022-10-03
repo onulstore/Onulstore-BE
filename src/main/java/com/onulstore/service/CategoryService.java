@@ -113,10 +113,7 @@ public class CategoryService {
             Product product = productRepository.findByCategoryId(category.getId()).orElseThrow();
             findProductByCategory.add(ProductDto.ProductResponse.of(product));
         }
-
-        int start = (int) pageable.getOffset();
-        int end = Math.min((start + pageable.getPageSize()), findAllCategory.size());
-        return new PageImpl<>(findProductByCategory.subList(start, end), pageable, findProductByCategory.size());
+        return new PageImpl<>(findProductByCategory, pageable, findAllCategory.size());
     }
 
 }
