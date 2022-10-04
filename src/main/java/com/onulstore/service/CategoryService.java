@@ -23,9 +23,6 @@ import java.util.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @RequiredArgsConstructor
 @Transactional
@@ -57,9 +54,9 @@ public class CategoryService {
      */
     public void addCategory(CategoryDto.CategoryRequest categoryRequest) {
         Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId()).orElseThrow(
-            () -> new UserException(UserErrorResult.NOT_EXIST_USER));
+            () -> new Exception(ErrorResult.NOT_EXIST_USER));
         if (!member.getAuthority().equals(Authority.ROLE_ADMIN.getKey())) {
-            throw new UserException(UserErrorResult.ACCESS_PRIVILEGE);
+            throw new Exception((ErrorResult.ACCESS_PRIVILEGE));
         }
 
         Category parent = Optional.ofNullable(categoryRequest.getParentId())
@@ -80,9 +77,9 @@ public class CategoryService {
     public CategoryDto.CategoryResponse updateCategory(
         CategoryDto.updateCatRequest updateCatRequest, Long categoryId) {
         Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId()).orElseThrow(
-            () -> new UserException(UserErrorResult.NOT_EXIST_USER));
+            () -> new Exception(ErrorResult.NOT_EXIST_USER));
         if (!member.getAuthority().equals(Authority.ROLE_ADMIN.getKey())) {
-            throw new UserException(UserErrorResult.ACCESS_PRIVILEGE);
+            throw new Exception(ErrorResult.ACCESS_PRIVILEGE);
         }
 
         Category category = categoryRepository.findById(categoryId).orElseThrow(
@@ -98,9 +95,9 @@ public class CategoryService {
      */
     public void deleteCategory(Long categoryId) {
         Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId()).orElseThrow(
-            () -> new UserException(UserErrorResult.NOT_EXIST_USER));
+            () -> new Exception(ErrorResult.NOT_EXIST_USER));
         if (!member.getAuthority().equals(Authority.ROLE_ADMIN.getKey())) {
-            throw new UserException(UserErrorResult.ACCESS_PRIVILEGE);
+            throw new Exception(ErrorResult.ACCESS_PRIVILEGE);
         }
 
         Category category = categoryRepository.findById(categoryId).orElseThrow(
@@ -118,7 +115,7 @@ public class CategoryService {
      */
     public Page<ProductDto.ProductResponse> getCategoryById(Long categoryId, Pageable pageable) {
         Category findCategory = categoryRepository.findById(categoryId).orElseThrow(
-            () -> new UserException(UserErrorResult.CATEGORY_NOT_FOUND));
+            () -> new Exception(ErrorResult.CATEGORY_NOT_FOUND));
 
         List<ProductDto.ProductResponse> findProductByCategory = new ArrayList<>();
         List<Category> findAllCategory = categoryRepository.findAllByParentId(categoryId);
