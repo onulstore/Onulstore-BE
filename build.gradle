@@ -12,7 +12,7 @@ jar {
     enabled = false
 }
 
-bootJar{
+bootJar {
     archivesBaseName = 'app'
     archiveFileName = 'app.jar'
     archiveVersion = "0.0.0"
@@ -55,6 +55,8 @@ dependencies {
     runtimeOnly group: 'io.jsonwebtoken', name: 'jjwt-impl', version: '0.11.5'
     runtimeOnly group: 'io.jsonwebtoken', name: 'jjwt-jackson', version: '0.11.5'
 
+    // OAuth
+    implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
 
 }
 
