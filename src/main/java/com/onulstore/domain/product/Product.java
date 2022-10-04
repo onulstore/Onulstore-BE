@@ -2,24 +2,40 @@ package com.onulstore.domain.product;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.onulstore.common.BaseTimeEntity;
+import com.onulstore.config.exception.Exception;
 import com.onulstore.domain.brand.Brand;
 import com.onulstore.domain.cart.Cart;
 import com.onulstore.domain.category.Category;
 import com.onulstore.domain.curation.CurationProduct;
+import com.onulstore.domain.enums.DiscountType;
+import com.onulstore.domain.enums.ErrorResult;
 import com.onulstore.domain.enums.ProductStatus;
-import com.onulstore.domain.enums.UserErrorResult;
 import com.onulstore.domain.order.OrderProduct;
 import com.onulstore.domain.question.Question;
 import com.onulstore.domain.review.Review;
 import com.onulstore.domain.wishlist.Wishlist;
-import com.onulstore.exception.UserException;
-import lombok.*;
-import org.hibernate.annotations.OnDelete;
-import org.hibernate.annotations.OnDeleteAction;
-
-import javax.persistence.*;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 @Getter
 @Setter
@@ -43,6 +59,12 @@ public class Product extends BaseTimeEntity {
     private Integer price;
 
     @Column
+    private Integer originalPrice;
+
+    @Column
+    private Integer discountValue = 0;
+
+    @Column
     private Integer quantity;
 
     @Column
@@ -50,6 +72,15 @@ public class Product extends BaseTimeEntity {
 
     @Column
     private boolean bookmark = false;
+
+    @Column
+    private boolean discountCheck = false;
+
+    @Column
+    private LocalDate discountStartDate = LocalDate.now();
+
+    @Column
+    private LocalDate discountEndDate = LocalDate.now();
 
     @Enumerated(EnumType.STRING)
     private ProductStatus productStatus;
@@ -93,7 +124,8 @@ public class Product extends BaseTimeEntity {
     private List<ProductImage> productImages = new ArrayList<>();
 
     public Product(String productName, String content, Integer price,
-                   Integer quantity, String productImg, ProductStatus productStatus, Category category, Brand brand) {
+        Integer quantity, String productImg, ProductStatus productStatus, Category category,
+        Brand brand) {
 
         this.productName = productName;
         this.content = content;
@@ -105,7 +137,7 @@ public class Product extends BaseTimeEntity {
     }
 
     public void changeProductData(String productName, String content, Integer price,
-                                  Integer quantity, ProductStatus productStatus) {
+        Integer quantity, ProductStatus productStatus) {
         this.productName = productName;
         this.content = content;
         this.price = price;
@@ -113,7 +145,7 @@ public class Product extends BaseTimeEntity {
         this.productStatus = productStatus;
     }
 
-    public void newPurchaseCount(){
+    public void newPurchaseCount() {
         this.purchaseCount = 0;
     }
 
@@ -121,7 +153,7 @@ public class Product extends BaseTimeEntity {
 
         int restStock = this.quantity - quantity;
         if (restStock < 1) {
-            throw new UserException(UserErrorResult.OUT_OF_STOCK);
+            throw new Exception(ErrorResult.OUT_OF_STOCK);
         }
         this.quantity = restStock;
     }
@@ -132,6 +164,32 @@ public class Product extends BaseTimeEntity {
 
     public void bookmarked() {
         this.bookmark = true;
+    }
+
+    public void discountProduct(DiscountType discountType, Integer discountValue,
+        LocalDate startDate, LocalDate endDate) {
+        if (discountType.equals(DiscountType.PERCENT)) {
+            this.discountValue = price * (discountValue) / 100;
+        } else {
+            this.discountValue = discountValue;
+        }
+        this.discountStartDate = startDate;
+        this.discountEndDate = endDate;
+    }
+
+    public void discountStartValidation() {
+        if (this.discountStartDate.isEqual(LocalDate.now())) {
+            discountCheck = true;
+            this.price = this.originalPrice - this.discountValue;
+        }
+    }
+
+    public void discountEndValidation() {
+        if (this.discountEndDate.isBefore(LocalDate.now())) {
+            discountCheck = false;
+            this.discountValue = 0;
+            this.price = this.originalPrice;
+        }
     }
 
 }
