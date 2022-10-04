@@ -1,5 +1,6 @@
 package com.onulstore.web.controller;
 
+import com.onulstore.domain.notice.Notice;
 import com.onulstore.service.NoticeService;
 import com.onulstore.web.dto.NoticeDto;
 import io.swagger.annotations.Api;
@@ -10,7 +11,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
@@ -41,7 +43,7 @@ public class NoticeController {
 
     @GetMapping
     @ApiOperation(value = "전체 공지 조회")
-    public ResponseEntity<HashMap<String, Object>> getNoticeList() {
+    public ResponseEntity<Map<String, List<Notice>>> getNoticeList() {
         return ResponseEntity.ok(noticeService.getNoticeList());
     }
 

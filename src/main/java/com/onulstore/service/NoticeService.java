@@ -14,6 +14,7 @@ import com.onulstore.web.dto.NoticeDto;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -90,8 +91,8 @@ public class NoticeService {
      * @return 전체 Notice 정보
      */
     @Transactional(readOnly = true)
-    public HashMap<String, Object> getNoticeList() {
-        HashMap<String, Object> resultMap = new HashMap<>();
+    public Map<String, List<Notice>> getNoticeList() {
+        Map<String, List<Notice>> resultMap = new HashMap<>();
         List<Notice> notices = noticeRepository.findAll();
         resultMap.put("notices", notices);
         return resultMap;

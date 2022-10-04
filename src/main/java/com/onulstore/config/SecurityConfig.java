@@ -1,5 +1,6 @@
 package com.onulstore.config;
 
+import com.onulstore.config.auth.PrincipalOauth2UserService;
 import com.onulstore.config.jwt.JwtAccessDeniedHandler;
 import com.onulstore.config.jwt.JwtAuthenticationEntryPoint;
 import com.onulstore.config.jwt.JwtSecurityConfig;
@@ -26,6 +27,7 @@ public class SecurityConfig {
     private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
     private final JwtAccessDeniedHandler jwtAccessDeniedHandler;
     private final CorsFilter corsFilter;
+    private final PrincipalOauth2UserService principalOauth2UserService;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -35,32 +37,40 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-                .csrf().disable()
+            .csrf().disable()
 
-                .sessionManagement()
-                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                .and()
+            .sessionManagement()
+            .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+            .and()
 
-                .addFilter(corsFilter)
-                .addFilter(new AnonymousAuthenticationFilter("anonymous"))
-                .exceptionHandling()
-                .authenticationEntryPoint(jwtAuthenticationEntryPoint)
-                .accessDeniedHandler(jwtAccessDeniedHandler)
+            .addFilter(corsFilter)
+            .addFilter(new AnonymousAuthenticationFilter("anonymous"))
+            .exceptionHandling()
+            .authenticationEntryPoint(jwtAuthenticationEntryPoint)
+            .accessDeniedHandler(jwtAccessDeniedHandler)
 
-                .and()
-                .authorizeRequests()
-                .antMatchers("/",  "/**", "/auth/**", "/products", "/v2/api-docs", "/swagger-resources/**"
-                        , "/swagger-ui.html", "/swagger-ui/index.html", "/webjars/**", "/swagger/**").permitAll()
-                .anyRequest().authenticated()
+            .and()
+            .authorizeRequests()
+            .antMatchers("/", "/**", "/auth/**", "/products", "/v2/api-docs",
+                "/swagger-resources/**", "/swagger-ui.html", "/swagger-ui/index.html",
+                "/webjars/**", "/swagger/**")
+            .permitAll()
+            .anyRequest().authenticated()
 
-                .and()
-                .logout()
-                .logoutRequestMatcher(new AntPathRequestMatcher("/auth/logout"))
-                .logoutSuccessUrl("/")
-                .invalidateHttpSession(true)
+            .and()
+            .logout()
+            .logoutRequestMatcher(new AntPathRequestMatcher("/auth/logout"))
+            .logoutSuccessUrl("/")
+            .invalidateHttpSession(true)
 
-                .and()
-                .apply(new JwtSecurityConfig(tokenProvider));
+            .and()
+            .apply(new JwtSecurityConfig(tokenProvider))
+
+            .and()
+            .formLogin().disable()
+            .oauth2Login()
+            .userInfoEndpoint()
+            .userService(principalOauth2UserService);
 
         return http.build();
     }

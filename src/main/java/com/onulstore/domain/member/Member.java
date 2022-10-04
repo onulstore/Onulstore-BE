@@ -69,8 +69,13 @@ public class Member extends BaseTimeEntity {
     private String authority;
 
     @Column
-    @JsonIgnore
-    private boolean activated;
+    private String provider;
+
+    @Column
+    private String providerId;
+
+    @Column
+    private int point = 0;
 
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
     @JsonIgnore

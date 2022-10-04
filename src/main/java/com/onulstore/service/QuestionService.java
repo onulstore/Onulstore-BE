@@ -10,11 +10,12 @@ import com.onulstore.domain.product.ProductRepository;
 import com.onulstore.domain.question.Question;
 import com.onulstore.domain.question.QuestionRepository;
 import com.onulstore.web.dto.QuestionDto;
-import java.util.ArrayList;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.ArrayList;
+import java.util.List;
 
 
 @Service
@@ -38,11 +39,11 @@ public class QuestionService {
             .product(product)
             .title(questionDto.getTitle())
             .content(questionDto.getContent())
-            .answerState(questionDto.getAnswerStatus())
-            .questionType(questionDto.getQuestionType())
+            .answerStatus(questionDto.getAnswerStatus())
             .build();
-        questionRepository.save(question);
+
         question.unAnswered();
+        questionRepository.save(question);
     }
 
     // 질문 수정
