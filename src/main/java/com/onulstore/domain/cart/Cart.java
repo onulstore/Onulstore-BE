@@ -2,14 +2,24 @@ package com.onulstore.domain.cart;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.onulstore.common.BaseTimeEntity;
-import com.onulstore.domain.enums.UserErrorResult;
+import com.onulstore.config.exception.Exception;
+import com.onulstore.domain.enums.ErrorResult;
+import com.onulstore.domain.member.Member;
 import com.onulstore.domain.order.Order;
 import com.onulstore.domain.product.Product;
-import com.onulstore.domain.member.Member;
-import com.onulstore.exception.UserException;
-import lombok.*;
-
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Getter
 @Setter
@@ -39,22 +49,22 @@ public class Cart extends BaseTimeEntity {
     @JsonIgnore
     private Order order;
 
-    public void changeQuantity(Integer quantity){
+    public void changeQuantity(Integer quantity) {
         this.productCount = productCount + quantity;
     }
 
-    public void plusOne(){
-        if(this.productCount >= product.getQuantity()){
-            throw new UserException(UserErrorResult.OUT_OF_STOCK);
+    public void plusOne() {
+        if (this.productCount >= product.getQuantity()) {
+            throw new Exception(ErrorResult.OUT_OF_STOCK);
         }
         this.productCount = productCount + 1;
     }
 
-    public void minusOne(){
-        if(this.productCount <= 1){
-            throw new UserException(UserErrorResult.OUT_OF_STOCK);
+    public void minusOne() {
+        if (this.productCount <= 1) {
+            throw new Exception(ErrorResult.OUT_OF_STOCK);
         }
-            this.productCount = productCount - 1;
+        this.productCount = productCount - 1;
     }
 
 }

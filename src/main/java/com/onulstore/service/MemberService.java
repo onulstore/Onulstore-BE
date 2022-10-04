@@ -1,11 +1,11 @@
 package com.onulstore.service;
 
 import com.onulstore.config.SecurityUtil;
-import com.onulstore.domain.enums.UserErrorResult;
+import com.onulstore.config.exception.Exception;
+import com.onulstore.domain.enums.ErrorResult;
 import com.onulstore.domain.member.Member;
 import com.onulstore.domain.member.MemberRepository;
 import com.onulstore.domain.product.Product;
-import com.onulstore.exception.UserException;
 import com.onulstore.web.dto.MemberDto;
 import com.onulstore.web.dto.PasswordDto;
 import com.onulstore.web.dto.ProductDto;
@@ -30,14 +30,14 @@ public class MemberService {
 
     public MemberDto.MemberResponse getMyInfo() {
         return memberRepository.findById(SecurityUtil.getCurrentMemberId())
-                .map(MemberDto.MemberResponse::of)
-                .orElseThrow(() -> new UserException(UserErrorResult.NOT_EXIST_USER));
+            .map(MemberDto.MemberResponse::of)
+            .orElseThrow(() -> new Exception(ErrorResult.NOT_EXIST_USER));
     }
 
     @Transactional
     public MemberDto.MemberResponse updateProfile(MemberDto.UpdateRequest updateRequest) {
         Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId()).orElseThrow(
-                () -> new UserException(UserErrorResult.NOT_EXIST_USER));
+            () -> new Exception(ErrorResult.NOT_EXIST_USER));
         Member updateMember = member.updateProfile(updateRequest);
         return MemberDto.MemberResponse.of(memberRepository.save(updateMember));
     }
@@ -45,35 +45,35 @@ public class MemberService {
     @Transactional
     public void deleteProfile() {
         Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId()).orElseThrow(
-                () -> new UserException(UserErrorResult.NOT_EXIST_USER));
+            () -> new Exception(ErrorResult.NOT_EXIST_USER));
         memberRepository.delete(member);
     }
 
     @Transactional
     public void updatePassword(PasswordDto passwordDto) {
         Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId()).orElseThrow(
-                () -> new UserException(UserErrorResult.NOT_EXIST_USER));
+            () -> new Exception(ErrorResult.NOT_EXIST_USER));
 
         if (!passwordDto.getNewPassword().equals(passwordDto.getNewPasswordConfirm())) {
-            throw new UserException(UserErrorResult.UPDATE_PASSWORD);
+            throw new Exception(ErrorResult.UPDATE_PASSWORD);
         }
 
-        Member updateMember = member.updatePassword(passwordEncoder.encode(passwordDto.getNewPassword()));
+        Member updateMember = member.updatePassword(
+            passwordEncoder.encode(passwordDto.getNewPassword()));
         memberRepository.save(updateMember);
     }
 
     @Transactional
     public ArrayList<ProductResponse> latestProduct(HttpServletRequest request) {
+        Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId()).orElseThrow(
+            () -> new Exception(ErrorResult.NOT_EXIST_USER));
+        HttpSession session = request.getSession();
 
-      Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId()).orElseThrow(
-          () -> new UserException(UserErrorResult.NOT_EXIST_USER));
-      HttpSession session = request.getSession();
-
-      ArrayList<Product> latest= (ArrayList)session.getAttribute("List");
-      ArrayList<ProductDto.ProductResponse> recentlyViewed = new ArrayList<>();
-      for(Product product : latest) {
-        recentlyViewed.add(ProductDto.ProductResponse.of(product));
-      }
-      return recentlyViewed;
-  }
+        ArrayList<Product> latest = (ArrayList) session.getAttribute("List");
+        ArrayList<ProductDto.ProductResponse> recentlyViewed = new ArrayList<>();
+        for (Product product : latest) {
+            recentlyViewed.add(ProductDto.ProductResponse.of(product));
+        }
+        return recentlyViewed;
+    }
 }
