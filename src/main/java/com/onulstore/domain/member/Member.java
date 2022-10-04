@@ -74,6 +74,9 @@ public class Member extends BaseTimeEntity {
     @Column
     private String providerId;
 
+    @Column
+    private int point = 0;
+
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
     @JsonIgnore
     private List<Question> questions = new ArrayList<>();
