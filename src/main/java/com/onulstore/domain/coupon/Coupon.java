@@ -49,17 +49,14 @@ public class Coupon extends BaseTimeEntity {
     private Integer maxDiscountValue;
 
 
-  @Column
-  @Enumerated(EnumType.STRING)
-  private CouponStatus couponStatus = CouponStatus.DEFAULT;
+    @Column
+    @Enumerated(EnumType.STRING)
+    private CouponStatus couponStatus = CouponStatus.DEFAULT;
 
     @Column
     @Enumerated(EnumType.STRING)
     private DiscountType discountType;
 
-
-    @Column
-    private String categoryCode;
 
     @Override
     public LocalDateTime getCreatedDate() {
