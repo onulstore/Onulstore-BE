@@ -40,7 +40,6 @@ public class QuestionService {
                             .title(questionDto.getTitle())
                             .content(questionDto.getContent())
                             .answerStatus(questionDto.getAnswerStatus())
-                            .questionType(questionDto.getQuestionType())
                             .build();
 
         question.unAnswered();
