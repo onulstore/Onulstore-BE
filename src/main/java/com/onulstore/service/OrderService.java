@@ -13,7 +13,6 @@ import com.onulstore.domain.order.OrderProduct;
 import com.onulstore.domain.order.OrderRepository;
 import com.onulstore.domain.product.Product;
 import com.onulstore.domain.product.ProductRepository;
-import com.onulstore.exception.UserException;
 import com.onulstore.web.dto.OrderDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -100,14 +99,14 @@ public class OrderService {
 
     public OrderDto.StatusResponse updateStatus(OrderDto.StatusRequest statusRequest) {
         Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId()).orElseThrow(
-                () -> new UserException(UserErrorResult.NOT_EXIST_USER));
+            () -> new Exception(ErrorResult.NOT_EXIST_USER));
 
         if (!member.getAuthority().equals(Authority.ROLE_ADMIN.getKey())) {
-            throw new UserException(UserErrorResult.ACCESS_PRIVILEGE);
+            throw new Exception(ErrorResult.ACCESS_PRIVILEGE);
         }
 
         Order order = orderRepository.findById(statusRequest.getOrderId()).orElseThrow(
-                () -> new UserException(UserErrorResult.ORDER_NOT_FOUND));
+            () -> new Exception(ErrorResult.ORDER_NOT_FOUND));
 
         Order updateOrder = order.updateStatus(statusRequest.getOrderStatus());
         return OrderDto.StatusResponse.of(updateOrder);
