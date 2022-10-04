@@ -1,29 +1,13 @@
 package com.onulstore.domain.coupon;
 
 import com.onulstore.common.BaseTimeEntity;
-import com.onulstore.domain.category.Category;
 import com.onulstore.domain.enums.CouponStatus;
 import com.onulstore.domain.enums.DiscountType;
 import com.onulstore.domain.member.Member;
-import com.onulstore.exception.UserException;
-import java.time.LocalDate;
+import lombok.*;
+
+import javax.persistence.*;
 import java.time.LocalDateTime;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import org.hibernate.annotations.OnDelete;
-import org.hibernate.annotations.OnDeleteAction;
 
 @Getter
 @Setter
@@ -54,14 +38,11 @@ public class Coupon extends BaseTimeEntity {
 
   @Column
   @Enumerated(EnumType.STRING)
-  private CouponStatus couponStatus;
+  private CouponStatus couponStatus = CouponStatus.DEFAULT;
 
   @Column
   @Enumerated(EnumType.STRING)
   private DiscountType discountType;
-
-  @Column
-  private String categoryCode;
 
   @Override
   public LocalDateTime getCreatedDate() {
@@ -97,6 +78,10 @@ public class Coupon extends BaseTimeEntity {
       return maxDiscountValue;
     }
     return discountPrice;
+  }
+
+  public void settingExpirationDate() {
+    this.expirationDate = LocalDateTime.now().plusDays(14);
   }
 
 }
