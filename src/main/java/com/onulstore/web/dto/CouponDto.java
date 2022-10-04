@@ -12,36 +12,40 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
+@Getter
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
 public class CouponDto {
 
-  @Getter
-  @AllArgsConstructor
-  @NoArgsConstructor
-  @Builder
-  public static class RequestCoupon {
+    @Getter
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Builder
+    public static class RequestCoupon {
 
-    private Long memberId;
-    private String couponTitle;
-    private LocalDate createdDate;
-    private Long duration;
-    private Integer discountValue;
-    private Integer leastRequiredValue;
-    private Integer maxDiscountValue;
-    private DiscountType discountType;
-    private CouponStatus couponStatus;
+        private Long memberId;
+        private String couponTitle;
+        private LocalDate createdDate;
+        private Long duration;
+        private Integer discountValue;
+        private Integer leastRequiredValue;
+        private Integer maxDiscountValue;
+        private DiscountType discountType;
+        private CouponStatus couponStatus;
 
-    public Coupon toCoupon(Member member) {
-      Coupon coupon = Coupon.builder()
-              .couponTitle(couponTitle)
-              .discountValue(discountValue)
-              .leastRequiredValue(leastRequiredValue)
-              .maxDiscountValue(maxDiscountValue)
-              .discountType(discountType)
-              .couponStatus(CouponStatus.DEFAULT)
-              .member(member)
-              .expirationDate(LocalDateTime.now().plusDays(duration))
-              .build();
-      return coupon;
+        public Coupon toCoupon(Member member) {
+            Coupon coupon = Coupon.builder()
+                .couponTitle(couponTitle)
+                .discountValue(discountValue)
+                .leastRequiredValue(leastRequiredValue)
+                .maxDiscountValue(maxDiscountValue)
+                .discountType(discountType)
+                .couponStatus(CouponStatus.DEFAULT)
+                .member(member)
+                .expirationDate(LocalDateTime.now().plusDays(duration))
+                .build();
+            return coupon;
+        }
     }
-  }
 }
