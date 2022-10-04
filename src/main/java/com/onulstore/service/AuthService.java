@@ -12,8 +12,6 @@ import com.onulstore.domain.member.MemberRepository;
 import com.onulstore.web.dto.LoginDto;
 import com.onulstore.web.dto.MemberDto;
 import com.onulstore.web.dto.TokenDto;
-import java.util.HashMap;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -21,6 +19,10 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Service
 @Transactional(readOnly = true)
@@ -97,8 +99,8 @@ public class AuthService {
      *
      * @return 전체 회원 정보
      */
-    public HashMap<String, Object> viewAllMember() {
-        HashMap<String, Object> resultMap = new HashMap<>();
+    public Map<String, List<Member>> viewAllMember() {
+        Map<String, List<Member>> resultMap = new HashMap<>();
 
         Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId()).orElseThrow(
             () -> new Exception(ErrorResult.NOT_EXIST_USER));

@@ -4,6 +4,7 @@ import com.onulstore.common.BaseTimeEntity;
 import com.onulstore.domain.enums.CouponStatus;
 import com.onulstore.domain.enums.DiscountType;
 import com.onulstore.domain.member.Member;
+
 import java.time.LocalDateTime;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -47,13 +48,15 @@ public class Coupon extends BaseTimeEntity {
     @Column
     private Integer maxDiscountValue;
 
-    @Column
-    @Enumerated(EnumType.STRING)
-    private CouponStatus couponStatus;
+
+  @Column
+  @Enumerated(EnumType.STRING)
+  private CouponStatus couponStatus = CouponStatus.DEFAULT;
 
     @Column
     @Enumerated(EnumType.STRING)
     private DiscountType discountType;
+
 
     @Column
     private String categoryCode;

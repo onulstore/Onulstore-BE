@@ -13,7 +13,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     Optional<Product> findById(Long id);
     boolean existsByProductName(String email);
     Page<Product> findByBrandId(Long brandId, Pageable pageable);
-
+    Optional<Product> findByCategoryId(Long categoryId);
     List<Product> findAllByProductStatusAndDiscountCheck(ProductStatus productStatus,
         boolean discountCheck);
 }

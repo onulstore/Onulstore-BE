@@ -5,6 +5,7 @@ import com.onulstore.config.exception.Exception;
 import com.onulstore.domain.cart.Cart;
 import com.onulstore.domain.cart.CartRepository;
 import com.onulstore.domain.enums.ErrorResult;
+import com.onulstore.domain.enums.Authority;
 import com.onulstore.domain.member.Member;
 import com.onulstore.domain.member.MemberRepository;
 import com.onulstore.domain.order.Order;
@@ -12,16 +13,18 @@ import com.onulstore.domain.order.OrderProduct;
 import com.onulstore.domain.order.OrderRepository;
 import com.onulstore.domain.product.Product;
 import com.onulstore.domain.product.ProductRepository;
+import com.onulstore.exception.UserException;
 import com.onulstore.web.dto.OrderDto;
-import java.util.ArrayList;
-import java.util.List;
-import javax.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import javax.persistence.EntityNotFoundException;
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 @Transactional
@@ -94,4 +97,20 @@ public class OrderService {
         orderRepository.save(order);
         return order.getId();
     }
+
+    public OrderDto.StatusResponse updateStatus(OrderDto.StatusRequest statusRequest) {
+        Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId()).orElseThrow(
+                () -> new UserException(UserErrorResult.NOT_EXIST_USER));
+
+        if (!member.getAuthority().equals(Authority.ROLE_ADMIN.getKey())) {
+            throw new UserException(UserErrorResult.ACCESS_PRIVILEGE);
+        }
+
+        Order order = orderRepository.findById(statusRequest.getOrderId()).orElseThrow(
+                () -> new UserException(UserErrorResult.ORDER_NOT_FOUND));
+
+        Order updateOrder = order.updateStatus(statusRequest.getOrderStatus());
+        return OrderDto.StatusResponse.of(updateOrder);
+    }
+
 }

@@ -1,6 +1,5 @@
 package com.onulstore.web.dto;
 
-import com.onulstore.domain.enums.QuestionType;
 import com.onulstore.domain.question.Question;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -17,15 +16,13 @@ public class QuestionDto {
     private String title;
     private String content;
     private String answerStatus;
-    private QuestionType questionType;
 
     public static QuestionDto of (Question question) {
         return QuestionDto.builder()
                 .productId(question.getProduct().getId())
                 .title(question.getTitle())
                 .content(question.getContent())
-                .answerStatus(question.getAnswerState())
-                .questionType(question.getQuestionType())
+                .answerStatus(question.getAnswerStatus())
                 .build();
     }
 
