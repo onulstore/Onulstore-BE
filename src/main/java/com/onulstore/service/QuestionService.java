@@ -1,14 +1,14 @@
 package com.onulstore.service;
 
 import com.onulstore.config.SecurityUtil;
-import com.onulstore.domain.enums.UserErrorResult;
+import com.onulstore.config.exception.Exception;
+import com.onulstore.domain.enums.ErrorResult;
 import com.onulstore.domain.member.Member;
 import com.onulstore.domain.member.MemberRepository;
 import com.onulstore.domain.product.Product;
 import com.onulstore.domain.product.ProductRepository;
 import com.onulstore.domain.question.Question;
 import com.onulstore.domain.question.QuestionRepository;
-import com.onulstore.exception.UserException;
 import com.onulstore.web.dto.QuestionDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -30,17 +30,17 @@ public class QuestionService {
     @Transactional
     public void insertQuestion(QuestionDto questionDto) {
         Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId()).orElseThrow(
-                () -> new UserException(UserErrorResult.NOT_EXIST_USER));
+            () -> new Exception(ErrorResult.NOT_EXIST_USER));
         Product product = productRepository.findById(questionDto.getProductId()).orElseThrow(
-                () -> new UserException(UserErrorResult.PRODUCT_NOT_FOUND));
+            () -> new Exception(ErrorResult.PRODUCT_NOT_FOUND));
 
         Question question = Question.builder()
-                            .member(member)
-                            .product(product)
-                            .title(questionDto.getTitle())
-                            .content(questionDto.getContent())
-                            .answerStatus(questionDto.getAnswerStatus())
-                            .build();
+            .member(member)
+            .product(product)
+            .title(questionDto.getTitle())
+            .content(questionDto.getContent())
+            .answerStatus(questionDto.getAnswerStatus())
+            .build();
 
         question.unAnswered();
         questionRepository.save(question);
@@ -50,15 +50,15 @@ public class QuestionService {
     @Transactional
     public QuestionDto updateQuestion(Long questionId, QuestionDto questionDto) {
         Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId()).orElseThrow(
-                () -> new UserException(UserErrorResult.NOT_EXIST_USER));
+            () -> new Exception(ErrorResult.NOT_EXIST_USER));
         Product product = productRepository.findById(questionDto.getProductId()).orElseThrow(
-                () -> new UserException(UserErrorResult.PRODUCT_NOT_FOUND));
+            () -> new Exception(ErrorResult.PRODUCT_NOT_FOUND));
 
         Question question = questionRepository.findById(questionId).orElseThrow(
-            () -> new UserException(UserErrorResult.NOT_EXIST_QUESTION));
+            () -> new Exception(ErrorResult.NOT_EXIST_QUESTION));
 
         if (!member.getId().equals(question.getMember().getId())) {
-            throw new UserException(UserErrorResult.USER_NOT_MATCH);
+            throw new Exception(ErrorResult.USER_NOT_MATCH);
         }
         question.setTitle(questionDto.getTitle());
         question.setContent(questionDto.getContent());
@@ -70,13 +70,13 @@ public class QuestionService {
     @Transactional
     public void deleteQuestion(Long questionId) {
         Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId()).orElseThrow(
-                () -> new UserException(UserErrorResult.NOT_EXIST_USER));
+            () -> new Exception(ErrorResult.NOT_EXIST_USER));
 
         Question question = questionRepository.findById(questionId).orElseThrow(
-                () -> new UserException(UserErrorResult.NOT_EXIST_QUESTION));
+            () -> new Exception(ErrorResult.NOT_EXIST_QUESTION));
 
-        if (!member.getId().equals(question.getMember().getId())){
-            throw new UserException(UserErrorResult.USER_NOT_MATCH);
+        if (!member.getId().equals(question.getMember().getId())) {
+            throw new Exception(ErrorResult.USER_NOT_MATCH);
         }
         questionRepository.deleteById(questionId);
     }
@@ -85,10 +85,10 @@ public class QuestionService {
     @Transactional
     public QuestionDto getQuestion(Long productId, Long questionId) {
         Product product = productRepository.findById(productId).orElseThrow(
-                () -> new UserException(UserErrorResult.PRODUCT_NOT_FOUND));
+            () -> new Exception(ErrorResult.PRODUCT_NOT_FOUND));
 
         Question question = questionRepository.findById(questionId).orElseThrow(
-            () -> new UserException(UserErrorResult.NOT_EXIST_QUESTION));
+            () -> new Exception(ErrorResult.NOT_EXIST_QUESTION));
 
         return QuestionDto.of(question);
     }
@@ -97,7 +97,7 @@ public class QuestionService {
     @Transactional
     public List<QuestionDto> getQuestionList(Long productId) {
         Product product = productRepository.findById(productId).orElseThrow(
-                () -> new UserException(UserErrorResult.PRODUCT_NOT_FOUND));
+            () -> new Exception(ErrorResult.PRODUCT_NOT_FOUND));
 
         List<Question> questions = questionRepository.findAllByProductId(product.getId());
         List<QuestionDto> questionList = new ArrayList<>();
@@ -112,7 +112,7 @@ public class QuestionService {
     @Transactional
     public List<QuestionDto> getMemberQuestionList() {
         Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId()).orElseThrow(
-                () -> new UserException(UserErrorResult.NOT_EXIST_USER));
+            () -> new Exception(ErrorResult.NOT_EXIST_USER));
 
         List<Question> questions = questionRepository.findAllByMemberId(member.getId());
         List<QuestionDto> questionList = new ArrayList<>();

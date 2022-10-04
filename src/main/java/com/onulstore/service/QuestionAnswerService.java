@@ -1,15 +1,15 @@
 package com.onulstore.service;
 
 import com.onulstore.config.SecurityUtil;
+import com.onulstore.config.exception.Exception;
 import com.onulstore.domain.enums.Authority;
-import com.onulstore.domain.enums.UserErrorResult;
+import com.onulstore.domain.enums.ErrorResult;
 import com.onulstore.domain.member.Member;
 import com.onulstore.domain.member.MemberRepository;
 import com.onulstore.domain.question.Question;
 import com.onulstore.domain.question.QuestionRepository;
 import com.onulstore.domain.questionAnswer.QuestionAnswer;
 import com.onulstore.domain.questionAnswer.QuestionAnswerRepository;
-import com.onulstore.exception.UserException;
 import com.onulstore.web.dto.QuestionAnswerDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -27,19 +27,19 @@ public class QuestionAnswerService {
     @Transactional
     public void insertAnswer(Long questionId, QuestionAnswerDto questionAnswerDto) {
         Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId()).orElseThrow(
-                () -> new UserException(UserErrorResult.NOT_EXIST_USER));
+            () -> new Exception(ErrorResult.NOT_EXIST_USER));
         Question question = questionRepository.findById(questionId).orElseThrow(
-            () -> new UserException(UserErrorResult.NOT_EXIST_QUESTION));
+            () -> new Exception(ErrorResult.NOT_EXIST_QUESTION));
 
         if (!member.getAuthority().equals(Authority.ROLE_ADMIN.getKey())) {
-            throw new UserException(UserErrorResult.ACCESS_PRIVILEGE);
+            throw new Exception(ErrorResult.ACCESS_PRIVILEGE);
         }
 
         QuestionAnswer answer = QuestionAnswer.builder()
-                .member(member)
-                .question(question)
-                .answer(questionAnswerDto.getAnswer())
-                .build();
+            .member(member)
+            .question(question)
+            .answer(questionAnswerDto.getAnswer())
+            .build();
 
         questionAnswerRepository.save(answer);
         question.Answered();
@@ -49,10 +49,10 @@ public class QuestionAnswerService {
     @Transactional
     public QuestionAnswerDto getAnswer(Long questionId, Long answerId) {
         Question question = questionRepository.findById(questionId).orElseThrow(
-            () -> new UserException(UserErrorResult.NOT_EXIST_QUESTION));
+            () -> new Exception(ErrorResult.NOT_EXIST_QUESTION));
 
         QuestionAnswer answer = questionAnswerRepository.findById(answerId).orElseThrow(
-            () -> new UserException(UserErrorResult.NOT_EXIST_ANSWER));
+            () -> new Exception(ErrorResult.NOT_EXIST_ANSWER));
 
         return QuestionAnswerDto.of(answer);
     }

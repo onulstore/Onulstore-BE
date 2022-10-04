@@ -6,7 +6,7 @@ import org.springframework.http.HttpStatus;
 
 @Getter
 @RequiredArgsConstructor
-public enum UserErrorResult implements SuperErrorResult{
+public enum ErrorResult implements SuperErrorResult{
   DUPLICATE_USER_ID(HttpStatus.CONFLICT, "이미 존재하는 이메일입니다."),
   NOT_EXIST_USER(HttpStatus.FORBIDDEN, "존재하지 않는 유저입니다."),
   OUT_OF_STOCK(HttpStatus.BAD_REQUEST, "재고가 부족합니다."),
