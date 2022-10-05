@@ -41,9 +41,9 @@ public class CouponService {
 
     @Transactional
     public void newUser(String memberEmail) {
-        Member member = memberRepository.findByEmail(memberEmail).get();
+        Member member = memberRepository.findByEmail(memberEmail).orElseThrow(
+            () -> new Exception(ErrorResult.NOT_EXIST_USER));
         Coupon coupon = Coupon.builder()
-            .member(member)
             .couponTitle("신규")
             .discountValue(10)
             .leastRequiredValue(0)

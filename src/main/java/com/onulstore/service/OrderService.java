@@ -4,8 +4,8 @@ import com.onulstore.config.SecurityUtil;
 import com.onulstore.config.exception.Exception;
 import com.onulstore.domain.cart.Cart;
 import com.onulstore.domain.cart.CartRepository;
-import com.onulstore.domain.enums.Authority;
 import com.onulstore.domain.enums.ErrorResult;
+import com.onulstore.domain.enums.OrderStatus;
 import com.onulstore.domain.member.Member;
 import com.onulstore.domain.member.MemberRepository;
 import com.onulstore.domain.order.Order;
@@ -16,7 +16,6 @@ import com.onulstore.domain.product.ProductRepository;
 import com.onulstore.web.dto.OrderDto;
 import java.util.ArrayList;
 import java.util.List;
-import javax.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -52,6 +51,11 @@ public class OrderService {
         orderRepository.save(order);
     }
 
+    /**
+     * 본인 주문 내역
+     * @param pageable
+     * @return 주문 내역
+     */
     @Transactional(readOnly = true)
     public Page<OrderDto.OrderHistory> getOrderList(Pageable pageable) {
         Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId()).orElseThrow(
@@ -72,11 +76,6 @@ public class OrderService {
             orderHistories.add(orderHistory);
         }
         return new PageImpl<>(orderHistories, pageable, totalCount);
-    }
-
-    public void orderCancel(Long orderId) {
-        Order order = orderRepository.findById(orderId).orElseThrow(EntityNotFoundException::new);
-        order.orderCancel();
     }
 
     public Long createSelectedCartOrder(List<Long> cartList) {
@@ -101,20 +100,43 @@ public class OrderService {
     }
 
     /**
-     * 환불 요청
+     * 주문 취소
+     * @param orderId
+     */
+    public void orderCancel(Long orderId) {
+        Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId()).orElseThrow(
+            () -> new Exception(ErrorResult.NOT_EXIST_USER));
+
+        Order order = orderRepository.findById(orderId).orElseThrow(
+            () -> new Exception(ErrorResult.ORDER_NOT_FOUND));
+
+        if (!order.getMember().getId().equals(member.getId())) {
+            throw new Exception(ErrorResult.USER_NOT_MATCH);
+        }
+
+        order.orderCancel();
+    }
+
+    /**
+     * 환불 요청 or 구매 확정
      * @param statusRequest
-     * @return 업데이트 된 내역
+     * @return
      */
     public OrderDto.StatusResponse updateStatus(OrderDto.StatusRequest statusRequest) {
         Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId()).orElseThrow(
             () -> new Exception(ErrorResult.NOT_EXIST_USER));
 
-//        if (!member.getAuthority().equals(Authority.ROLE_ADMIN.getKey())) {
-//            throw new Exception(ErrorResult.ACCESS_PRIVILEGE);
-//        }
+        if (!(statusRequest.getOrderStatus().equals(OrderStatus.REFUND_REQUEST.getKey()) ||
+            statusRequest.getOrderStatus().equals(OrderStatus.PURCHASE_CONFIRM.getKey()))) {
+            throw new Exception(ErrorResult.ACCESS_PRIVILEGE);
+        }
 
         Order order = orderRepository.findById(statusRequest.getOrderId()).orElseThrow(
             () -> new Exception(ErrorResult.ORDER_NOT_FOUND));
+
+        if (!order.getMember().getId().equals(member.getId())) {
+            throw new Exception(ErrorResult.USER_NOT_MATCH);
+        }
 
         Order updateOrder = order.updateStatus(statusRequest.getOrderStatus());
         return OrderDto.StatusResponse.of(updateOrder);
