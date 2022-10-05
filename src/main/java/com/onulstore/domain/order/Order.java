@@ -116,7 +116,6 @@ public class Order extends BaseTimeEntity {
     }
 
     public void orderCancel() {
-
         this.orderStatus = OrderStatus.CANCEL.getKey();
         for (OrderProduct orderProduct : orderProducts) {
             orderProduct.cancel();
