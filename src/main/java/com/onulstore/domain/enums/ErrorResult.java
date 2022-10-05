@@ -36,7 +36,9 @@ public enum ErrorResult implements SuperErrorResult {
     NOT_FOUND_NOTICE(HttpStatus.NOT_FOUND, "해당 공지를 찾을 수 없습니다."),
 
     // 409 CONFLICT
-    DUPLICATE_USER_ID(HttpStatus.CONFLICT, "이미 존재하는 이메일입니다.");
+    DUPLICATE_USER_ID(HttpStatus.CONFLICT, "이미 존재하는 이메일입니다."),
+    DUPLICATE_PHONE_NUMBER(HttpStatus.CONFLICT, "이미 존재하는 휴대폰 번호 입니다.");;
+
 
     private final HttpStatus httpStatus;
     private final String message;
