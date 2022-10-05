@@ -10,6 +10,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -44,6 +45,13 @@ public class AuthController {
     public ResponseEntity<TokenDto> getRefreshToken(
         @RequestBody TokenDto.TokenRequest tokenRequest) {
         return ResponseEntity.ok(authService.getRefreshToken(tokenRequest));
+    }
+
+    @ApiOperation(value = "휴대폰 번호로 이메일 찾기")
+    @GetMapping("/find/email")
+    public ResponseEntity<MemberDto.FindResponse> findEmail(
+        @RequestBody MemberDto.FindRequest findRequest) {
+        return ResponseEntity.ok(authService.findEmail(findRequest));
     }
 
 }
