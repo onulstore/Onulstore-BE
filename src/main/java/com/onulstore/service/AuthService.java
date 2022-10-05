@@ -45,6 +45,10 @@ public class AuthService {
             throw new Exception(ErrorResult.DUPLICATE_USER_ID);
         }
 
+        if (memberRepository.existsByPhoneNum(signupRequest.getPhoneNum())) {
+            throw new Exception(ErrorResult.DUPLICATE_PHONE_NUMBER);
+        }
+
         if (!signupRequest.getPassword().equals(signupRequest.getPasswordConfirm())) {
             throw new Exception(ErrorResult.PASSWORD_MISMATCH);
         }
