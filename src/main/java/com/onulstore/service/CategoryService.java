@@ -107,14 +107,12 @@ public class CategoryService {
      * @return categoryId로 조회한 상품 목록(2depth 까지)
      */
     public Page<ProductDto.ProductResponse> getCategoryById(Long categoryId, Pageable pageable) {
-        Category findCategory = categoryRepository.findById(categoryId).orElseThrow(
-            () -> new Exception(ErrorResult.CATEGORY_NOT_FOUND));
-
         List<ProductDto.ProductResponse> findProductByCategory = new ArrayList<>();
         List<Category> findAllCategory = categoryRepository.findAllByParentId(categoryId);
-        findAllCategory.add(findCategory);
+
         for (Category category : findAllCategory) {
-            Product product = productRepository.findByCategoryId(category.getId()).orElseThrow();
+            Product product = productRepository.findByCategoryId(category.getId()).orElseThrow(
+                () -> new Exception(ErrorResult.PRODUCT_NOT_FOUND));
             findProductByCategory.add(ProductDto.ProductResponse.of(product));
         }
         return new PageImpl<>(findProductByCategory, pageable, findAllCategory.size());
