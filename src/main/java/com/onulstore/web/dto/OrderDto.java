@@ -1,5 +1,6 @@
 package com.onulstore.web.dto;
 
+import com.onulstore.domain.enums.DeliveryMeasure;
 import com.onulstore.domain.enums.OrderStatus;
 import com.onulstore.domain.enums.PaymentMeasure;
 import com.onulstore.domain.order.Order;
@@ -29,6 +30,7 @@ public class OrderDto {
         private int count;
         private String deliveryMessage;
         private PaymentMeasure paymentMeasure;
+        private DeliveryMeasure deliveryMeasure;
 
     }
 
@@ -55,6 +57,7 @@ public class OrderDto {
         private Long orderId;
         private String orderDate;
         private OrderStatus orderStatus;
+        private DeliveryMeasure deliveryMeasure;
         private List<OrderProduct> orderProducts = new ArrayList<>();
 
         public OrderHistory(Order order) {
@@ -62,6 +65,7 @@ public class OrderDto {
             this.orderDate = order.getOrderDate()
                 .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
             this.orderStatus = order.getOrderStatus();
+            this.deliveryMeasure = order.getDeliveryMeasure();
         }
 
         public void addOrderProduct(OrderDto.OrderProduct orderProduct) {
