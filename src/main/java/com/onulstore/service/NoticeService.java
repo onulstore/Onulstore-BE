@@ -34,9 +34,7 @@ public class NoticeService {
 
     /**
      * Notice 등록
-     *
      * @param noticeRequest
-     *
      * @return Notice 등록 정보
      */
     public NoticeDto.NoticeResponse addNotice(NoticeDto.NoticeRequest noticeRequest) {
@@ -52,10 +50,8 @@ public class NoticeService {
 
     /**
      * Notice 수정
-     *
      * @param noticeRequest
      * @param noticeId
-     *
      * @return Notice 수정 정보
      */
     public NoticeDto.NoticeResponse updateNotice(NoticeDto.NoticeRequest noticeRequest,
@@ -74,9 +70,7 @@ public class NoticeService {
 
     /**
      * 해당 Notice 조회
-     *
      * @param noticeId
-     *
      * @return Notice 정보
      */
     @Transactional(readOnly = true)
@@ -87,7 +81,6 @@ public class NoticeService {
 
     /**
      * 전체 Notice 조회
-     *
      * @return 전체 Notice 정보
      */
     @Transactional(readOnly = true)
@@ -100,7 +93,6 @@ public class NoticeService {
 
     /**
      * 해당 Notice 삭제
-     *
      * @param noticeId
      */
     public void deleteNotice(Long noticeId) {

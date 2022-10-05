@@ -31,7 +31,6 @@ public class BrandService {
 
     /**
      * 브랜드 전체 조회
-     *
      * @return 브랜드 전체 정보
      */
     @Transactional(readOnly = true)
@@ -45,10 +44,8 @@ public class BrandService {
 
     /**
      * BrandId로 상품 조회
-     *
      * @param brandId
      * @param pageable
-     *
      * @return 해당 Brand 상품 전체 정보
      */
     @Transactional(readOnly = true)
@@ -62,9 +59,7 @@ public class BrandService {
 
     /**
      * 브랜드 등록
-     *
      * @param brandRequest
-     *
      * @return 브랜드 등록 정보
      */
     public BrandDto.BrandResponse addBrand(BrandDto.BrandRequest brandRequest) {
@@ -80,10 +75,8 @@ public class BrandService {
 
     /**
      * 브랜드 수정
-     *
      * @param updateRequest
      * @param brandId
-     *
      * @return 수정된 브랜드 정보
      */
     public BrandDto.BrandResponse updateBrand(BrandDto.UpdateRequest updateRequest, Long brandId) {
@@ -101,7 +94,6 @@ public class BrandService {
 
     /**
      * 브랜드 삭제
-     *
      * @param brandId
      */
     public void deleteBrand(Long brandId) {

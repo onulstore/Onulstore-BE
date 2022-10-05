@@ -37,9 +37,7 @@ public class AuthService {
 
     /**
      * 회원가입
-     *
      * @param signupRequest
-     *
      * @return 회원가입 정보
      */
     @Transactional
@@ -54,9 +52,7 @@ public class AuthService {
 
     /**
      * 로그인
-     *
      * @param loginDto
-     *
      * @return token 발급
      */
     @Transactional
@@ -79,9 +75,7 @@ public class AuthService {
 
     /**
      * 입점사 회원가입
-     *
      * @param sellerRequest
-     *
      * @return 회원가입 정보
      */
     @Transactional
@@ -96,7 +90,6 @@ public class AuthService {
 
     /**
      * 전체 회원 조회(Admin)
-     *
      * @return 전체 회원 정보
      */
     public Map<String, List<Member>> viewAllMember() {
@@ -117,9 +110,7 @@ public class AuthService {
 
     /**
      * Refresh Token 발급
-     *
      * @param tokenRequest
-     *
      * @return Refresh Token 발급
      */
     @Transactional

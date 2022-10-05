@@ -38,7 +38,6 @@ public class CategoryService {
 
     /**
      * 카테고리 전체 조회
-     *
      * @return 카테고리 전체 정보
      */
     @Transactional(readOnly = true)
@@ -52,14 +51,13 @@ public class CategoryService {
 
     /**
      * 카테고리 등록
-     *
      * @param categoryRequest
      */
     public void addCategory(CategoryDto.CategoryRequest categoryRequest) {
         Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId()).orElseThrow(
-            () -> new UserException(UserErrorResult.NOT_EXIST_USER));
+            () -> new Exception(ErrorResult.NOT_EXIST_USER));
         if (!member.getAuthority().equals(Authority.ROLE_ADMIN.getKey())) {
-            throw new UserException(UserErrorResult.ACCESS_PRIVILEGE);
+            throw new Exception(ErrorResult.ACCESS_PRIVILEGE);
         }
 
         Category parent = Optional.ofNullable(categoryRequest.getParentId())
@@ -71,18 +69,16 @@ public class CategoryService {
 
     /**
      * 카테고리 수정
-     *
      * @param updateCatRequest
      * @param categoryId
-     *
      * @return 수정된 카테고리 정보
      */
     public CategoryDto.CategoryResponse updateCategory(
         CategoryDto.updateCatRequest updateCatRequest, Long categoryId) {
         Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId()).orElseThrow(
-            () -> new UserException(UserErrorResult.NOT_EXIST_USER));
+            () -> new Exception(ErrorResult.NOT_EXIST_USER));
         if (!member.getAuthority().equals(Authority.ROLE_ADMIN.getKey())) {
-            throw new UserException(UserErrorResult.ACCESS_PRIVILEGE);
+            throw new Exception(ErrorResult.ACCESS_PRIVILEGE);
         }
 
         Category category = categoryRepository.findById(categoryId).orElseThrow(
@@ -93,14 +89,13 @@ public class CategoryService {
 
     /**
      * 카테고리 삭제
-     *
      * @param categoryId
      */
     public void deleteCategory(Long categoryId) {
         Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId()).orElseThrow(
-            () -> new UserException(UserErrorResult.NOT_EXIST_USER));
+            () -> new Exception(ErrorResult.NOT_EXIST_USER));
         if (!member.getAuthority().equals(Authority.ROLE_ADMIN.getKey())) {
-            throw new UserException(UserErrorResult.ACCESS_PRIVILEGE);
+            throw new Exception(ErrorResult.ACCESS_PRIVILEGE);
         }
 
         Category category = categoryRepository.findById(categoryId).orElseThrow(
@@ -110,15 +105,13 @@ public class CategoryService {
 
     /**
      * categoryId로 상품 조회
-     *
      * @param categoryId
      * @param pageable
-     *
      * @return categoryId로 조회한 상품 목록(2depth 까지)
      */
     public Page<ProductDto.ProductResponse> getCategoryById(Long categoryId, Pageable pageable) {
         Category findCategory = categoryRepository.findById(categoryId).orElseThrow(
-            () -> new UserException(UserErrorResult.CATEGORY_NOT_FOUND));
+            () -> new Exception(ErrorResult.CATEGORY_NOT_FOUND));
 
         List<ProductDto.ProductResponse> findProductByCategory = new ArrayList<>();
         List<Category> findAllCategory = categoryRepository.findAllByParentId(categoryId);

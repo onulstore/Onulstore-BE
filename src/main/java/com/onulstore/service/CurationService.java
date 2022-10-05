@@ -43,9 +43,7 @@ public class CurationService {
 
     /**
      * Magazine 내용 등록
-     *
      * @param magazineRequest
-     *
      * @return Magazine 내용 등록 정보
      */
     public CurationDto.CurationResponse createMagazine(
@@ -65,9 +63,7 @@ public class CurationService {
 
     /**
      * Magazine 상품 등록
-     *
      * @param addProductRequest
-     *
      * @return curationProduct.getId()
      */
     public Long addProductIntoMagazine(CurationDto.AddProductRequest addProductRequest) {
@@ -89,9 +85,7 @@ public class CurationService {
 
     /**
      * MD Recommend 등록
-     *
      * @param recommendRequest
-     *
      * @return curation.getId()
      */
     public Long createRecommend(CurationDto.RecommendRequest recommendRequest) {
@@ -117,9 +111,7 @@ public class CurationService {
 
     /**
      * 특정 큐레이션 정보 조회
-     *
      * @param curationId
-     *
      * @return 해당 curation 정보
      */
     @Transactional(readOnly = true)
@@ -130,9 +122,7 @@ public class CurationService {
 
     /**
      * Curation 전체 조회
-     *
      * @param pageable
-     *
      * @return 전체 Curation 정보
      */
     @Transactional(readOnly = true)
@@ -142,7 +132,6 @@ public class CurationService {
 
     /**
      * Curation 삭제
-     *
      * @param curationId
      */
     public void deleteCuration(Long curationId) {
@@ -158,9 +147,7 @@ public class CurationService {
 
     /**
      * Magazine 전체 조회
-     *
      * @param pageable
-     *
      * @return Magazine
      */
     @Transactional(readOnly = true)
@@ -171,9 +158,7 @@ public class CurationService {
 
     /**
      * Recommend 전체 조회
-     *
      * @param pageable
-     *
      * @return Recommend
      */
     @Transactional(readOnly = true)
@@ -184,10 +169,8 @@ public class CurationService {
 
     /**
      * Curation 수정
-     *
      * @param updateCuration
      * @param curationId
-     *
      * @return 수정된 Curation 내용
      */
     public CurationDto.CurationResponse updateCuration(CurationDto.UpdateCuration updateCuration,
