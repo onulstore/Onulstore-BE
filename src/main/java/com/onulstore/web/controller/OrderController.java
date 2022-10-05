@@ -29,7 +29,8 @@ public class OrderController {
 
     @PostMapping
     @ApiOperation(value = "단일 상품 주문 생성")
-    public ResponseEntity<String> addCategory(@Valid @RequestBody OrderDto.OrderRequest orderRequest) {
+    public ResponseEntity<String> addCategory(
+        @Valid @RequestBody OrderDto.OrderRequest orderRequest) {
         orderService.createOrder(orderRequest);
         return ResponseEntity.ok("상품 주문이 완료되었습니다.");
     }
@@ -49,8 +50,9 @@ public class OrderController {
     }
 
     @PutMapping
-    @ApiOperation(value = "주문 상태 변경")
-    public ResponseEntity<OrderDto.StatusResponse> updateStatus(@Valid @RequestBody OrderDto.StatusRequest request) {
+    @ApiOperation(value = "주문 상태 변경(환불 요청 or 구매 확정)")
+    public ResponseEntity<OrderDto.StatusResponse> updateStatus(
+        @Valid @RequestBody OrderDto.StatusRequest request) {
         return ResponseEntity.ok(orderService.updateStatus(request));
     }
 
