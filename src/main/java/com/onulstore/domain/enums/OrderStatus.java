@@ -7,17 +7,13 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum OrderStatus {
 
-    COMPLETE("COMPLETE", "주문완료"),
-    CANCEL("CANCEL", "주문취소"),
-    PREPARE_ITEM("WAIT_PAYMENT", "상품준비중"),
-    REQUEST_EXCHANGE("REQUEST_EXCHANGE", "교환요청"),
-    EXCHANGE("EXCHANGE", "교환중"),
-    COMPLETE_EXCHANGE("COMPLETE_EXCHANGE", "교환완료"),
-    WAIT_PAYMENT("WAIT_PAYMENT", "결제대기"),
-    COMPLETE_PAYMENT("COMPLETE_PAYMENT", "결제완료"),
-    PREPARE_DELIVERY("PREPARE_DELIVERY", "배송준비중"),
-    DELIVERY("SHIPPING", "배송중");
-
+    CANCEL("CANCEL", "주문 취소"),
+    COMPLETE("COMPLETE", "주문 완료"),
+    REFUND_REQUEST("REFUND_REQUEST", "환불 요청"),
+    REFUND_COMPLETE("REFUND_COMPLETE", "환불 완료"),
+    WAIT_PAYMENT("WAIT_PAYMENT", "결제 대기"),
+    COMPLETE_PAYMENT("COMPLETE_PAYMENT", "결제 완료"),
+    PURCHASE_CONFIRM("PURCHASE_CONFIRM", "구매 확정");
 
     private final String key;
     private final String title;
