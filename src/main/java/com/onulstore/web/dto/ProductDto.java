@@ -71,7 +71,7 @@ public class ProductDto {
         private Long id;
         private String productName;
         private String content;
-        private Integer originalprice;
+        private Integer originalPrice;
         private Integer price;
         private Integer quantity;
         private Integer purchaseCount;
@@ -86,7 +86,7 @@ public class ProductDto {
                 .id(product.getId())
                 .productName(product.getProductName())
                 .content(product.getContent())
-                .originalprice(product.getOriginalPrice())
+                .originalPrice(product.getOriginalPrice())
                 .price(product.getPrice())
                 .quantity(product.getQuantity())
                 .purchaseCount(product.getPurchaseCount())

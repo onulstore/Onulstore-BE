@@ -29,9 +29,7 @@ public class WishlistService {
 
     /**
      * Wishlist 등록
-     *
      * @param request
-     *
      * @return ProductDto.ProductRes productRes
      */
     public ProductDto.ProductRes addWishlist(WishlistDto.WishlistRequest request) {
@@ -63,7 +61,6 @@ public class WishlistService {
 
     /**
      * Wishlist 조회
-     *
      * @return List<ProductDto.ProductRes> wishlists
      */
     @Transactional(readOnly = true)
@@ -92,9 +89,7 @@ public class WishlistService {
 
     /**
      * Wishlist 삭제
-     *
      * @param productId
-     *
      * @return ProductDto.ProductRes productRes
      */
     public ProductDto.ProductRes deleteWishlist(Long productId) {
