@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.Map;
 
 @Service
-@Transactional(readOnly = true)
+@Transactional
 @RequiredArgsConstructor
 public class AuthService {
 
@@ -40,7 +40,6 @@ public class AuthService {
      * @param signupRequest
      * @return 회원가입 정보
      */
-    @Transactional
     public MemberDto.MemberResponse signup(MemberDto.MemberRequest signupRequest) {
         if (memberRepository.existsByEmail(signupRequest.getEmail())) {
             throw new Exception(ErrorResult.DUPLICATE_USER_ID);
@@ -59,7 +58,6 @@ public class AuthService {
      * @param loginDto
      * @return token 발급
      */
-    @Transactional
     public TokenDto login(LoginDto loginDto) {
         UsernamePasswordAuthenticationToken authenticationToken = loginDto.toAuthentication();
         Authentication authentication = authenticationManagerBuilder.getObject()
@@ -82,7 +80,6 @@ public class AuthService {
      * @param sellerRequest
      * @return 회원가입 정보
      */
-    @Transactional
     public MemberDto.MemberResponse sellerRegistration(MemberDto.SellerRequest sellerRequest) {
         if (memberRepository.existsByEmail(sellerRequest.getEmail())) {
             throw new Exception(ErrorResult.DUPLICATE_USER_ID);
@@ -96,6 +93,7 @@ public class AuthService {
      * 전체 회원 조회(Admin)
      * @return 전체 회원 정보
      */
+    @Transactional(readOnly = true)
     public Map<String, List<Member>> viewAllMember() {
         Map<String, List<Member>> resultMap = new HashMap<>();
 
@@ -117,7 +115,6 @@ public class AuthService {
      * @param tokenRequest
      * @return Refresh Token 발급
      */
-    @Transactional
     public TokenDto getRefreshToken(TokenDto.TokenRequest tokenRequest) {
         if (!tokenProvider.validateToken(tokenRequest.getRefreshToken())) {
             throw new Exception(ErrorResult.INVALID_REFRESH_TOKEN);
@@ -138,6 +135,19 @@ public class AuthService {
         refreshTokenRepository.save(newRefreshToken);
 
         return tokenDto;
+    }
+
+    /**
+     * 휴대폰 번호로 이메일 찾기
+     * @param findRequest
+     * @return 회원 이메일 정보
+     */
+    @Transactional(readOnly = true)
+    public MemberDto.FindResponse findEmail(MemberDto.FindRequest findRequest) {
+        Member member = memberRepository.findByPhoneNum(findRequest.getPhoneNum())
+            .orElseThrow(() -> new Exception(ErrorResult.NOT_EXIST_USER));
+
+        return MemberDto.FindResponse.ofEmail(member);
     }
 
 }
