@@ -50,7 +50,7 @@ public class Member extends BaseTimeEntity {
     @Column
     private String username;
 
-    @Column
+    @Column(unique = true)
     private String phoneNum;
 
     @Column
