@@ -2,6 +2,7 @@ package com.onulstore.domain.order;
 
 import com.onulstore.common.BaseTimeEntity;
 import com.onulstore.domain.enums.OrderStatus;
+import com.onulstore.domain.enums.PaymentMeasure;
 import com.onulstore.domain.member.Member;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -55,8 +56,11 @@ public class Order extends BaseTimeEntity {
 
     @Column
     private String deliveryMessage;
-    @Column
-    private String orderStatus;
+    @Enumerated(EnumType.STRING)
+    private OrderStatus orderStatus;
+
+    @Enumerated(EnumType.STRING)
+    private PaymentMeasure paymentMeasure;
 
     private LocalDateTime orderDate;
 
@@ -81,11 +85,12 @@ public class Order extends BaseTimeEntity {
             order.addOrderProduct(orderProduct);
         }
         order.setOrderDate(LocalDateTime.now());
-        order.setOrderStatus(OrderStatus.COMPLETE.getKey());
+        order.setOrderStatus(OrderStatus.COMPLETE);
         return order;
     }
 
     public static Order createOrder(Member member, String deliveryMessage,
+        PaymentMeasure paymentMeasure,
         OrderProduct orderProduct) {
         Order order = new Order();
         order.setMember(member);
@@ -102,7 +107,8 @@ public class Order extends BaseTimeEntity {
         order.setDeliveryMessage(deliveryMessage);
         order.addOrderProduct(orderProduct);
         order.setOrderDate(LocalDateTime.now());
-        order.setOrderStatus(OrderStatus.COMPLETE.getKey());
+        order.setOrderStatus(OrderStatus.COMPLETE);
+        order.setPaymentMeasure(paymentMeasure);
         return order;
     }
 
@@ -116,13 +122,13 @@ public class Order extends BaseTimeEntity {
     }
 
     public void orderCancel() {
-        this.orderStatus = OrderStatus.CANCEL.getKey();
+        this.orderStatus = OrderStatus.CANCEL;
         for (OrderProduct orderProduct : orderProducts) {
             orderProduct.cancel();
         }
     }
 
-    public Order updateStatus(String orderStatus) {
+    public Order updateStatus(OrderStatus orderStatus) {
         this.orderStatus = orderStatus;
         return this;
     }
