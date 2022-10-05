@@ -46,6 +46,10 @@ public class AuthService {
             throw new Exception(ErrorResult.DUPLICATE_USER_ID);
         }
 
+        if (!signupRequest.getPassword().equals(signupRequest.getPasswordConfirm())) {
+            throw new Exception(ErrorResult.PASSWORD_MISMATCH);
+        }
+
         Member member = signupRequest.toMember(passwordEncoder);
         return MemberDto.MemberResponse.of(memberRepository.save(member));
     }

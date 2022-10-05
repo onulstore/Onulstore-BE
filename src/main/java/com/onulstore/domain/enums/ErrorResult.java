@@ -22,6 +22,7 @@ public enum ErrorResult implements SuperErrorResult {
     // 403 FORBIDDEN
     NOT_EXIST_USER(HttpStatus.FORBIDDEN, "존재하지 않는 유저입니다."),
     UPDATE_PASSWORD(HttpStatus.FORBIDDEN, "입력한 새 비밀번호가 일치하지 않습니다."),
+    PASSWORD_MISMATCH(HttpStatus.FORBIDDEN, "입력한 비밀번호가 일치하지 않습니다"),
 
     // 404 NOT_FOUND
     PRODUCT_NOT_FOUND(HttpStatus.NOT_FOUND, "상품을 찾을 수 없습니다."),
