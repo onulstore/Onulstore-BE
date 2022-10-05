@@ -1,8 +1,9 @@
 package com.onulstore.web.dto;
 
+import com.onulstore.domain.enums.OrderStatus;
+import com.onulstore.domain.enums.PaymentMeasure;
 import com.onulstore.domain.order.Order;
 import io.swagger.annotations.ApiModelProperty;
-import javax.persistence.Column;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -27,6 +28,7 @@ public class OrderDto {
         @Max(value = 999, message = "최대 주문 수량은 999개 입니다.")
         private int count;
         private String deliveryMessage;
+        private PaymentMeasure paymentMeasure;
 
     }
 
@@ -52,7 +54,7 @@ public class OrderDto {
 
         private Long orderId;
         private String orderDate;
-        private String orderStatus;
+        private OrderStatus orderStatus;
         private List<OrderProduct> orderProducts = new ArrayList<>();
 
         public OrderHistory(Order order) {
@@ -74,7 +76,7 @@ public class OrderDto {
 
         private Long orderId;
         @ApiModelProperty(value = "주문 상태", required = true, example = "REFUND_REQUEST/PURCHASE_CONFIRM")
-        private String orderStatus;
+        private OrderStatus orderStatus;
 
     }
 
@@ -86,7 +88,7 @@ public class OrderDto {
 
         private Long orderId;
         private String orderDate;
-        private String orderStatus;
+        private OrderStatus orderStatus;
 
         public static OrderDto.StatusResponse of(Order order) {
             return StatusResponse.builder()
