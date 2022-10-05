@@ -46,7 +46,8 @@ public class OrderService {
         OrderProduct orderProduct =
             OrderProduct.createOrderProduct(product, orderRequest.getCount());
 
-        Order order = Order.createOrder(member, orderRequest.getDeliveryMessage(), orderProduct);
+        Order order = Order.createOrder(member, orderRequest.getDeliveryMessage(),
+            orderRequest.getPaymentMeasure(), orderProduct);
 
         orderRepository.save(order);
     }
@@ -126,8 +127,8 @@ public class OrderService {
         Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId()).orElseThrow(
             () -> new Exception(ErrorResult.NOT_EXIST_USER));
 
-        if (!(statusRequest.getOrderStatus().equals(OrderStatus.REFUND_REQUEST.getKey()) ||
-            statusRequest.getOrderStatus().equals(OrderStatus.PURCHASE_CONFIRM.getKey()))) {
+        if (!(statusRequest.getOrderStatus().equals(OrderStatus.REFUND_REQUEST) ||
+            statusRequest.getOrderStatus().equals(OrderStatus.PURCHASE_CONFIRM))) {
             throw new Exception(ErrorResult.ACCESS_PRIVILEGE);
         }
 
