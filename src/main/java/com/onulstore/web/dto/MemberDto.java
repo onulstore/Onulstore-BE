@@ -40,6 +40,7 @@ public class MemberDto {
                 .coupons(new ArrayList<>())
                 .build();
         }
+
     }
 
     @Getter
@@ -112,6 +113,7 @@ public class MemberDto {
                 .providerId(Provider.local_admin.getTitle())
                 .build();
         }
+
     }
 
     @Getter
@@ -124,6 +126,33 @@ public class MemberDto {
         private String roadAddress;
         private String buildingName;
         private String detailAddress;
+
+    }
+
+    @Getter
+    @Setter
+    @ToString
+    public static class FindRequest {
+
+        private String phoneNum;
+
+    }
+
+    @Getter
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Builder
+    public static class FindResponse {
+
+        private String email;
+
+        public static FindResponse ofEmail(Member member) {
+            return FindResponse.builder()
+                .email(member.getEmail())
+                .build();
+        }
+
+
     }
 
 }
