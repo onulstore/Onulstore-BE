@@ -34,18 +34,22 @@ public class OrderService {
     private final CartRepository cartRepository;
     private final OrderRepository orderRepository;
 
-    public Long createOrder(OrderDto.OrderRequest orderRequest) {
-        List<OrderProduct> orderProductList = new ArrayList<>();
-        Product product = productRepository.findById(orderRequest.getProductId())
-            .orElseThrow(() -> new Exception(ErrorResult.PRODUCT_NOT_FOUND));
-        orderProductList.add(OrderProduct.createOrderProduct(product, orderRequest.getCount()));
-
+    /**
+     * 단일 상품 주문
+     * @param orderRequest
+     */
+    public void createOrder(OrderDto.OrderRequest orderRequest) {
         Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId()).orElseThrow(
             () -> new Exception(ErrorResult.NOT_EXIST_USER));
-        Order order = Order.createOrder(member, orderProductList);
+        Product product = productRepository.findById(orderRequest.getProductId())
+            .orElseThrow(() -> new Exception(ErrorResult.PRODUCT_NOT_FOUND));
+
+        OrderProduct orderProduct =
+            OrderProduct.createOrderProduct(product, orderRequest.getCount());
+
+        Order order = Order.createOrder(member, orderRequest.getDeliveryMessage(), orderProduct);
 
         orderRepository.save(order);
-        return order.getId();
     }
 
     @Transactional(readOnly = true)
@@ -90,19 +94,24 @@ public class OrderService {
                 .createOrderProduct(cart.getProduct(), cart.getProductCount()));
         }
 
-        Order order = Order.createOrder(member, orderProductList);
+        Order order = Order.createCartOrder(member, orderProductList);
 
         orderRepository.save(order);
         return order.getId();
     }
 
+    /**
+     * 환불 요청
+     * @param statusRequest
+     * @return 업데이트 된 내역
+     */
     public OrderDto.StatusResponse updateStatus(OrderDto.StatusRequest statusRequest) {
         Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId()).orElseThrow(
             () -> new Exception(ErrorResult.NOT_EXIST_USER));
 
-        if (!member.getAuthority().equals(Authority.ROLE_ADMIN.getKey())) {
-            throw new Exception(ErrorResult.ACCESS_PRIVILEGE);
-        }
+//        if (!member.getAuthority().equals(Authority.ROLE_ADMIN.getKey())) {
+//            throw new Exception(ErrorResult.ACCESS_PRIVILEGE);
+//        }
 
         Order order = orderRepository.findById(statusRequest.getOrderId()).orElseThrow(
             () -> new Exception(ErrorResult.ORDER_NOT_FOUND));
