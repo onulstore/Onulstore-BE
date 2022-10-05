@@ -1,6 +1,7 @@
 package com.onulstore.domain.order;
 
 import com.onulstore.common.BaseTimeEntity;
+import com.onulstore.domain.enums.DeliveryMeasure;
 import com.onulstore.domain.enums.OrderStatus;
 import com.onulstore.domain.enums.PaymentMeasure;
 import com.onulstore.domain.member.Member;
@@ -62,6 +63,9 @@ public class Order extends BaseTimeEntity {
     @Enumerated(EnumType.STRING)
     private PaymentMeasure paymentMeasure;
 
+    @Enumerated(EnumType.STRING)
+    private DeliveryMeasure deliveryMeasure;
+
     private LocalDateTime orderDate;
 
 
@@ -90,8 +94,7 @@ public class Order extends BaseTimeEntity {
     }
 
     public static Order createOrder(Member member, String deliveryMessage,
-        PaymentMeasure paymentMeasure,
-        OrderProduct orderProduct) {
+        PaymentMeasure paymentMeasure, DeliveryMeasure deliveryMeasure, OrderProduct orderProduct) {
         Order order = new Order();
         order.setMember(member);
         order.setEmail(member.getEmail());
@@ -109,6 +112,7 @@ public class Order extends BaseTimeEntity {
         order.setOrderDate(LocalDateTime.now());
         order.setOrderStatus(OrderStatus.COMPLETE);
         order.setPaymentMeasure(paymentMeasure);
+        order.setDeliveryMeasure(deliveryMeasure);
         return order;
     }
 
