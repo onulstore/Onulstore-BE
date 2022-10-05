@@ -47,7 +47,7 @@ public class OrderService {
             OrderProduct.createOrderProduct(product, orderRequest.getCount());
 
         Order order = Order.createOrder(member, orderRequest.getDeliveryMessage(),
-            orderRequest.getPaymentMeasure(), orderProduct);
+            orderRequest.getPaymentMeasure(), orderRequest.getDeliveryMeasure(), orderProduct);
 
         orderRepository.save(order);
     }
