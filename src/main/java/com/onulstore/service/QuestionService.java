@@ -39,6 +39,7 @@ public class QuestionService {
             .product(product)
             .title(questionDto.getTitle())
             .content(questionDto.getContent())
+            .secret(questionDto.getSecret())
             .answerStatus(questionDto.getAnswerStatus())
             .build();
 
