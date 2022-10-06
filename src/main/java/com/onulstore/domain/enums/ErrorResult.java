@@ -16,6 +16,8 @@ public enum ErrorResult implements SuperErrorResult {
     OUT_OF_STOCK(HttpStatus.BAD_REQUEST, "재고가 부족합니다."),
     WISHLIST_ALREADY_EXIST(HttpStatus.BAD_REQUEST, "이미 찜 등록이 되어있습니다."),
     COUPON_EXPIRED(HttpStatus.BAD_REQUEST, "만료된 쿠폰입니다."),
+    OUT_OF_POINT(HttpStatus.BAD_REQUEST, "포인트가 부족합니다."),
+    ORDER_ALREADY_PAYED(HttpStatus.BAD_REQUEST, "이미 결제가 완료된 주문입니다."),
 
     // 401 UNAUTHORIZED
     ACCESS_PRIVILEGE(HttpStatus.UNAUTHORIZED, "접근 권한이 없습니다."),
