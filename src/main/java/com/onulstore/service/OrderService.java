@@ -85,15 +85,15 @@ public class OrderService {
 
     /**
      * 장바구니 상품 주문
-     * @param cartList
+     * @param cartOrderRequest
      */
-    public void createSelectedCartOrder(List<Long> cartList) {
+    public void createSelectedCartOrder(OrderDto.CartOrderRequest cartOrderRequest) {
         Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId()).orElseThrow(
             () -> new Exception(ErrorResult.NOT_EXIST_USER));
         List<Cart> carts = new ArrayList<>();
         List<OrderProduct> orderProductList = new ArrayList<>();
 
-        for (Long num : cartList) {
+        for (Long num : cartOrderRequest.getCartList()) {
             carts.add(cartRepository.findById(num).orElseThrow());
         }
 
@@ -102,7 +102,8 @@ public class OrderService {
                 .createOrderProduct(cart.getProduct(), cart.getProductCount()));
         }
 
-        Order order = Order.createCartOrder(member, orderProductList);
+        Order order = Order.createCartOrder(member, cartOrderRequest.getDeliveryMessage(),
+            cartOrderRequest.getDeliveryMeasure(), orderProductList);
 
         orderRepository.save(order);
     }
