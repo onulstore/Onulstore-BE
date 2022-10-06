@@ -15,6 +15,7 @@ public class PaymentDto {
     public static class PaymentRequest {
 
         private Long orderId;
+        @ApiModelProperty(value = "쿠폰 아이디", example = "쿠폰 사용을 하지 않으려면 지우고 사용해주세요.")
         private Long couponId;
         private Integer mileage;
         private Integer deliveryPrice;
