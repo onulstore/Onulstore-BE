@@ -12,6 +12,8 @@ import com.onulstore.domain.member.MemberRepository;
 import com.onulstore.domain.order.Order;
 import com.onulstore.domain.order.OrderProduct;
 import com.onulstore.domain.order.OrderRepository;
+import com.onulstore.domain.payment.Payment;
+import com.onulstore.domain.payment.PaymentRepository;
 import com.onulstore.domain.product.Product;
 import com.onulstore.domain.product.ProductRepository;
 import com.onulstore.web.dto.OrderDto;
@@ -33,6 +35,7 @@ public class OrderService {
     private final MemberRepository memberRepository;
     private final CartRepository cartRepository;
     private final OrderRepository orderRepository;
+    private final PaymentRepository paymentRepository;
 
     /**
      * 단일 상품 주문
@@ -142,6 +145,14 @@ public class OrderService {
         }
 
         Order updateOrder = order.updateStatus(statusRequest.getOrderStatus());
+
+        Payment payment = paymentRepository.findByOrderId(order.getId()).orElseThrow(
+            () -> new Exception(ErrorResult.PAYMENT_NOT_FOUND));
+
+        if (statusRequest.getOrderStatus().equals(OrderStatus.PURCHASE_CONFIRM)) {
+            member.acquirePoint(payment.getAcquirePoint());
+        }
+
         return OrderDto.StatusResponse.of(updateOrder);
     }
 
