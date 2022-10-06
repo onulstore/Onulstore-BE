@@ -5,6 +5,7 @@ import com.onulstore.domain.enums.DeliveryMeasure;
 import com.onulstore.domain.enums.OrderStatus;
 import com.onulstore.domain.member.Member;
 import com.onulstore.domain.payment.Payment;
+import com.onulstore.web.dto.OrderDto;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -112,6 +113,15 @@ public class Order extends BaseTimeEntity {
         order.setOrderStatus(OrderStatus.COMPLETE);
         order.setDeliveryMeasure(deliveryMeasure);
         return order;
+    }
+
+    public Order modificationOrder(OrderDto.UpdateOrderRequest updateOrderRequest) {
+        this.phoneNum = updateOrderRequest.getPhoneNum();
+        this.postalCode = updateOrderRequest.getPostalCode();
+        this.roadAddress = updateOrderRequest.getRoadAddress();
+        this.buildingName = updateOrderRequest.getBuildingName();
+        this.detailAddress = updateOrderRequest.getDetailAddress();
+        return this;
     }
 
     public int getTotalPrice() {
