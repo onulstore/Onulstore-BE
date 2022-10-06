@@ -105,4 +105,17 @@ public class OrderDto {
 
     }
 
+    @Getter
+    @Setter
+    public static class UpdateOrderRequest {
+
+        private Long orderId;
+        private String phoneNum;
+        private String postalCode;
+        private String roadAddress;
+        private String buildingName;
+        private String detailAddress;
+
+    }
+
 }
