@@ -171,6 +171,10 @@ public class OrderService {
         Order order = orderRepository.findById(orderId).orElseThrow(
             () -> new Exception(ErrorResult.ORDER_NOT_FOUND));
 
+        if (!order.getOrderStatus().equals(OrderStatus.REFUND_REQUEST)) {
+            throw new Exception(ErrorResult.NOT_REFUND_REQUEST_ORDER);
+        }
+
         order.orderRefund();
     }
 
