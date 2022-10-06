@@ -57,9 +57,9 @@ public class OrderService {
     }
 
     /**
-     * 본인 주문 내역
+     * 본인 주문 내역 및 결제 내역 조회
      * @param pageable
-     * @return 주문 내역
+     * @return 주문 내역 및 결제 내역
      */
     @Transactional(readOnly = true)
     public Page<OrderDto.OrderHistory> getOrderList(Pageable pageable) {
@@ -69,6 +69,12 @@ public class OrderService {
         List<Order> orders = orderRepository.findOrders(member.getEmail(), pageable);
         Long totalCount = orderRepository.countOrder(member.getEmail());
 
+        List<Payment> payments = new ArrayList<>();
+        for (long orderId = 1L; orderId < orders.size(); orderId++) {
+            payments = paymentRepository.findPaymentsByOrderId(
+                orders.get(Math.toIntExact(orderId)).getId(), pageable);
+        }
+
         List<OrderDto.OrderHistory> orderHistories = new ArrayList<>();
 
         for (Order order : orders) {
@@ -77,6 +83,10 @@ public class OrderService {
             for (OrderProduct orderProduct : orderProductList) {
                 OrderDto.OrderProduct orderProductDto = new OrderDto.OrderProduct(orderProduct);
                 orderHistory.addOrderProduct(orderProductDto);
+                for (Payment payment : payments) {
+                    OrderDto.Payment paymentDto = new OrderDto.Payment(payment);
+                    orderHistory.addPayment(paymentDto);
+                }
             }
             orderHistories.add(orderHistory);
         }
