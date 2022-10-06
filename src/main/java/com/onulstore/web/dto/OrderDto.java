@@ -29,8 +29,6 @@ public class OrderDto {
         @Max(value = 999, message = "최대 주문 수량은 999개 입니다.")
         private int count;
         private String deliveryMessage;
-        @ApiModelProperty(value = "결제 방법", required = true, example = "CREDIT_CARD/ACCOUNT/STORE_PAY")
-        private PaymentMeasure paymentMeasure;
         @ApiModelProperty(value = "배송 방법", required = true, example = "INTERNATIONAL/DOMESTIC/STORE")
         private DeliveryMeasure deliveryMeasure;
 
@@ -104,6 +102,30 @@ public class OrderDto {
                 .orderStatus(order.getOrderStatus())
                 .build();
         }
+
+    }
+
+    @Getter
+    @Setter
+    public static class CartOrderRequest {
+
+        List<Long> cartList = new ArrayList<>();
+        private String deliveryMessage;
+        @ApiModelProperty(value = "배송 방법", required = true, example = "INTERNATIONAL/DOMESTIC/STORE")
+        private DeliveryMeasure deliveryMeasure;
+
+    }
+
+    @Getter
+    @Setter
+    public static class UpdateOrderRequest {
+
+        private Long orderId;
+        private String phoneNum;
+        private String postalCode;
+        private String roadAddress;
+        private String buildingName;
+        private String detailAddress;
 
     }
 
