@@ -83,7 +83,11 @@ public class OrderService {
         return new PageImpl<>(orderHistories, pageable, totalCount);
     }
 
-    public Long createSelectedCartOrder(List<Long> cartList) {
+    /**
+     * 장바구니 상품 주문
+     * @param cartList
+     */
+    public void createSelectedCartOrder(List<Long> cartList) {
         Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId()).orElseThrow(
             () -> new Exception(ErrorResult.NOT_EXIST_USER));
         List<Cart> carts = new ArrayList<>();
@@ -101,7 +105,6 @@ public class OrderService {
         Order order = Order.createCartOrder(member, orderProductList);
 
         orderRepository.save(order);
-        return order.getId();
     }
 
     /**
@@ -176,6 +179,19 @@ public class OrderService {
         }
 
         order.orderRefund();
+    }
+
+    /**
+     * 해당 주문의 회원 정보 변경
+     * @param updateOrderRequest
+     */
+    public void orderModification(OrderDto.UpdateOrderRequest updateOrderRequest) {
+        memberRepository.findById(SecurityUtil.getCurrentMemberId()).orElseThrow(
+            () -> new Exception(ErrorResult.NOT_EXIST_USER));
+        Order order = orderRepository.findById(updateOrderRequest.getOrderId()).orElseThrow(
+            () -> new Exception(ErrorResult.ORDER_NOT_FOUND));
+
+        order.modificationOrder(updateOrderRequest);
     }
 
 }
