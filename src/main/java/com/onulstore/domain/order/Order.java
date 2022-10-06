@@ -3,8 +3,8 @@ package com.onulstore.domain.order;
 import com.onulstore.common.BaseTimeEntity;
 import com.onulstore.domain.enums.DeliveryMeasure;
 import com.onulstore.domain.enums.OrderStatus;
-import com.onulstore.domain.enums.PaymentMeasure;
 import com.onulstore.domain.member.Member;
+import com.onulstore.domain.payment.Payment;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -61,17 +61,16 @@ public class Order extends BaseTimeEntity {
     private OrderStatus orderStatus;
 
     @Enumerated(EnumType.STRING)
-    private PaymentMeasure paymentMeasure;
-
-    @Enumerated(EnumType.STRING)
     private DeliveryMeasure deliveryMeasure;
 
     private LocalDateTime orderDate;
 
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
     private Member member;
+
+    @OneToOne(mappedBy = "order")
+    private Payment payment;
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<OrderProduct> orderProducts = new ArrayList<>();
@@ -94,7 +93,7 @@ public class Order extends BaseTimeEntity {
     }
 
     public static Order createOrder(Member member, String deliveryMessage,
-        PaymentMeasure paymentMeasure, DeliveryMeasure deliveryMeasure, OrderProduct orderProduct) {
+        DeliveryMeasure deliveryMeasure, OrderProduct orderProduct) {
         Order order = new Order();
         order.setMember(member);
         order.setEmail(member.getEmail());
@@ -111,7 +110,6 @@ public class Order extends BaseTimeEntity {
         order.addOrderProduct(orderProduct);
         order.setOrderDate(LocalDateTime.now());
         order.setOrderStatus(OrderStatus.COMPLETE);
-        order.setPaymentMeasure(paymentMeasure);
         order.setDeliveryMeasure(deliveryMeasure);
         return order;
     }
@@ -127,6 +125,13 @@ public class Order extends BaseTimeEntity {
 
     public void orderCancel() {
         this.orderStatus = OrderStatus.CANCEL;
+        for (OrderProduct orderProduct : orderProducts) {
+            orderProduct.cancel();
+        }
+    }
+
+    public void orderRefund() {
+        this.orderStatus = OrderStatus.REFUND_COMPLETE;
         for (OrderProduct orderProduct : orderProducts) {
             orderProduct.cancel();
         }
