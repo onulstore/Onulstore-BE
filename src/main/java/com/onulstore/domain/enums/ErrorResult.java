@@ -15,6 +15,7 @@ public enum ErrorResult implements SuperErrorResult {
     LOGOUT_USER(HttpStatus.BAD_REQUEST, "로그아웃 된 사용자입니다."),
     OUT_OF_STOCK(HttpStatus.BAD_REQUEST, "재고가 부족합니다."),
     WISHLIST_ALREADY_EXIST(HttpStatus.BAD_REQUEST, "이미 찜 등록이 되어있습니다."),
+    SECRET_QUESTION(HttpStatus.BAD_REQUEST,"비밀글입니다."),
 
     // 401 UNAUTHORIZED
     ACCESS_PRIVILEGE(HttpStatus.UNAUTHORIZED, "접근 권한이 없습니다."),
