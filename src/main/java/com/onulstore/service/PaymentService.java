@@ -34,6 +34,11 @@ public class PaymentService {
     private final CouponRepository couponRepository;
     private final OrderRepository orderRepository;
 
+    /**
+     * 결제하기
+     * @param paymentRequest
+     * @return 결제 내용
+     */
     public PaymentDto.PaymentResponse paying(PaymentDto.PaymentRequest paymentRequest) {
         Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId()).orElseThrow(
             () -> new Exception(ErrorResult.NOT_EXIST_USER));
@@ -78,6 +83,5 @@ public class PaymentService {
 
         return PaymentDto.PaymentResponse.of(paymentRepository.save(payment));
     }
-
 
 }
