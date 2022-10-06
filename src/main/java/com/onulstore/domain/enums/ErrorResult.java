@@ -17,7 +17,6 @@ public enum ErrorResult implements SuperErrorResult {
     WISHLIST_ALREADY_EXIST(HttpStatus.BAD_REQUEST, "이미 찜 등록이 되어있습니다."),
     COUPON_EXPIRED(HttpStatus.BAD_REQUEST, "만료된 쿠폰입니다."),
     OUT_OF_POINT(HttpStatus.BAD_REQUEST, "포인트가 부족합니다."),
-    ORDER_ALREADY_PAYED(HttpStatus.BAD_REQUEST, "이미 결제가 완료된 주문입니다."),
 
     // 401 UNAUTHORIZED
     ACCESS_PRIVILEGE(HttpStatus.UNAUTHORIZED, "접근 권한이 없습니다."),
@@ -38,10 +37,12 @@ public enum ErrorResult implements SuperErrorResult {
     NOT_EXIST_ANSWER(HttpStatus.NOT_FOUND, "질문에 대한 답글을 찾을 수 없습니다."),
     NOT_FOUND_NOTICE(HttpStatus.NOT_FOUND, "해당 공지를 찾을 수 없습니다."),
     COUPON_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 쿠폰을 찾을 수 없습니다."),
+    PAYMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 결재 내역을 찾을 수 없습니다."),
 
     // 409 CONFLICT
     DUPLICATE_USER_ID(HttpStatus.CONFLICT, "이미 존재하는 이메일입니다."),
-    DUPLICATE_PHONE_NUMBER(HttpStatus.CONFLICT, "이미 존재하는 휴대폰 번호 입니다.");;
+    DUPLICATE_PHONE_NUMBER(HttpStatus.CONFLICT, "이미 존재하는 휴대폰 번호 입니다."),
+    ORDER_ALREADY_PAYED(HttpStatus.CONFLICT, "이미 결제가 완료된 주문입니다.");
 
 
     private final HttpStatus httpStatus;
