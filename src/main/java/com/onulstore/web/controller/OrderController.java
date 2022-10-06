@@ -22,7 +22,7 @@ public class OrderController {
     private final OrderService orderService;
 
     @GetMapping
-    @ApiOperation(value = "주문 조회")
+    @ApiOperation(value = "주문 및 결제 내역 조회")
     public ResponseEntity<Page<OrderDto.OrderHistory>> getOrderList(Pageable pageable) {
         return ResponseEntity.ok(orderService.getOrderList(pageable));
     }

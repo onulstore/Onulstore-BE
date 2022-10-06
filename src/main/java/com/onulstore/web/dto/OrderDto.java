@@ -52,6 +52,28 @@ public class OrderDto {
 
     @Getter
     @Setter
+    public static class Payment {
+
+        private PaymentMeasure paymentMeasure;
+        private Integer productPrice;
+        private Integer discount;
+        private Integer deliveryPrice;
+        private Integer acquirePoint;
+        private Integer paymentAmount;
+
+        public Payment(com.onulstore.domain.payment.Payment payment) {
+            this.paymentMeasure = payment.getPaymentMeasure();
+            this.productPrice = payment.getProductPrice();
+            this.discount = payment.getDiscount();
+            this.deliveryPrice = payment.getDeliveryPrice();
+            this.acquirePoint = payment.getAcquirePoint();
+            this.paymentAmount = payment.getPaymentAmount();
+        }
+
+    }
+
+    @Getter
+    @Setter
     public static class OrderHistory {
 
         private Long orderId;
@@ -59,6 +81,7 @@ public class OrderDto {
         private OrderStatus orderStatus;
         private DeliveryMeasure deliveryMeasure;
         private List<OrderProduct> orderProducts = new ArrayList<>();
+        private List<Payment> payments = new ArrayList<>();
 
         public OrderHistory(Order order) {
             this.orderId = order.getId();
@@ -70,6 +93,10 @@ public class OrderDto {
 
         public void addOrderProduct(OrderDto.OrderProduct orderProduct) {
             orderProducts.add(orderProduct);
+        }
+
+        public void addPayment(OrderDto.Payment payment) {
+            payments.add(payment);
         }
 
     }
