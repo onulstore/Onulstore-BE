@@ -70,6 +70,7 @@ public class PaymentService {
         Payment payment = Payment.paying(order, coupon, paymentRequest.getMileage(), productPrice,
             discount, paymentRequest.getDeliveryPrice(), totalAmount, acquirePoint,
             paymentRequest.getPaymentMeasure());
+        order.paymentSuccess();
 
         return PaymentDto.PaymentResponse.of(paymentRepository.save(payment));
     }
