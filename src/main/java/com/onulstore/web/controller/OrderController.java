@@ -63,4 +63,13 @@ public class OrderController {
         return ResponseEntity.ok("상품 환불이 완료되었습니다.");
     }
 
+    @PutMapping("/update")
+    @ApiOperation(value = "해당 주문 회원 정보 변경")
+    public ResponseEntity<String> orderRefund(
+        @RequestBody OrderDto.UpdateOrderRequest updateOrderRequest) {
+        orderService.orderModification(updateOrderRequest);
+        return ResponseEntity.ok("해당 주문 정보 수정이 완료되었습니다.");
+    }
+
+
 }
