@@ -4,6 +4,7 @@ import com.onulstore.config.SecurityUtil;
 import com.onulstore.config.exception.Exception;
 import com.onulstore.domain.cart.Cart;
 import com.onulstore.domain.cart.CartRepository;
+import com.onulstore.domain.enums.Authority;
 import com.onulstore.domain.enums.ErrorResult;
 import com.onulstore.domain.enums.OrderStatus;
 import com.onulstore.domain.member.Member;
@@ -135,7 +136,8 @@ public class OrderService {
         Order order = orderRepository.findById(statusRequest.getOrderId()).orElseThrow(
             () -> new Exception(ErrorResult.ORDER_NOT_FOUND));
 
-        if (!order.getMember().getId().equals(member.getId())) {
+        if (!(order.getMember().getId().equals(member.getId()) || member.getAuthority()
+            .equals(Authority.ROLE_ADMIN.getKey()))) {
             throw new Exception(ErrorResult.USER_NOT_MATCH);
         }
 
