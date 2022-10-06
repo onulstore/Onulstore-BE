@@ -41,14 +41,14 @@ public class OrderService {
     public void createOrder(OrderDto.OrderRequest orderRequest) {
         Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId()).orElseThrow(
             () -> new Exception(ErrorResult.NOT_EXIST_USER));
-        Product product = productRepository.findById(orderRequest.getProductId())
-            .orElseThrow(() -> new Exception(ErrorResult.PRODUCT_NOT_FOUND));
+        Product product = productRepository.findById(orderRequest.getProductId()).orElseThrow(
+            () -> new Exception(ErrorResult.PRODUCT_NOT_FOUND));
 
         OrderProduct orderProduct =
             OrderProduct.createOrderProduct(product, orderRequest.getCount());
 
         Order order = Order.createOrder(member, orderRequest.getDeliveryMessage(),
-            orderRequest.getPaymentMeasure(), orderRequest.getDeliveryMeasure(), orderProduct);
+            orderRequest.getDeliveryMeasure(), orderProduct);
 
         orderRepository.save(order);
     }
@@ -143,6 +143,24 @@ public class OrderService {
 
         Order updateOrder = order.updateStatus(statusRequest.getOrderStatus());
         return OrderDto.StatusResponse.of(updateOrder);
+    }
+
+    /**
+     * 관리자 환불 완료
+     * @param orderId
+     */
+    public void orderRefund(Long orderId) {
+        Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId()).orElseThrow(
+            () -> new Exception(ErrorResult.NOT_EXIST_USER));
+
+        if (!member.getAuthority().equals(Authority.ROLE_ADMIN.getKey())) {
+            throw new Exception(ErrorResult.ACCESS_PRIVILEGE);
+        }
+
+        Order order = orderRepository.findById(orderId).orElseThrow(
+            () -> new Exception(ErrorResult.ORDER_NOT_FOUND));
+
+        order.orderRefund();
     }
 
 }
