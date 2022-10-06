@@ -37,8 +37,9 @@ public class OrderController {
 
     @PostMapping("/cartorder")
     @ApiOperation(value = "장바구니 선택 상품 주문 생성")
-    public ResponseEntity<String> CreateOrderList(@RequestBody List<Long> cartList) {
-        orderService.createSelectedCartOrder(cartList);
+    public ResponseEntity<String> CreateOrderList(
+        @RequestBody OrderDto.CartOrderRequest cartOrderRequest) {
+        orderService.createSelectedCartOrder(cartOrderRequest);
         return ResponseEntity.ok("상품 주문이 완료되었습니다.");
     }
 
