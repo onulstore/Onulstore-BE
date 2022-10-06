@@ -82,14 +82,27 @@ public class Order extends BaseTimeEntity {
         orderProduct.setOrder(this);
     }
 
-    public static Order createCartOrder(Member member, List<OrderProduct> orderProductList) {
+    public static Order createCartOrder(Member member, String deliveryMessage,
+        DeliveryMeasure deliveryMeasure, List<OrderProduct> orderProductList) {
         Order order = new Order();
         order.setMember(member);
+        order.setEmail(member.getEmail());
+        order.setLastKana(member.getLastKana());
+        order.setFirstKana(member.getFirstKana());
+        order.setLastName(member.getLastName());
+        order.setFirstName(member.getFirstName());
+        order.setPhoneNum(member.getPhoneNum());
+        order.setPostalCode(member.getPostalCode());
+        order.setRoadAddress(member.getRoadAddress());
+        order.setBuildingName(member.getBuildingName());
+        order.setDetailAddress(member.getDetailAddress());
+        order.setDeliveryMessage(deliveryMessage);
         for (OrderProduct orderProduct : orderProductList) {
             order.addOrderProduct(orderProduct);
         }
         order.setOrderDate(LocalDateTime.now());
         order.setOrderStatus(OrderStatus.COMPLETE);
+        order.setDeliveryMeasure(deliveryMeasure);
         return order;
     }
 
