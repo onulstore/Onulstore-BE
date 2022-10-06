@@ -107,6 +107,17 @@ public class OrderDto {
 
     @Getter
     @Setter
+    public static class CartOrderRequest {
+
+        List<Long> cartList = new ArrayList<>();
+        private String deliveryMessage;
+        @ApiModelProperty(value = "배송 방법", required = true, example = "INTERNATIONAL/DOMESTIC/STORE")
+        private DeliveryMeasure deliveryMeasure;
+
+    }
+
+    @Getter
+    @Setter
     public static class UpdateOrderRequest {
 
         private Long orderId;
