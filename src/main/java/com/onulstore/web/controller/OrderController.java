@@ -56,4 +56,11 @@ public class OrderController {
         return ResponseEntity.ok(orderService.updateStatus(request));
     }
 
+    @PutMapping("/{orderId}")
+    @ApiOperation(value = "환불 완료")
+    public ResponseEntity<String> orderRefund(@PathVariable Long orderId) {
+        orderService.orderRefund(orderId);
+        return ResponseEntity.ok("상품 환불이 완료되었습니다.");
+    }
+
 }
