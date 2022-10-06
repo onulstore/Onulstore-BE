@@ -2,6 +2,7 @@ package com.onulstore.service;
 
 import com.onulstore.config.SecurityUtil;
 import com.onulstore.config.exception.Exception;
+import com.onulstore.domain.enums.Authority;
 import com.onulstore.domain.enums.ErrorResult;
 import com.onulstore.domain.member.Member;
 import com.onulstore.domain.member.MemberRepository;
@@ -85,12 +86,20 @@ public class QuestionService {
     // 질문 상세 조회
     @Transactional
     public QuestionDto getQuestion(Long productId, Long questionId) {
+        Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId()).orElseThrow(
+            () -> new Exception(ErrorResult.NOT_EXIST_USER));
         Product product = productRepository.findById(productId).orElseThrow(
             () -> new Exception(ErrorResult.PRODUCT_NOT_FOUND));
-
         Question question = questionRepository.findById(questionId).orElseThrow(
             () -> new Exception(ErrorResult.NOT_EXIST_QUESTION));
 
+        if (question.getSecret() == 'Y') {
+            if (!member.getId().equals(question.getMember().getId()) || !member.getAuthority()
+                .equals(Authority.ROLE_ADMIN.getKey())) {
+                throw new Exception(ErrorResult.SECRET_QUESTION);
+            }
+            return QuestionDto.of(question);
+        }
         return QuestionDto.of(question);
     }
 
