@@ -18,6 +18,7 @@ public enum ErrorResult implements SuperErrorResult {
     COUPON_EXPIRED(HttpStatus.BAD_REQUEST, "만료된 쿠폰입니다."),
     OUT_OF_POINT(HttpStatus.BAD_REQUEST, "포인트가 부족합니다."),
     NOT_REFUND_REQUEST_ORDER(HttpStatus.BAD_REQUEST, "환불 요청된 주문이 아닙니다."),
+    SECRET_QUESTION(HttpStatus.BAD_REQUEST,"비밀글입니다."),
 
     // 401 UNAUTHORIZED
     ACCESS_PRIVILEGE(HttpStatus.UNAUTHORIZED, "접근 권한이 없습니다."),

@@ -28,6 +28,8 @@ public class Question extends BaseTimeEntity {
 
     private String content;
 
+    private Character secret = 'N'; // 비밀글 여부 (Y -> 비밀글, N -> 공개글)
+
     @Column
     private String answerStatus;    // 답변 유무
 
