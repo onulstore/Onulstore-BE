@@ -137,6 +137,10 @@ public class Order extends BaseTimeEntity {
         }
     }
 
+    public void paymentSuccess() {
+        this.orderStatus = OrderStatus.PAYMENT_COMPLETE;
+    }
+
     public Order updateStatus(OrderStatus orderStatus) {
         this.orderStatus = orderStatus;
         return this;
