@@ -31,7 +31,7 @@ public class Question extends BaseTimeEntity {
     private Character secret = 'N'; // 비밀글 여부 (Y -> 비밀글, N -> 공개글)
 
     @Column
-    private String answerStatus;    // 답변 유무
+    private boolean answerStatus = false;   // 답변 유무
 
     @ManyToOne
     @JoinColumn(name = "member_id")
@@ -45,12 +45,8 @@ public class Question extends BaseTimeEntity {
     @JsonIgnore
     private List<QuestionAnswer> questionAnswers = new ArrayList<>();
 
-    public void unAnswered() {
-        this.answerStatus = AnswerStatus.NO.getKey();
-    }
-
-    public void Answered() {
-        this.answerStatus = AnswerStatus.YES.getKey();
+    public void answered() {
+        this.answerStatus = true;
     }
 
 }

@@ -19,9 +19,9 @@ public class CategoryDto {
         @Size(min = 2, max = 30)
         @NotBlank
         private String categoryName;
-
         @ApiModelProperty(value = "부모 카테고리 아이디", example = "1")
         private Long parentId;
+
     }
 
     @Getter
@@ -29,15 +29,16 @@ public class CategoryDto {
     @NoArgsConstructor
     @Builder
     public static class CategoryResponse {
+
         private Long id;
         private String categoryName;
         private List<CategoryDto> children;
 
         public static CategoryResponse of(Category category) {
             return CategoryResponse.builder()
-                    .id(category.getId())
-                    .categoryName(category.getCategoryName())
-                    .build();
+                .id(category.getId())
+                .categoryName(category.getCategoryName())
+                .build();
         }
 
     }
@@ -46,6 +47,7 @@ public class CategoryDto {
     @Setter
     @ToString
     public static class updateCatRequest {
+
         private String categoryName;
     }
 

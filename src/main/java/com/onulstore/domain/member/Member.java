@@ -2,9 +2,11 @@ package com.onulstore.domain.member;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.onulstore.common.BaseTimeEntity;
+import com.onulstore.config.exception.Exception;
 import com.onulstore.domain.cart.Cart;
 import com.onulstore.domain.coupon.Coupon;
 import com.onulstore.domain.curation.Curation;
+import com.onulstore.domain.enums.ErrorResult;
 import com.onulstore.domain.order.Order;
 import com.onulstore.domain.question.Question;
 import com.onulstore.domain.questionAnswer.QuestionAnswer;
@@ -121,6 +123,17 @@ public class Member extends BaseTimeEntity {
     public Member updatePassword(String password) {
         this.password = password;
         return this;
+    }
+
+    public void deductPoint(Integer mileage) {
+        this.setPoint(point - mileage);
+        if (point < 0) {
+            throw new Exception(ErrorResult.OUT_OF_POINT);
+        }
+    }
+
+    public void acquirePoint(Integer acquirePoint) {
+        this.setPoint(point + acquirePoint);
     }
 
 }
