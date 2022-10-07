@@ -34,7 +34,8 @@ public class MemberController {
 
     @PutMapping
     @ApiOperation(value = "프로필 수정")
-    public ResponseEntity<String> updateProfile(@RequestBody @Valid MemberDto.UpdateRequest updateRequest) {
+    public ResponseEntity<String> updateProfile(
+        @RequestBody @Valid MemberDto.UpdateRequest updateRequest) {
         memberService.updateProfile(updateRequest);
         return ResponseEntity.ok("프로필 수정이 완료되었습니다.");
     }
@@ -55,7 +56,7 @@ public class MemberController {
 
     @GetMapping("/latest")
     @ApiOperation(value = "최근 본 상품")
-    public ResponseEntity<ArrayList<ProductResponse>> latestProduct(HttpServletRequest request){
+    public ResponseEntity<ArrayList<ProductResponse>> latestProduct(HttpServletRequest request) {
         return ResponseEntity.ok(memberService.latestProduct(request));
     }
 

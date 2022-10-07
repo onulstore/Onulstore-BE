@@ -4,7 +4,6 @@ import com.onulstore.config.SecurityUtil;
 import com.onulstore.config.exception.Exception;
 import com.onulstore.domain.cart.Cart;
 import com.onulstore.domain.cart.CartRepository;
-import com.onulstore.domain.category.Category;
 import com.onulstore.domain.enums.Authority;
 import com.onulstore.domain.enums.ErrorResult;
 import com.onulstore.domain.enums.OrderStatus;
@@ -173,54 +172,6 @@ public class OrderService {
         return OrderDto.StatusResponse.of(updateOrder);
     }
 
-    public Integer orderDashBoard(LocalDateTime localDateTime) {
-        List<Order> orderList = orderRepository.findAllByOrderStatusAndCreatedDateAfter(
-            OrderStatus.PURCHASE_CONFIRM, localDateTime);
-        return orderList.size();
-    }
-
-    public List<Integer> salesAmount(LocalDateTime localDateTime) {
-        List<Order> orderList = orderRepository.findAllByOrderStatusAndCreatedDateAfter(
-            OrderStatus.PURCHASE_CONFIRM, localDateTime);
-        Integer totalPrice = 0;
-        Integer totalCount = 0;
-        for (Order order : orderList) {
-            totalPrice += order.getTotalPrice();
-            for (OrderProduct orderProduct : order.getOrderProducts()) {
-                totalCount += orderProduct.getCount();
-            }
-        }
-        List<Integer> salesAmount = new ArrayList<>();
-        salesAmount.add(totalPrice);
-        salesAmount.add(totalCount);
-        return salesAmount;
-    }
-
-    public List<Integer> salesByCategory(LocalDateTime localDateTime) {
-        List<Order> orderList = orderRepository.findAllByOrderStatusAndCreatedDateAfter(
-            OrderStatus.PURCHASE_CONFIRM, localDateTime);
-        Integer fashion = 0;
-        Integer living = 0;
-        Integer beauty = 0;
-        for(Order order : orderList){
-            for(OrderProduct orderProduct : order.getOrderProducts()){
-                if(orderProduct.getProduct().getCategory().getParent().equals("1")){
-                    fashion += orderProduct.getCount();
-                }
-                else if(orderProduct.getProduct().getCategory().getParent().equals("2")){
-                    living += orderProduct.getCount();
-                }
-                else{
-                    beauty += orderProduct.getCount();
-                }
-            }
-        }
-        List<Integer> countByCategory = Arrays.asList(fashion, living, beauty);
-        return countByCategory;
-    }
-
-}
-
     /**
      * 관리자 환불 완료
      * @param orderId
@@ -254,6 +205,50 @@ public class OrderService {
             () -> new Exception(ErrorResult.ORDER_NOT_FOUND));
 
         order.modificationOrder(updateOrderRequest);
+    }
+
+    public Integer orderDashBoard(LocalDateTime localDateTime) {
+        List<Order> orderList = orderRepository.findAllByOrderStatusAndCreatedDateAfter(
+            OrderStatus.PURCHASE_CONFIRM, localDateTime);
+        return orderList.size();
+    }
+
+    public List<Integer> salesAmount(LocalDateTime localDateTime) {
+        List<Order> orderList = orderRepository.findAllByOrderStatusAndCreatedDateAfter(
+            OrderStatus.PURCHASE_CONFIRM, localDateTime);
+        Integer totalPrice = 0;
+        Integer totalCount = 0;
+        for (Order order : orderList) {
+            totalPrice += order.getTotalPrice();
+            for (OrderProduct orderProduct : order.getOrderProducts()) {
+                totalCount += orderProduct.getCount();
+            }
+        }
+        List<Integer> salesAmount = new ArrayList<>();
+        salesAmount.add(totalPrice);
+        salesAmount.add(totalCount);
+        return salesAmount;
+    }
+
+    public List<Integer> salesByCategory(LocalDateTime localDateTime) {
+        List<Order> orderList = orderRepository.findAllByOrderStatusAndCreatedDateAfter(
+            OrderStatus.PURCHASE_CONFIRM, localDateTime);
+        Integer fashion = 0;
+        Integer living = 0;
+        Integer beauty = 0;
+        for (Order order : orderList) {
+            for (OrderProduct orderProduct : order.getOrderProducts()) {
+                if (orderProduct.getProduct().getCategory().getParent().equals("1")) {
+                    fashion += orderProduct.getCount();
+                } else if (orderProduct.getProduct().getCategory().getParent().equals("2")) {
+                    living += orderProduct.getCount();
+                } else {
+                    beauty += orderProduct.getCount();
+                }
+            }
+        }
+        List<Integer> countByCategory = Arrays.asList(fashion, living, beauty);
+        return countByCategory;
     }
 
 }

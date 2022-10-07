@@ -18,6 +18,7 @@ import lombok.*;
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
+import org.hibernate.annotations.DynamicUpdate;
 
 @Getter
 @Setter
@@ -25,6 +26,7 @@ import java.util.List;
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
+@DynamicUpdate
 public class Member extends BaseTimeEntity {
 
     @Id
@@ -112,6 +114,10 @@ public class Member extends BaseTimeEntity {
     private List<Coupon> coupons = new ArrayList<>();
 
     public Member updateProfile(MemberDto.UpdateRequest updateRequest) {
+        this.firstName = updateRequest.getFirstName();
+        this.lastName = updateRequest.getLastName();
+        this.firstKana = updateRequest.getFirstKana();
+        this.lastKana = updateRequest.getLastKana();
         this.phoneNum = updateRequest.getPhoneNum();
         this.postalCode = updateRequest.getPostalCode();
         this.roadAddress = updateRequest.getRoadAddress();

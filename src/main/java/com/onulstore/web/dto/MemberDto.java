@@ -121,6 +121,10 @@ public class MemberDto {
     @ToString
     public static class UpdateRequest {
 
+        private String firstName;
+        private String lastName;
+        private String firstKana;
+        private String lastKana;
         private String phoneNum;
         private String postalCode;
         private String roadAddress;
