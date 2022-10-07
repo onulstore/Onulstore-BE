@@ -11,6 +11,7 @@ import com.onulstore.domain.product.ProductRepository;
 import com.onulstore.domain.question.Question;
 import com.onulstore.domain.question.QuestionRepository;
 import com.onulstore.web.dto.QuestionDto;
+import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -132,4 +133,11 @@ public class QuestionService {
         }
         return questionList;
     }
+
+    @Transactional
+    public Integer questionDashBoard(LocalDateTime localDateTime) {
+        List<Question> questionList = questionRepository.findAllByCreatedDateAfter(localDateTime);
+        return questionList.size();
+    }
+
 }
