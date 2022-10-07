@@ -10,6 +10,7 @@ import com.onulstore.domain.product.ProductRepository;
 import com.onulstore.domain.review.Review;
 import com.onulstore.domain.review.ReviewRepository;
 import com.onulstore.web.dto.ReviewDto;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -106,5 +107,11 @@ public class ReviewService {
             reviewList.add(ReviewDto.ReviewResponse.of(review));
         }
         return new PageImpl<>(reviewList, pageable, reviews.size());
+    }
+
+    @Transactional
+    public Integer reviewDashBoard(LocalDateTime localDateTime){
+        List<Review> reviewList = reviewRepository.findAllByCreatedDateAfter(localDateTime);
+        return reviewList.size();
     }
 }

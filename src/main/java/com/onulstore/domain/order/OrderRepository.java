@@ -1,5 +1,7 @@
 package com.onulstore.domain.order;
 
+import com.onulstore.domain.enums.OrderStatus;
+import java.time.LocalDateTime;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -18,4 +20,5 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
             "where o.member.email = :email")
     Long countOrder(@Param("email") String email);
 
+    List<Order> findAllByOrderStatusAndCreatedDateAfter(OrderStatus purchaseConfirm, LocalDateTime localDateTime);
 }

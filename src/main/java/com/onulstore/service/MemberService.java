@@ -2,6 +2,7 @@ package com.onulstore.service;
 
 import com.onulstore.config.SecurityUtil;
 import com.onulstore.config.exception.Exception;
+import com.onulstore.domain.enums.Authority;
 import com.onulstore.domain.enums.ErrorResult;
 import com.onulstore.domain.member.Member;
 import com.onulstore.domain.member.MemberRepository;
@@ -10,7 +11,9 @@ import com.onulstore.web.dto.MemberDto;
 import com.onulstore.web.dto.PasswordDto;
 import com.onulstore.web.dto.ProductDto;
 import com.onulstore.web.dto.ProductDto.ProductResponse;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
@@ -75,5 +78,15 @@ public class MemberService {
             recentlyViewed.add(ProductDto.ProductResponse.of(product));
         }
         return recentlyViewed;
+    }
+
+    @Transactional
+    public List<Integer> memberDashBoard(LocalDateTime localDateTime){
+        List<Member> memberList = memberRepository.findAllByAuthorityAndCreatedDateAfter(Authority.ROLE_USER, localDateTime);
+        List<Member> sellerList = memberRepository.findAllByAuthorityAndCreatedDateAfter(Authority.ROLE_SELLER, localDateTime);
+        List<Integer> memberAmount = new ArrayList<>();
+        memberAmount.add(memberList.size());
+        memberAmount.add(sellerList.size());
+        return memberAmount;
     }
 }

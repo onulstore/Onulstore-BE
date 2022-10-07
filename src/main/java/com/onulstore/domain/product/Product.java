@@ -53,7 +53,7 @@ public class Product extends BaseTimeEntity {
     private String productName;
 
     @Column
-    private String content;
+    private String content = "";
 
     @Column
     private Integer price;
@@ -123,12 +123,11 @@ public class Product extends BaseTimeEntity {
     @JsonIgnore
     private List<ProductImage> productImages = new ArrayList<>();
 
-    public Product(String productName, String content, Integer price,
-        Integer quantity, String productImg, ProductStatus productStatus, Category category,
+    public Product(String productName, Integer price,
+        Integer quantity, ProductStatus productStatus, Category category,
         Brand brand) {
 
         this.productName = productName;
-        this.content = content;
         this.price = price;
         this.quantity = quantity;
         this.productStatus = productStatus;
@@ -136,13 +135,16 @@ public class Product extends BaseTimeEntity {
         this.brand = brand;
     }
 
-    public void changeProductData(String productName, String content, Integer price,
+    public void changeProductData(String productName, Integer price,
         Integer quantity, ProductStatus productStatus) {
         this.productName = productName;
-        this.content = content;
         this.price = price;
         this.quantity = quantity;
         this.productStatus = productStatus;
+    }
+
+    public void changeContent(String contentImage){
+        this.content = contentImage;
     }
 
     public void newPurchaseCount() {

@@ -66,13 +66,6 @@ public class ProductController {
         return ResponseEntity.ok(productService.entireProductList(pageable));
     }
 
-    @ApiOperation(value = "상품 검색")
-    @GetMapping("/products/search") // 보류
-    public ResponseEntity<Page<ProductDto.ProductResponse>> searchProducts(
-        @PageableDefault(sort = "id", direction = Sort.Direction.DESC, size = 10) Pageable pageable) {
-        return ResponseEntity.ok(productService.entireProductList(pageable));
-    }
-
     @ApiOperation(value = "상품 이미지 업로드")
     @PostMapping("/products/{productId}/image")
     public ResponseEntity uploadImage(@RequestParam("images") List<MultipartFile> multipartFile,
@@ -81,7 +74,7 @@ public class ProductController {
         return ResponseEntity.ok("상품 이미지가 등록되었습니다.");
     }
 
-    @ApiOperation(value = "상품 이미지 업로드")
+    @ApiOperation(value = "상품 설명 업로드")
     @PostMapping("/products/{productId}/content")
     public ResponseEntity<String> uploadContent(@RequestParam("images") MultipartFile multipartFile,
         @PathVariable Long productId) throws IOException {
@@ -101,5 +94,4 @@ public class ProductController {
         productService.discountProduct(discountProductDto);
         return ResponseEntity.ok("할인이 적용되었습니다.");
     }
-
 }
