@@ -24,14 +24,15 @@ public class NoticeController {
 
     @PostMapping
     @ApiOperation(value = "공지 등록")
-    public ResponseEntity<NoticeDto.NoticeResponse> addNotice(@RequestBody NoticeDto.NoticeRequest noticeRequest) {
+    public ResponseEntity<NoticeDto.NoticeResponse> addNotice(
+        @RequestBody NoticeDto.NoticeRequest noticeRequest) {
         return ResponseEntity.ok(noticeService.addNotice(noticeRequest));
     }
 
     @PutMapping("/{noticeId}")
     @ApiOperation(value = "공지 수정")
     public ResponseEntity<NoticeDto.NoticeResponse> updateNotice(
-            @RequestBody NoticeDto.NoticeRequest noticeRequest, @PathVariable Long noticeId) {
+        @RequestBody NoticeDto.NoticeRequest noticeRequest, @PathVariable Long noticeId) {
         return ResponseEntity.ok(noticeService.updateNotice(noticeRequest, noticeId));
     }
 
@@ -56,10 +57,9 @@ public class NoticeController {
 
     @PostMapping("/{noticeId}/image")
     @ApiOperation(value = "공지 이미지 업로드")
-    public ResponseEntity<String> uploadImage(
-            @RequestParam("images") MultipartFile multipartFile, @PathVariable Long noticeId) throws IOException {
-        String image = noticeService.upload(multipartFile.getInputStream(), multipartFile.getOriginalFilename());
-        noticeService.addImage(noticeId, image);
+    public ResponseEntity<String> uploadImage(@RequestParam("images") MultipartFile multipartFile,
+        @PathVariable Long noticeId) throws IOException {
+        noticeService.uploadImage(multipartFile, noticeId);
         return ResponseEntity.ok("이미지가 등록되었습니다.");
     }
 
