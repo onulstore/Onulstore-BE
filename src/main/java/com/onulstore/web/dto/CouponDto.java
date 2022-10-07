@@ -22,13 +22,14 @@ public class CouponDto {
 
         private Long memberId;
         private String couponTitle;
-        private LocalDate createdDate;
+        private LocalDateTime createdDate;
         private Long duration;
         private Integer discountValue;
         private Integer leastRequiredValue;
         private Integer maxDiscountValue;
         private DiscountType discountType;
         private CouponStatus couponStatus;
+        private LocalDateTime expirationDate;
 
         public Coupon toCoupon(Member member) {
             Coupon coupon = Coupon.builder()
@@ -42,6 +43,19 @@ public class CouponDto {
                 .expirationDate(LocalDateTime.now().plusDays(duration))
                 .build();
             return coupon;
+        }
+
+        public static RequestCoupon of(Coupon coupon){
+            RequestCoupon requestCoupon = RequestCoupon.builder()
+                .memberId(coupon.getMember().getId())
+                .couponTitle(coupon.getCouponTitle())
+                .discountValue(coupon.getDiscountValue())
+                .discountType(coupon.getDiscountType())
+                .couponStatus(coupon.getCouponStatus())
+                .createdDate(coupon.getCreatedDate())
+                .expirationDate(coupon.getExpirationDate())
+                .build();
+            return requestCoupon;
         }
     }
 }
