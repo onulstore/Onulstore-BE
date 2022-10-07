@@ -67,7 +67,7 @@ public class PaymentService {
         }
 
         if (coupon != null && coupon.getDiscountType().equals(DiscountType.PERCENT)) {
-            discount += productPrice * 0.9;
+            discount += productPrice * 0.1;
         }
         discount += paymentRequest.getMileage();
         member.deductPoint(paymentRequest.getMileage());
