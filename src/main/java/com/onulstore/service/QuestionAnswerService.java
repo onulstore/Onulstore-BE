@@ -41,8 +41,8 @@ public class QuestionAnswerService {
             .answer(questionAnswerDto.getAnswer())
             .build();
 
+        question.answered();
         questionAnswerRepository.save(answer);
-        question.Answered();
     }
 
     // 답변 조회

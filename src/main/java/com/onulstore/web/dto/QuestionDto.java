@@ -1,34 +1,78 @@
 package com.onulstore.web.dto;
 
 import com.onulstore.domain.question.Question;
+import com.onulstore.domain.questionAnswer.QuestionAnswer;
+import com.onulstore.web.dto.QuestionDto.QuestionResponse;
 import io.swagger.annotations.ApiModelProperty;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-@Getter
-@AllArgsConstructor
-@NoArgsConstructor
-@Builder
+
 public class QuestionDto {
 
-    private Long productId;
-    private String title;
-    private String content;
+    @Getter
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Builder
+    public static class QuestionRequest {
 
-    @ApiModelProperty(value = "비밀글여부", example = "Y/N")
-    private Character secret;
-    private String answerStatus;
+        private Long productId;
+        private String title;
+        private String content;
+        @ApiModelProperty(value = "비밀글여부", example = "Y/N")
+        private Character secret;
 
-    public static QuestionDto of(Question question) {
-        return QuestionDto.builder()
-            .productId(question.getProduct().getId())
-            .title(question.getTitle())
-            .content(question.getContent())
-            .secret(question.getSecret())
-            .answerStatus(question.getAnswerStatus())
-            .build();
     }
 
+    @Getter
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Builder
+    public static class QuestionResponse {
+
+        private Long productId;
+        private String title;
+        private String content;
+        private Character secret;
+        private boolean answerStatus;
+
+        public static QuestionResponse of(Question question) {
+            return QuestionResponse.builder()
+                .productId(question.getProduct().getId())
+                .title(question.getTitle())
+                .content(question.getContent())
+                .secret(question.getSecret())
+                .answerStatus(question.isAnswerStatus())
+                .build();
+        }
+    }
+
+    @Getter
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Builder
+    public static class QuestionRes {
+
+        private Long productId;
+        private String title;
+        private String content;
+        private Character secret;
+        private boolean answerStatus;
+        private QuestionAnswer questionAnswer;
+
+        public static QuestionDto.QuestionRes of(Question question, QuestionAnswer questionAnswer) {
+            return QuestionDto.QuestionRes.builder()
+                .productId(question.getProduct().getId())
+                .title(question.getTitle())
+                .content(question.getContent())
+                .secret(question.getSecret())
+                .answerStatus(question.isAnswerStatus())
+                .questionAnswer(questionAnswer)
+                .build();
+        }
+    }
 }
