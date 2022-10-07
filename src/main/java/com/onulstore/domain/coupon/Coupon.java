@@ -98,7 +98,7 @@ public class Coupon extends BaseTimeEntity {
     }
 
     public void checkValidation() {
-        if (this.expirationDate.isAfter(LocalDateTime.now())) {
+        if (LocalDateTime.now().isAfter(this.expirationDate)) {
             this.couponStatus = CouponStatus.EXPIRED;
         }
     }
