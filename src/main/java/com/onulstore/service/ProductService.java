@@ -10,6 +10,7 @@ import com.onulstore.domain.category.Category;
 import com.onulstore.domain.category.CategoryRepository;
 import com.onulstore.domain.enums.Authority;
 import com.onulstore.domain.enums.ErrorResult;
+import com.onulstore.domain.enums.ProductStatus;
 import com.onulstore.domain.member.Member;
 import com.onulstore.domain.member.MemberRepository;
 import com.onulstore.domain.product.Product;
@@ -23,6 +24,7 @@ import com.onulstore.web.dto.ProductDto.DiscountProductDto;
 import com.onulstore.web.dto.ProductDto.ProductResponse;
 import java.io.IOException;
 import java.io.InputStream;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -86,7 +88,6 @@ public class ProductService {
             () -> new Exception(ErrorResult.PRODUCT_NOT_FOUND));
 
         product.changeProductData(modification.getProductName(),
-            modification.getContent(),
             modification.getPrice(),
             modification.getQuantity(),
             modification.getProductStatus());
@@ -140,25 +141,26 @@ public class ProductService {
     public Page entireProductList(Pageable pageable) {
         List<Product> productList = productRepository.findAll();
         List<ProductResponse> productResponseList = new ArrayList<>();
+        boolean check = false;
+        Member member = new Member();
         if (!SecurityContextHolder.getContext().getAuthentication().getPrincipal()
             .equals("anonymousUser")) {
-            Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId())
+            member = memberRepository.findById(SecurityUtil.getCurrentMemberId())
                 .orElseThrow(() -> new Exception(ErrorResult.NOT_EXIST_USER));
-
-            for (Product product : productList) {
-                for (Wishlist wishlist : member.getWishlists()) {
+            check = true;
+        }
+        for (Product product : productList) {
+            if (check) {
+                List<Wishlist> wishlists = wishlistRepository.findAllByMember(member);
+                for (Wishlist wishlist : wishlists) {
                     if (wishlist.getProduct().getId().equals(product.getId())) {
                         product.bookmarked();
                     }
                 }
-                productResponseList.add(ProductDto.ProductResponse.of(product));
             }
+            productResponseList.add(ProductDto.ProductResponse.of(product));
         }
-        int start = (int) pageable.getOffset();
-        int end = Math.min((start + pageable.getPageSize()), productResponseList.size());
-        Page<ProductResponse> page = new PageImpl<>(productResponseList.subList(start, end),
-            pageable, productResponseList.size());
-        return page;
+        return new PageImpl<>(productResponseList, pageable, productResponseList.size());
     }
 
     @Transactional
@@ -177,6 +179,7 @@ public class ProductService {
         ObjectMetadata objMeta = new ObjectMetadata();
         objMeta.setContentType(multipartFile.getContentType());
         s3Client.putObject(bucket, s3FileName, inputStream, objMeta);
+        product.changeContent(s3FileName);
         return s3FileName;
     }
 
@@ -241,6 +244,9 @@ public class ProductService {
         Product product = productRepository.findById(productId).orElseThrow(
             () -> new Exception(ErrorResult.PRODUCT_NOT_FOUND));
 
+        for(ProductImage productImage : product.getProductImages()){
+            productImageRepository.delete(productImage);
+        }
         product.getProductImages().clear();
     }
 
@@ -251,6 +257,18 @@ public class ProductService {
 
         product.discountProduct(discountDto.getDiscountType(), discountDto.getDiscountValue(),
             discountDto.getDiscountStartDate(), discountDto.getDiscountEndDate());
+    }
+
+    @Transactional
+    public List<Integer> productDashBoard(LocalDateTime localDateTime) {
+        List<Product> saleProductList = productRepository.findAllByProductStatusAndCreatedDateAfter(
+            ProductStatus.SALE, localDateTime);
+        List<Product> entireProductList = productRepository.findAllByCreatedDateAfter(
+            localDateTime);
+        List<Integer> registerProductAndSaleProduct = new ArrayList<>();
+        registerProductAndSaleProduct.add(saleProductList.size());
+        registerProductAndSaleProduct.add(entireProductList.size());
+        return registerProductAndSaleProduct;
     }
 
 }
