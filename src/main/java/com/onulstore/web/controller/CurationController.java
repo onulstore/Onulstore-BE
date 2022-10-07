@@ -40,21 +40,22 @@ public class CurationController {
     @PostMapping("/magazine")
     @ApiOperation(value = "매거진 등록")
     public ResponseEntity<CurationDto.CurationResponse> addMagazine(
-            @Valid @RequestBody CurationDto.MagazineRequest magazineRequest) {
+        @Valid @RequestBody CurationDto.MagazineRequest magazineRequest) {
         return ResponseEntity.ok(curationService.createMagazine(magazineRequest));
     }
 
     @PostMapping("/magazine/add")
     @ApiOperation(value = "매거진 상품 등록")
     public ResponseEntity<String> addProductIntoMagazine(
-            @Valid @RequestBody CurationDto.AddProductRequest addProductRequest) {
+        @Valid @RequestBody CurationDto.AddProductRequest addProductRequest) {
         curationService.addProductIntoMagazine(addProductRequest);
         return ResponseEntity.ok("매거진에 상품이 등록되었습니다.");
     }
 
     @PostMapping("/recommend")
     @ApiOperation(value = "추천제품 등록")
-    public ResponseEntity<String> addRecommend(@Valid @RequestBody CurationDto.RecommendRequest recommendRequest) {
+    public ResponseEntity<String> addRecommend(
+        @Valid @RequestBody CurationDto.RecommendRequest recommendRequest) {
         curationService.createRecommend(recommendRequest);
         return ResponseEntity.ok("추천제품 등록이 완료되었습니다.");
     }
@@ -81,16 +82,15 @@ public class CurationController {
     @PutMapping("/{curationId}")
     @ApiOperation(value = "큐레이션 수정")
     public ResponseEntity<CurationDto.CurationResponse> updateCuration(
-            @RequestBody CurationDto.UpdateCuration updateCuration, @PathVariable Long curationId) {
+        @RequestBody CurationDto.UpdateCuration updateCuration, @PathVariable Long curationId) {
         return ResponseEntity.ok(curationService.updateCuration(updateCuration, curationId));
     }
 
     @PostMapping("/{curationId}/image")
     @ApiOperation(value = "큐레이션 이미지 업로드")
-    public ResponseEntity<String> uploadImage(
-            @RequestParam("images") MultipartFile multipartFile, @PathVariable Long curationId) throws IOException {
-        String image = curationService.upload(multipartFile.getInputStream(), multipartFile.getOriginalFilename());
-        curationService.addImage(curationId, image);
+    public ResponseEntity<String> uploadImage(@RequestParam("images") MultipartFile multipartFile,
+        @PathVariable Long curationId) throws IOException {
+        curationService.uploadImage(multipartFile, curationId);
         return ResponseEntity.ok("이미지가 등록되었습니다.");
     }
 
