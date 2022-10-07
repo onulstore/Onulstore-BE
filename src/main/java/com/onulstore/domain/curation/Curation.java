@@ -54,7 +54,7 @@ public class Curation extends BaseTimeEntity {
     }
 
     public static Curation createRecommend(String title, String content, String curationImg,
-                                           Member member, List<CurationProduct> curationProducts) {
+        Member member, List<CurationProduct> curationProducts) {
         Curation curation = new Curation();
         curation.setMember(member);
         for (CurationProduct curationProduct : curationProducts) {
@@ -75,7 +75,7 @@ public class Curation extends BaseTimeEntity {
     }
 
     public static Curation createMagazine(String title, String content, String curationImg,
-                                           Member member) {
+        Member member) {
         Curation curation = new Curation();
         curation.setTitle(title);
         curation.setContent(content);
@@ -84,6 +84,10 @@ public class Curation extends BaseTimeEntity {
         curation.setMember(member);
 
         return curation;
+    }
+
+    public void uploadImage(String curationImg) {
+        this.curationImg = curationImg;
     }
 
 }

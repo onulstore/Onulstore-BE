@@ -16,6 +16,7 @@ import com.onulstore.domain.member.MemberRepository;
 import com.onulstore.domain.product.Product;
 import com.onulstore.domain.product.ProductRepository;
 import com.onulstore.web.dto.CurationDto;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -26,6 +27,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 
 @Service
@@ -188,25 +190,23 @@ public class CurationService {
         return CurationDto.CurationResponse.of(curationRepository.save(curation));
     }
 
-
-    public String upload(InputStream inputStream, String originFileName) {
-        String s3FileName = UUID.randomUUID() + "-" + originFileName;
-        ObjectMetadata objMeta = new ObjectMetadata();
-        s3Client.putObject(bucket, s3FileName, inputStream, objMeta);
-
-        return s3FileName;
-    }
-
-    public void addImage(Long curationId, String image) {
+    public String uploadImage(MultipartFile multipartFile, Long curationId) throws IOException {
         Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId()).orElseThrow(
             () -> new Exception(ErrorResult.NOT_EXIST_USER));
         if (!member.getAuthority().equals(Authority.ROLE_ADMIN.getKey())) {
             throw new Exception(ErrorResult.ACCESS_PRIVILEGE);
         }
-
         Curation curation = curationRepository.findById(curationId).orElseThrow(
             () -> new Exception(ErrorResult.CURATION_NOT_FOUND));
-        curation.insertImage(image);
+
+        InputStream inputStream = multipartFile.getInputStream();
+        String originFileName = multipartFile.getOriginalFilename();
+        String s3FileName = UUID.randomUUID() + "-" + originFileName;
+        ObjectMetadata objMeta = new ObjectMetadata();
+        objMeta.setContentType(multipartFile.getContentType());
+        s3Client.putObject(bucket, s3FileName, inputStream, objMeta);
+        curation.uploadImage(s3FileName);
+        return s3FileName;
     }
 
 }
