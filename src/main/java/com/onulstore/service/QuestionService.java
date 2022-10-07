@@ -10,7 +10,10 @@ import com.onulstore.domain.product.Product;
 import com.onulstore.domain.product.ProductRepository;
 import com.onulstore.domain.question.Question;
 import com.onulstore.domain.question.QuestionRepository;
+import com.onulstore.domain.questionAnswer.QuestionAnswer;
+import com.onulstore.domain.questionAnswer.QuestionAnswerRepository;
 import com.onulstore.web.dto.QuestionDto;
+import com.onulstore.web.dto.QuestionDto.QuestionResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,10 +29,11 @@ public class QuestionService {
     private final QuestionRepository questionRepository;
     private final MemberRepository memberRepository;
     private final ProductRepository productRepository;
+    private final QuestionAnswerRepository questionAnswerRepository;
 
     // 질문 등록
     @Transactional
-    public void insertQuestion(QuestionDto questionDto) {
+    public void insertQuestion(QuestionDto.QuestionRequest questionDto) {
         Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId()).orElseThrow(
             () -> new Exception(ErrorResult.NOT_EXIST_USER));
         Product product = productRepository.findById(questionDto.getProductId()).orElseThrow(
@@ -41,16 +45,14 @@ public class QuestionService {
             .title(questionDto.getTitle())
             .content(questionDto.getContent())
             .secret(questionDto.getSecret())
-            .answerStatus(questionDto.getAnswerStatus())
             .build();
 
-        question.unAnswered();
         questionRepository.save(question);
     }
 
     // 질문 수정
     @Transactional
-    public QuestionDto updateQuestion(Long questionId, QuestionDto questionDto) {
+    public QuestionResponse updateQuestion(Long questionId, QuestionDto.QuestionRequest questionDto) {
         Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId()).orElseThrow(
             () -> new Exception(ErrorResult.NOT_EXIST_USER));
         Product product = productRepository.findById(questionDto.getProductId()).orElseThrow(
@@ -65,7 +67,7 @@ public class QuestionService {
         question.setTitle(questionDto.getTitle());
         question.setContent(questionDto.getContent());
 
-        return QuestionDto.of(questionRepository.save(question));
+        return QuestionDto.QuestionResponse.of(questionRepository.save(question));
     }
 
     // 질문 삭제
@@ -85,50 +87,51 @@ public class QuestionService {
 
     // 질문 상세 조회
     @Transactional
-    public QuestionDto getQuestion(Long productId, Long questionId) {
+    public QuestionDto.QuestionRes getQuestion(Long productId, Long questionId) {
         Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId()).orElseThrow(
             () -> new Exception(ErrorResult.NOT_EXIST_USER));
         Product product = productRepository.findById(productId).orElseThrow(
             () -> new Exception(ErrorResult.PRODUCT_NOT_FOUND));
         Question question = questionRepository.findById(questionId).orElseThrow(
             () -> new Exception(ErrorResult.NOT_EXIST_QUESTION));
+        QuestionAnswer questionAnswer = questionAnswerRepository.findByQuestionId(question.getId()).orElse(null);
 
         if (question.getSecret() == 'Y') {
-            if (!member.getId().equals(question.getMember().getId()) || !member.getAuthority()
-                .equals(Authority.ROLE_ADMIN.getKey())) {
+            if (!(member.getId().equals(question.getMember().getId()) || member.getAuthority()
+                .equals(Authority.ROLE_ADMIN.getKey()))) {
                 throw new Exception(ErrorResult.SECRET_QUESTION);
             }
-            return QuestionDto.of(question);
+            return QuestionDto.QuestionRes.of(question, questionAnswer);
         }
-        return QuestionDto.of(question);
+        return QuestionDto.QuestionRes.of(question, questionAnswer);
     }
 
     // 질문 전체 조회(상품별)
     @Transactional
-    public List<QuestionDto> getQuestionList(Long productId) {
+    public List<QuestionDto.QuestionResponse> getQuestionList(Long productId) {
         Product product = productRepository.findById(productId).orElseThrow(
             () -> new Exception(ErrorResult.PRODUCT_NOT_FOUND));
 
         List<Question> questions = questionRepository.findAllByProductId(product.getId());
-        List<QuestionDto> questionList = new ArrayList<>();
+        List<QuestionDto.QuestionResponse> questionList = new ArrayList<>();
 
         for (Question question : questions) {
-            questionList.add(QuestionDto.of(question));
+            questionList.add(QuestionDto.QuestionResponse.of(question));
         }
         return questionList;
     }
 
     // 질문 전체 조회(멤버별)
     @Transactional
-    public List<QuestionDto> getMemberQuestionList() {
+    public List<QuestionDto.QuestionResponse> getMemberQuestionList() {
         Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId()).orElseThrow(
             () -> new Exception(ErrorResult.NOT_EXIST_USER));
 
         List<Question> questions = questionRepository.findAllByMemberId(member.getId());
-        List<QuestionDto> questionList = new ArrayList<>();
+        List<QuestionDto.QuestionResponse> questionList = new ArrayList<>();
 
         for (Question question : questions) {
-            questionList.add(QuestionDto.of(question));
+            questionList.add(QuestionDto.QuestionResponse.of(question));
         }
         return questionList;
     }
