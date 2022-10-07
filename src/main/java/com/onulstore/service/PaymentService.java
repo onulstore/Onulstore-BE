@@ -34,6 +34,11 @@ public class PaymentService {
     private final CouponRepository couponRepository;
     private final OrderRepository orderRepository;
 
+    /**
+     * 결제하기
+     * @param paymentRequest
+     * @return 결제 내용
+     */
     public PaymentDto.PaymentResponse paying(PaymentDto.PaymentRequest paymentRequest) {
         Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId()).orElseThrow(
             () -> new Exception(ErrorResult.NOT_EXIST_USER));
@@ -62,7 +67,7 @@ public class PaymentService {
         }
 
         if (coupon != null && coupon.getDiscountType().equals(DiscountType.PERCENT)) {
-            discount += productPrice * 0.9;
+            discount += productPrice * 0.1;
         }
         discount += paymentRequest.getMileage();
         member.deductPoint(paymentRequest.getMileage());
@@ -78,6 +83,5 @@ public class PaymentService {
 
         return PaymentDto.PaymentResponse.of(paymentRepository.save(payment));
     }
-
 
 }
