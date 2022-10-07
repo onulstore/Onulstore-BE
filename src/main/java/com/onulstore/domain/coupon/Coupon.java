@@ -7,6 +7,9 @@ import com.onulstore.domain.member.Member;
 
 import com.onulstore.domain.payment.Payment;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -16,7 +19,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.persistence.OneToOne;
+import javax.persistence.OneToMany;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -72,8 +75,8 @@ public class Coupon extends BaseTimeEntity {
     @JoinColumn(name = "member_id")
     private Member member;
 
-    @OneToOne(mappedBy = "coupon")
-    private Payment payment;
+    @OneToMany(mappedBy = "coupon", cascade = CascadeType.ALL)
+    private List<Payment> payments = new ArrayList<>();
 
     public void changeStatus(CouponStatus couponStatus) {
         this.couponStatus = couponStatus;
@@ -102,4 +105,9 @@ public class Coupon extends BaseTimeEntity {
             this.couponStatus = CouponStatus.EXPIRED;
         }
     }
+
+    public void useCoupon() {
+        this.couponStatus = CouponStatus.USED;
+    }
+
 }
