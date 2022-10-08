@@ -146,7 +146,7 @@ public class Product extends BaseTimeEntity {
         this.productStatus = productStatus;
     }
 
-    public void changeContent(String contentImage){
+    public void changeContent(String contentImage) {
         this.content = contentImage;
     }
 
