@@ -1,7 +1,15 @@
 package com.onulstore.web.dto;
 
 import com.onulstore.domain.curation.Curation;
-import lombok.*;
+import com.onulstore.domain.enums.ProductStatus;
+import java.util.ArrayList;
+import java.util.List;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 
 public class CurationDto {
 
@@ -10,20 +18,68 @@ public class CurationDto {
     @NoArgsConstructor
     @Builder
     public static class RecommendRequest {
+
+        private Long productId;
+        private String title;
+        private String content;
+    }
+
+    @Getter
+    @Setter
+    public static class CurationInfo {
+
+        private Long curationId;
         private String title;
         private String content;
         private String curationImg;
-        private Long productId;
+        private String curationForm;
+        private List<CurationProduct> curationProducts = new ArrayList<>();
+
+        public CurationInfo(Curation curation) {
+            this.curationId = curation.getId();
+            this.title = curation.getTitle();
+            this.content = curation.getContent();
+            this.curationImg = curation.getCurationImg();
+            this.curationForm = curation.getCurationForm();
+        }
+
+        public void addCurationProduct(CurationDto.CurationProduct curationProduct) {
+            curationProducts.add(curationProduct);
+        }
+
     }
+
+    @Getter
+    @Setter
+    public static class CurationProduct {
+
+        private String productName;
+        private String brandName;
+        private Integer price;
+        private Integer discountValue;
+        private ProductStatus productStatus;
+        private float rating;
+
+        public CurationProduct(com.onulstore.domain.curation.CurationProduct curationProduct) {
+            this.productName = curationProduct.getProduct().getProductName();
+            this.brandName = curationProduct.getProduct().getBrand().getBrandName();
+            this.price = curationProduct.getProduct().getPrice();
+            this.discountValue = curationProduct.getProduct().getDiscountValue();
+            this.productStatus = curationProduct.getProduct().getProductStatus();
+            this.rating = curationProduct.getProduct().getRating();
+        }
+    }
+
 
     @Getter
     @AllArgsConstructor
     @NoArgsConstructor
     @Builder
     public static class MagazineRequest {
+
+        private List<Long> productList = new ArrayList<>();
         private String title;
         private String content;
-        private String curationImg;
     }
 
     @Getter
@@ -31,6 +87,7 @@ public class CurationDto {
     @NoArgsConstructor
     @Builder
     public static class AddProductRequest {
+
         private Long productId;
         private Long curationId;
     }
@@ -39,6 +96,7 @@ public class CurationDto {
     @Setter
     @Builder
     public static class CurationResponse {
+
         private Long id;
         private String title;
         private String content;
@@ -47,12 +105,12 @@ public class CurationDto {
 
         public static CurationResponse of(Curation curation) {
             return CurationResponse.builder()
-                    .id(curation.getId())
-                    .curationForm(curation.getCurationForm())
-                    .title(curation.getTitle())
-                    .content(curation.getContent())
-                    .curationImg(curation.getCurationImg())
-                    .build();
+                .id(curation.getId())
+                .curationForm(curation.getCurationForm())
+                .title(curation.getTitle())
+                .content(curation.getContent())
+                .curationImg(curation.getCurationImg())
+                .build();
         }
     }
 
@@ -60,6 +118,7 @@ public class CurationDto {
     @Setter
     @ToString
     public static class UpdateCuration {
+
         private String title;
         private String content;
         private String curationImg;
