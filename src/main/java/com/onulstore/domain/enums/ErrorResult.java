@@ -18,7 +18,8 @@ public enum ErrorResult implements SuperErrorResult {
     COUPON_EXPIRED(HttpStatus.BAD_REQUEST, "만료된 쿠폰입니다."),
     OUT_OF_POINT(HttpStatus.BAD_REQUEST, "포인트가 부족합니다."),
     NOT_REFUND_REQUEST_ORDER(HttpStatus.BAD_REQUEST, "환불 요청된 주문이 아닙니다."),
-    SECRET_QUESTION(HttpStatus.BAD_REQUEST,"비밀글입니다."),
+    SECRET_QUESTION(HttpStatus.BAD_REQUEST, "비밀글입니다."),
+    NOT_PURCHASE_CONFIRM_ORDER(HttpStatus.BAD_REQUEST, "구매 확정된 주문이 아닙니다."),
 
     // 401 UNAUTHORIZED
     ACCESS_PRIVILEGE(HttpStatus.UNAUTHORIZED, "접근 권한이 없습니다."),
@@ -40,6 +41,9 @@ public enum ErrorResult implements SuperErrorResult {
     NOT_FOUND_NOTICE(HttpStatus.NOT_FOUND, "해당 공지를 찾을 수 없습니다."),
     COUPON_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 쿠폰을 찾을 수 없습니다."),
     PAYMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 결재 내역을 찾을 수 없습니다."),
+    ORDER_PRODUCT_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 상품으로 주문된 내역을 찾을 수 없습니다."),
+    REVIEW_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 리뷰를 찾을 수 없습니다."),
+
 
     // 409 CONFLICT
     DUPLICATE_USER_ID(HttpStatus.CONFLICT, "이미 존재하는 이메일입니다."),
