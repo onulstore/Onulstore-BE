@@ -77,26 +77,6 @@ public class CurationService {
     }
 
     /**
-     * Magazine 상품 등록
-     * @param addProductRequest
-     */
-    public void addProductIntoMagazine(AddProductRequest addProductRequest) {
-        Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId()).orElseThrow(
-            () -> new Exception(ErrorResult.NOT_EXIST_USER));
-        if (!member.getAuthority().equals(Authority.ROLE_ADMIN.getKey())) {
-            throw new Exception(ErrorResult.ACCESS_PRIVILEGE);
-        }
-
-        Product product = productRepository.findById(addProductRequest.getProductId()).orElseThrow(
-            () -> new Exception(ErrorResult.PRODUCT_NOT_FOUND));
-        Curation curation = curationRepository.findById(addProductRequest.getCurationId())
-            .orElseThrow();
-
-        CurationProduct curationProduct = CurationProduct.addProductMagazine(curation, product);
-        curationProductRepository.save(curationProduct);
-    }
-
-    /**
      * MD Recommend 등록
      * @param recommendRequest
      * @return curation.getId()
