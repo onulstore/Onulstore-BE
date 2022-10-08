@@ -115,8 +115,21 @@ public class CurationService {
      * @return 전체 Curation 정보
      */
     @Transactional(readOnly = true)
-    public Page<CurationDto.CurationResponse> getCuration(Pageable pageable) {
-        return curationRepository.findAll(pageable).map(CurationDto.CurationResponse::of);
+    public Page<CurationDto.CurationInfo> getCuration(Pageable pageable) {
+        List<Curation> curations = curationRepository.findAll();
+        List<CurationDto.CurationInfo> curationInfos = new ArrayList<>();
+
+        for (Curation curation : curations) {
+            CurationDto.CurationInfo curationInfo = new CurationInfo(curation);
+            List<CurationProduct> curationProductList = curation.getCurationProducts();
+            for (CurationProduct curationProduct : curationProductList) {
+                CurationDto.CurationProduct curationProductDto = new CurationDto.CurationProduct(
+                    curationProduct);
+                curationInfo.addCurationProduct(curationProductDto);
+            }
+            curationInfos.add(curationInfo);
+        }
+        return new PageImpl<>(curationInfos, pageable, curations.size());
     }
 
     /**

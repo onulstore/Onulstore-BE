@@ -26,8 +26,8 @@ public class CurationController {
     private final CurationService curationService;
 
     @GetMapping
-    @ApiOperation(value = "큐레이션 조회")
-    public ResponseEntity<Page<CurationDto.CurationResponse>> getCuration(Pageable pageable) {
+    @ApiOperation(value = "전체 큐레이션 조회")
+    public ResponseEntity<Page<CurationDto.CurationInfo>> getCuration(Pageable pageable) {
         return ResponseEntity.ok(curationService.getCuration(pageable));
     }
 
