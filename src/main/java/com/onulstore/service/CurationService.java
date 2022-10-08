@@ -231,6 +231,10 @@ public class CurationService {
         return s3FileName;
     }
 
+    /**
+     * 공개 여부 TRUE
+     * @param curationId
+     */
     public void display(Long curationId) {
         Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId()).orElseThrow(
             () -> new Exception(ErrorResult.NOT_EXIST_USER));
@@ -244,6 +248,10 @@ public class CurationService {
         curation.display();
     }
 
+    /**
+     * 공개 여부 FLASE
+     * @param curationId
+     */
     public void unDisplay(Long curationId) {
         Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId()).orElseThrow(
             () -> new Exception(ErrorResult.NOT_EXIST_USER));
