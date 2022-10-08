@@ -123,7 +123,6 @@ public class CurationDto {
 
         private String title;
         private String content;
-        private String curationImg;
     }
 
 }
