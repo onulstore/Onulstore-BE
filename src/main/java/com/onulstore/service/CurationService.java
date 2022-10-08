@@ -104,9 +104,17 @@ public class CurationService {
      * @return 해당 curation 정보
      */
     @Transactional(readOnly = true)
-    public List<CurationProduct> getCurationList(Long curationId) {
-        Curation curation = curationRepository.findById(curationId).orElseThrow();
-        return curationProductRepository.findAllByCuration(curation);
+    public CurationDto.CurationInfo getCurationList(Long curationId) {
+        Curation curation = curationRepository.findById(curationId).orElseThrow(
+            () -> new Exception(ErrorResult.CURATION_NOT_FOUND));
+        CurationDto.CurationInfo curationInfo = new CurationInfo(curation);
+        List<CurationProduct> curationProductList = curation.getCurationProducts();
+        for (CurationProduct curationProduct : curationProductList) {
+            CurationDto.CurationProduct curationProductDto = new CurationDto.CurationProduct(
+                curationProduct);
+            curationInfo.addCurationProduct(curationProductDto);
+        }
+        return curationInfo;
     }
 
     /**
