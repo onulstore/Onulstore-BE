@@ -30,7 +30,7 @@ public class WishlistService {
     /**
      * Wishlist 등록
      * @param request
-     * @return ProductDto.ProductRes productRes
+     * @return ProductDto.ProductRes
      */
     public ProductDto.ProductRes addWishlist(WishlistDto.WishlistRequest request) {
         Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId()).orElseThrow(
@@ -61,7 +61,7 @@ public class WishlistService {
 
     /**
      * Wishlist 조회
-     * @return List<ProductDto.ProductRes> wishlists
+     * @return List<ProductDto.ProductRes>
      */
     @Transactional(readOnly = true)
     public List<ProductDto.ProductRes> getWishlist() {
@@ -90,7 +90,7 @@ public class WishlistService {
     /**
      * Wishlist 삭제
      * @param productId
-     * @return ProductDto.ProductRes productRes
+     * @return ProductDto.ProductRes
      */
     public ProductDto.ProductRes deleteWishlist(Long productId) {
         Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId()).orElseThrow(
