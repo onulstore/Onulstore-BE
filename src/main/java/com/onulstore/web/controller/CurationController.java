@@ -87,4 +87,18 @@ public class CurationController {
         return ResponseEntity.ok("이미지가 등록되었습니다.");
     }
 
+    @PutMapping("/{curationId}/display")
+    @ApiOperation(value = "공개 여부 TRUE")
+    public ResponseEntity<String> display(@PathVariable Long curationId) {
+        curationService.display(curationId);
+        return ResponseEntity.ok("해당 큐레이션이 공개 처리 되었습니다");
+    }
+
+    @PutMapping("/{curationId}/unDisplay")
+    @ApiOperation(value = "공개 여부 FALSE")
+    public ResponseEntity<String> unDisplay(@PathVariable Long curationId) {
+        curationService.unDisplay(curationId);
+        return ResponseEntity.ok("해당 큐레이션이 비공개 처리 되었습니다");
+    }
+
 }
