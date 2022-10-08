@@ -71,6 +71,9 @@ public class Product extends BaseTimeEntity {
     private Integer purchaseCount;
 
     @Column
+    private float rating = 0;
+
+    @Column
     private boolean bookmark = false;
 
     @Column
