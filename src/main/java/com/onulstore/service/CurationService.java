@@ -231,4 +231,30 @@ public class CurationService {
         return s3FileName;
     }
 
+    public void display(Long curationId) {
+        Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId()).orElseThrow(
+            () -> new Exception(ErrorResult.NOT_EXIST_USER));
+        if (!member.getAuthority().equals(Authority.ROLE_ADMIN.getKey())) {
+            throw new Exception(ErrorResult.ACCESS_PRIVILEGE);
+        }
+
+        Curation curation = curationRepository.findById(curationId).orElseThrow(
+            () -> new Exception(ErrorResult.CURATION_NOT_FOUND));
+
+        curation.display();
+    }
+
+    public void unDisplay(Long curationId) {
+        Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId()).orElseThrow(
+            () -> new Exception(ErrorResult.NOT_EXIST_USER));
+        if (!member.getAuthority().equals(Authority.ROLE_ADMIN.getKey())) {
+            throw new Exception(ErrorResult.ACCESS_PRIVILEGE);
+        }
+
+        Curation curation = curationRepository.findById(curationId).orElseThrow(
+            () -> new Exception(ErrorResult.CURATION_NOT_FOUND));
+
+        curation.unDisplay();
+    }
+
 }
