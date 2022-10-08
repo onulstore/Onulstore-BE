@@ -249,7 +249,7 @@ public class CurationService {
     }
 
     /**
-     * 공개 여부 FLASE
+     * 공개 여부 FALSE
      * @param curationId
      */
     public void unDisplay(Long curationId) {
