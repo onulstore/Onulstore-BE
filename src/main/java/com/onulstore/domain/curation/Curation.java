@@ -66,7 +66,6 @@ public class Curation extends BaseTimeEntity {
     public Curation updateCuration(CurationDto.UpdateCuration updateCuration) {
         this.title = updateCuration.getTitle();
         this.content = updateCuration.getContent();
-        this.curationImg = updateCuration.getCurationImg();
         return this;
     }
 
