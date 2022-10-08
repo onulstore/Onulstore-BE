@@ -39,17 +39,10 @@ public class CurationController {
 
     @PostMapping("/magazine")
     @ApiOperation(value = "매거진 등록")
-    public ResponseEntity<CurationDto.CurationResponse> addMagazine(
+    public ResponseEntity<String> addMagazine(
         @Valid @RequestBody CurationDto.MagazineRequest magazineRequest) {
-        return ResponseEntity.ok(curationService.createMagazine(magazineRequest));
-    }
-
-    @PostMapping("/magazine/add")
-    @ApiOperation(value = "매거진 상품 등록")
-    public ResponseEntity<String> addProductIntoMagazine(
-        @Valid @RequestBody CurationDto.AddProductRequest addProductRequest) {
-        curationService.addProductIntoMagazine(addProductRequest);
-        return ResponseEntity.ok("매거진에 상품이 등록되었습니다.");
+        curationService.createMagazine(magazineRequest);
+        return ResponseEntity.ok("매거진 등록이 완료되었습니다.");
     }
 
     @PostMapping("/recommend")
@@ -68,14 +61,14 @@ public class CurationController {
     }
 
     @GetMapping("/magazine")
-    @ApiOperation(value = "매거진 조회")
-    public ResponseEntity<Page<CurationDto.CurationResponse>> getMagazine(Pageable pageable) {
+    @ApiOperation(value = "매거진 전체 조회")
+    public ResponseEntity<Page<CurationDto.CurationInfo>> getMagazine(Pageable pageable) {
         return ResponseEntity.ok(curationService.getMagazine(pageable));
     }
 
     @GetMapping("/recommend")
-    @ApiOperation(value = "추천제품 조회")
-    public ResponseEntity<Page<CurationDto.CurationResponse>> getRecommend(Pageable pageable) {
+    @ApiOperation(value = "추천제품 전체 조회")
+    public ResponseEntity<Page<CurationDto.CurationInfo>> getRecommend(Pageable pageable) {
         return ResponseEntity.ok(curationService.getRecommend(pageable));
     }
 
