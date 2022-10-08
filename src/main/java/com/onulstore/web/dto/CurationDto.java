@@ -33,6 +33,7 @@ public class CurationDto {
         private String content;
         private String curationImg;
         private String curationForm;
+        private boolean display;
         private List<CurationProduct> curationProducts = new ArrayList<>();
 
         public CurationInfo(Curation curation) {
@@ -41,6 +42,7 @@ public class CurationDto {
             this.content = curation.getContent();
             this.curationImg = curation.getCurationImg();
             this.curationForm = curation.getCurationForm();
+            this.display = curation.isDisplay();
         }
 
         public void addCurationProduct(CurationDto.CurationProduct curationProduct) {
