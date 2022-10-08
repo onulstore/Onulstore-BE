@@ -35,6 +35,9 @@ public class Curation extends BaseTimeEntity {
     @Column
     private String curationForm;
 
+    @Column
+    private boolean display = false;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
     @JsonIgnore
@@ -59,7 +62,7 @@ public class Curation extends BaseTimeEntity {
         curation.setCurationForm(CurationForm.RECOMMEND.getKey());
         return curation;
     }
-    
+
     public Curation updateCuration(CurationDto.UpdateCuration updateCuration) {
         this.title = updateCuration.getTitle();
         this.content = updateCuration.getContent();
@@ -82,6 +85,14 @@ public class Curation extends BaseTimeEntity {
 
     public void uploadImage(String curationImg) {
         this.curationImg = curationImg;
+    }
+
+    public void display() {
+        this.display = true;
+    }
+
+    public void unDisplay() {
+        this.display = false;
     }
 
 }
