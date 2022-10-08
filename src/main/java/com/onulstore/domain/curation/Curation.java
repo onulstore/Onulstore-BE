@@ -44,29 +44,22 @@ public class Curation extends BaseTimeEntity {
     @JsonIgnore
     private List<CurationProduct> curationProducts = new ArrayList<>();
 
-    public void insertImage(String image) {
-        this.curationImg = image;
-    }
-
     public void addCurationProduct(CurationProduct curationProduct) {
         curationProducts.add(curationProduct);
         curationProduct.setCuration(this);
     }
 
-    public static Curation createRecommend(String title, String content, String curationImg,
-        Member member, List<CurationProduct> curationProducts) {
+    public static Curation createRecommend(String title, String content, Member member,
+        CurationProduct curationProduct) {
         Curation curation = new Curation();
         curation.setMember(member);
-        for (CurationProduct curationProduct : curationProducts) {
-            curation.addCurationProduct(curationProduct);
-        }
+        curation.addCurationProduct(curationProduct);
         curation.setTitle(title);
         curation.setContent(content);
-        curation.setCurationImg(curationImg);
         curation.setCurationForm(CurationForm.RECOMMEND.getKey());
         return curation;
     }
-
+    
     public Curation updateCuration(CurationDto.UpdateCuration updateCuration) {
         this.title = updateCuration.getTitle();
         this.content = updateCuration.getContent();
@@ -74,15 +67,16 @@ public class Curation extends BaseTimeEntity {
         return this;
     }
 
-    public static Curation createMagazine(String title, String content, String curationImg,
-        Member member) {
+    public static Curation createMagazine(String title, String content, Member member,
+        List<CurationProduct> curationProducts) {
         Curation curation = new Curation();
+        curation.setMember(member);
+        for (CurationProduct curationProduct : curationProducts) {
+            curation.addCurationProduct(curationProduct);
+        }
         curation.setTitle(title);
         curation.setContent(content);
-        curation.setCurationImg(curationImg);
         curation.setCurationForm(CurationForm.MAGAZINE.getKey());
-        curation.setMember(member);
-
         return curation;
     }
 
