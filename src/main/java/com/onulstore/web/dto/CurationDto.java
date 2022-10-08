@@ -104,6 +104,7 @@ public class CurationDto {
         private String content;
         private String curationImg;
         private String curationForm;
+        private boolean display;
 
         public static CurationResponse of(Curation curation) {
             return CurationResponse.builder()
@@ -112,6 +113,7 @@ public class CurationDto {
                 .title(curation.getTitle())
                 .content(curation.getContent())
                 .curationImg(curation.getCurationImg())
+                .display(curation.isDisplay())
                 .build();
         }
     }

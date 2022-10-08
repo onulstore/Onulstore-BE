@@ -33,7 +33,7 @@ public class CurationController {
 
     @GetMapping("/{curationId}")
     @ApiOperation(value = "특정 큐레이션 조회")
-    public ResponseEntity<List<CurationProduct>> getCuration(@PathVariable Long curationId) {
+    public ResponseEntity<CurationDto.CurationInfo> getCuration(@PathVariable Long curationId) {
         return ResponseEntity.ok(curationService.getCurationList(curationId));
     }
 
