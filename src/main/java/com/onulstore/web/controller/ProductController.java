@@ -67,11 +67,11 @@ public class ProductController {
     }
 
     @ApiOperation(value = "상품 검색")
-    @GetMapping("/products/search")
+    @PostMapping("/products/search")
     public ResponseEntity<Page<ProductDto.ProductResponse>> searchProducts(
         @PageableDefault(sort = "id", direction = Sort.Direction.DESC, size = 32) Pageable pageable,
-        @RequestBody String productName) {
-        return ResponseEntity.ok(productService.searchProduct(pageable, productName));
+        @RequestParam String product) {
+        return ResponseEntity.ok(productService.searchProduct(pageable, product));
     }
 
     @ApiOperation(value = "상품 이미지 업로드")
