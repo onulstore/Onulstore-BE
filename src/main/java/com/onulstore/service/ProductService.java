@@ -244,7 +244,7 @@ public class ProductService {
         Product product = productRepository.findById(productId).orElseThrow(
             () -> new Exception(ErrorResult.PRODUCT_NOT_FOUND));
 
-        for(ProductImage productImage : product.getProductImages()){
+        for (ProductImage productImage : product.getProductImages()) {
             productImageRepository.delete(productImage);
         }
         product.getProductImages().clear();
@@ -269,6 +269,12 @@ public class ProductService {
         registerProductAndSaleProduct.add(saleProductList.size());
         registerProductAndSaleProduct.add(entireProductList.size());
         return registerProductAndSaleProduct;
+    }
+
+    @Transactional
+    public Page searchProduct(Pageable pageable, String productName) {
+        return productRepository.findByProductNameContains(pageable, productName)
+            .map(ProductDto.ProductResponse::of);
     }
 
 }

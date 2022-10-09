@@ -19,4 +19,5 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
         boolean discountCheck);
     List<Product> findAllByCreatedDateAfter(LocalDateTime localDateTime);
     List<Product> findAllByProductStatusAndCreatedDateAfter(ProductStatus productStatus, LocalDateTime localDateTime);
+    Page<Product> findByProductNameContains(Pageable pageable, String productName);
 }
