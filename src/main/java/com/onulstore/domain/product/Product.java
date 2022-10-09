@@ -197,4 +197,8 @@ public class Product extends BaseTimeEntity {
         }
     }
 
+    public void addPurchaseCount(Integer purchaseCount) {
+        this.purchaseCount += purchaseCount;
+    }
+
 }

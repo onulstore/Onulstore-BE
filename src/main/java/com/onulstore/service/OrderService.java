@@ -11,13 +11,13 @@ import com.onulstore.domain.member.Member;
 import com.onulstore.domain.member.MemberRepository;
 import com.onulstore.domain.order.Order;
 import com.onulstore.domain.order.OrderProduct;
+import com.onulstore.domain.order.OrderProductRepository;
 import com.onulstore.domain.order.OrderRepository;
 import com.onulstore.domain.payment.Payment;
 import com.onulstore.domain.payment.PaymentRepository;
 import com.onulstore.domain.product.Product;
 import com.onulstore.domain.product.ProductRepository;
 import com.onulstore.web.dto.OrderDto;
-import com.onulstore.web.dto.OrderDto.OrderHistory;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -39,6 +39,7 @@ public class OrderService {
     private final CartRepository cartRepository;
     private final OrderRepository orderRepository;
     private final PaymentRepository paymentRepository;
+    private final OrderProductRepository orderProductRepository;
 
     /**
      * 단일 상품 주문
@@ -196,6 +197,13 @@ public class OrderService {
 
         if (statusRequest.getOrderStatus().equals(OrderStatus.PURCHASE_CONFIRM)) {
             member.acquirePoint(payment.getAcquirePoint());
+            List<OrderProduct> orderProducts = orderProductRepository.findAllByOrderId(
+                order.getId());
+            for (OrderProduct orderProduct : orderProducts) {
+                Product product = productRepository.findById(orderProduct.getProduct().getId())
+                    .orElseThrow(() -> new Exception(ErrorResult.PRODUCT_NOT_FOUND));
+                product.addPurchaseCount(orderProduct.getCount());
+            }
         }
 
         return OrderDto.StatusResponse.of(updateOrder);
