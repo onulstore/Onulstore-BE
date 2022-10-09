@@ -27,6 +27,12 @@ public class OrderController {
         return ResponseEntity.ok(orderService.getOrderList(pageable));
     }
 
+    @GetMapping("/{orderId}")
+    @ApiOperation(value = "해당 주문의 주문 및 결제 내역 조회")
+    public ResponseEntity<OrderDto.OrderHistory> getOrder(@PathVariable Long orderId) {
+        return ResponseEntity.ok(orderService.getOrder(orderId));
+    }
+
     @PostMapping
     @ApiOperation(value = "단일 상품 주문 생성")
     public ResponseEntity<String> addCategory(
@@ -71,6 +77,5 @@ public class OrderController {
         orderService.orderModification(updateOrderRequest);
         return ResponseEntity.ok("해당 주문 정보 수정이 완료되었습니다.");
     }
-
 
 }
