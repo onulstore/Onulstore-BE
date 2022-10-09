@@ -34,8 +34,8 @@ public class Notice extends BaseTimeEntity {
         return this;
     }
 
-    public void insertImage(String image) {
-        this.noticeImg = image;
+    public void insertImage(String noticeImg) {
+        this.noticeImg = noticeImg;
     }
 
 }

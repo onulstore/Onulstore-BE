@@ -12,7 +12,7 @@ jar {
     enabled = false
 }
 
-bootJar{
+bootJar {
     archivesBaseName = 'app'
     archiveFileName = 'app.jar'
     archiveVersion = "0.0.0"
@@ -40,9 +40,9 @@ dependencies {
     compileOnly 'org.projectlombok:lombok'
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
 
-    //aws
-    implementation 'com.amazonaws:aws-java-sdk-s3:1.12.301'
-    implementation 'com.amazonaws:aws-java-sdk-bom:1.12.302'
+    // AWS
+    implementation 'com.amazonaws:aws-java-sdk-s3:1.12.307'
+    implementation 'com.amazonaws:aws-java-sdk-bom:1.12.307'
 
     // MySQL
     runtimeOnly 'mysql:mysql-connector-java'
@@ -50,11 +50,13 @@ dependencies {
     annotationProcessor 'org.projectlombok:lombok'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
 
-    //JWT
+    // JWT
     implementation group: 'io.jsonwebtoken', name: 'jjwt-api', version: '0.11.5'
     runtimeOnly group: 'io.jsonwebtoken', name: 'jjwt-impl', version: '0.11.5'
     runtimeOnly group: 'io.jsonwebtoken', name: 'jjwt-jackson', version: '0.11.5'
 
+    // OAuth2
+    implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
 
 }
 

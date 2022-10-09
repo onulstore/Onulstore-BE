@@ -3,23 +3,25 @@ package com.onulstore.service;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.onulstore.config.SecurityUtil;
+import com.onulstore.config.exception.Exception;
 import com.onulstore.domain.enums.Authority;
-import com.onulstore.domain.enums.UserErrorResult;
+import com.onulstore.domain.enums.ErrorResult;
 import com.onulstore.domain.member.Member;
 import com.onulstore.domain.member.MemberRepository;
 import com.onulstore.domain.notice.Notice;
 import com.onulstore.domain.notice.NoticeRepository;
-import com.onulstore.exception.UserException;
 import com.onulstore.web.dto.NoticeDto;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.io.InputStream;
-import java.util.HashMap;
-import java.util.List;
-import java.util.UUID;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 @Transactional
@@ -39,9 +41,9 @@ public class NoticeService {
      */
     public NoticeDto.NoticeResponse addNotice(NoticeDto.NoticeRequest noticeRequest) {
         Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId()).orElseThrow(
-                () -> new UserException(UserErrorResult.NOT_EXIST_USER));
+            () -> new Exception(ErrorResult.NOT_EXIST_USER));
         if (!member.getAuthority().equals(Authority.ROLE_ADMIN.getKey())) {
-            throw new UserException(UserErrorResult.ACCESS_PRIVILEGE);
+            throw new Exception(ErrorResult.ACCESS_PRIVILEGE);
         }
 
         Notice notice = noticeRequest.toNotice();
@@ -54,17 +56,18 @@ public class NoticeService {
      * @param noticeId
      * @return Notice 수정 정보
      */
-    public NoticeDto.NoticeResponse updateNotice(NoticeDto.NoticeRequest noticeRequest, Long noticeId) {
+    public NoticeDto.NoticeResponse updateNotice(NoticeDto.NoticeRequest noticeRequest,
+        Long noticeId) {
         Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId()).orElseThrow(
-                () -> new UserException(UserErrorResult.NOT_EXIST_USER));
+            () -> new Exception(ErrorResult.NOT_EXIST_USER));
         Notice findNotice = noticeRepository.findById(noticeId).orElseThrow(
-                () -> new UserException(UserErrorResult.NOT_FOUND_NOTICE));
-        
+            () -> new Exception(ErrorResult.NOT_FOUND_NOTICE));
+
         if (!member.getAuthority().equals(Authority.ROLE_ADMIN.getKey())) {
-            throw new UserException(UserErrorResult.ACCESS_PRIVILEGE);
+            throw new Exception(ErrorResult.ACCESS_PRIVILEGE);
         }
         Notice notice = findNotice.updateNotice(noticeRequest);
-        return NoticeDto.NoticeResponse.of(noticeRepository.save(notice)); 
+        return NoticeDto.NoticeResponse.of(noticeRepository.save(notice));
     }
 
     /**
@@ -75,7 +78,7 @@ public class NoticeService {
     @Transactional(readOnly = true)
     public NoticeDto.NoticeResponse getNotice(Long noticeId) {
         return noticeRepository.findById(noticeId).map(NoticeDto.NoticeResponse::of)
-                .orElseThrow(() -> new UserException(UserErrorResult.NOT_FOUND_NOTICE));
+            .orElseThrow(() -> new Exception(ErrorResult.NOT_FOUND_NOTICE));
     }
 
     /**
@@ -83,8 +86,8 @@ public class NoticeService {
      * @return 전체 Notice 정보
      */
     @Transactional(readOnly = true)
-    public HashMap<String, Object> getNoticeList() {
-        HashMap<String, Object> resultMap = new HashMap<>();
+    public Map<String, List<Notice>> getNoticeList() {
+        Map<String, List<Notice>> resultMap = new HashMap<>();
         List<Notice> notices = noticeRepository.findAll();
         resultMap.put("notices", notices);
         return resultMap;
@@ -96,35 +99,34 @@ public class NoticeService {
      */
     public void deleteNotice(Long noticeId) {
         Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId()).orElseThrow(
-                () -> new UserException(UserErrorResult.NOT_EXIST_USER));
+            () -> new Exception(ErrorResult.NOT_EXIST_USER));
         if (!member.getAuthority().equals(Authority.ROLE_ADMIN.getKey())) {
-            throw new UserException(UserErrorResult.ACCESS_PRIVILEGE);
+            throw new Exception(ErrorResult.ACCESS_PRIVILEGE);
         }
-        
+
         Notice notice = noticeRepository.findById(noticeId).orElseThrow(
-                () -> new UserException(UserErrorResult.NOT_FOUND_NOTICE));
+            () -> new Exception(ErrorResult.NOT_FOUND_NOTICE));
 
         noticeRepository.delete(notice);
     }
 
-    public String upload(InputStream inputStream, String originFileName) {
+    public String uploadImage(MultipartFile multipartFile, Long noticeId) throws IOException {
+        Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId()).orElseThrow(
+            () -> new Exception(ErrorResult.NOT_EXIST_USER));
+        if (!member.getAuthority().equals(Authority.ROLE_ADMIN.getKey())) {
+            throw new Exception(ErrorResult.ACCESS_PRIVILEGE);
+        }
+        Notice notice = noticeRepository.findById(noticeId).orElseThrow(
+            () -> new Exception(ErrorResult.CURATION_NOT_FOUND));
+
+        InputStream inputStream = multipartFile.getInputStream();
+        String originFileName = multipartFile.getOriginalFilename();
         String s3FileName = UUID.randomUUID() + "-" + originFileName;
         ObjectMetadata objMeta = new ObjectMetadata();
+        objMeta.setContentType(multipartFile.getContentType());
         s3Client.putObject(bucket, s3FileName, inputStream, objMeta);
+        notice.insertImage(s3FileName);
         return s3FileName;
-
-    }
-
-    public void addImage(Long noticeId, String image) {
-        Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId()).orElseThrow(
-                () -> new UserException(UserErrorResult.NOT_EXIST_USER));
-        if (!member.getAuthority().equals(Authority.ROLE_ADMIN.getKey())) {
-            throw new UserException(UserErrorResult.ACCESS_PRIVILEGE);
-        }
-
-        Notice notice = noticeRepository.findById(noticeId).orElseThrow(
-                () -> new UserException(UserErrorResult.NOT_FOUND_NOTICE));
-        notice.insertImage(image);
     }
 
 }

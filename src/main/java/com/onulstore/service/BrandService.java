@@ -1,23 +1,24 @@
 package com.onulstore.service;
 
 import com.onulstore.config.SecurityUtil;
+import com.onulstore.config.exception.Exception;
 import com.onulstore.domain.brand.Brand;
 import com.onulstore.domain.brand.BrandRepository;
 import com.onulstore.domain.enums.Authority;
-import com.onulstore.domain.enums.UserErrorResult;
+import com.onulstore.domain.enums.ErrorResult;
 import com.onulstore.domain.member.Member;
 import com.onulstore.domain.member.MemberRepository;
 import com.onulstore.domain.product.ProductRepository;
-import com.onulstore.exception.UserException;
 import com.onulstore.web.dto.BrandDto;
 import com.onulstore.web.dto.ProductDto;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.*;
 
 @RequiredArgsConstructor
 @Transactional
@@ -50,10 +51,10 @@ public class BrandService {
     @Transactional(readOnly = true)
     public Page<ProductDto.ProductResponse> findProductByBrand(Long brandId, Pageable pageable) {
         Brand brand = brandRepository.findById(brandId).orElseThrow(
-                () -> new UserException(UserErrorResult.BRAND_NOT_FOUND));
+            () -> new Exception(ErrorResult.BRAND_NOT_FOUND));
 
         return productRepository.findByBrandId(brand.getId(), pageable)
-                .map(ProductDto.ProductResponse::of);
+            .map(ProductDto.ProductResponse::of);
     }
 
     /**
@@ -63,12 +64,13 @@ public class BrandService {
      */
     public BrandDto.BrandResponse addBrand(BrandDto.BrandRequest brandRequest) {
         Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId()).orElseThrow(
-                () -> new UserException(UserErrorResult.NOT_EXIST_USER));
+            () -> new Exception(ErrorResult.NOT_EXIST_USER));
         if (!member.getAuthority().equals(Authority.ROLE_ADMIN.getKey())) {
-            throw new UserException(UserErrorResult.ACCESS_PRIVILEGE);
+            throw new Exception(ErrorResult.ACCESS_PRIVILEGE);
         }
 
-        return BrandDto.BrandResponse.of(brandRepository.save(new Brand(brandRequest.getBrandName())));
+        return BrandDto.BrandResponse.of(
+            brandRepository.save(new Brand(brandRequest.getBrandName())));
     }
 
     /**
@@ -79,13 +81,13 @@ public class BrandService {
      */
     public BrandDto.BrandResponse updateBrand(BrandDto.UpdateRequest updateRequest, Long brandId) {
         Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId()).orElseThrow(
-                () -> new UserException(UserErrorResult.NOT_EXIST_USER));
+            () -> new Exception(ErrorResult.NOT_EXIST_USER));
         if (!member.getAuthority().equals(Authority.ROLE_ADMIN.getKey())) {
-            throw new UserException(UserErrorResult.ACCESS_PRIVILEGE);
+            throw new Exception(ErrorResult.ACCESS_PRIVILEGE);
         }
 
         Brand brand = brandRepository.findById(brandId).orElseThrow(
-                () -> new UserException(UserErrorResult.BRAND_NOT_FOUND));
+            () -> new Exception(ErrorResult.BRAND_NOT_FOUND));
         Brand updateBrand = brand.updateBrand(updateRequest);
         return BrandDto.BrandResponse.of(brandRepository.save(updateBrand));
     }
@@ -96,13 +98,13 @@ public class BrandService {
      */
     public void deleteBrand(Long brandId) {
         Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId()).orElseThrow(
-                () -> new UserException(UserErrorResult.NOT_EXIST_USER));
+            () -> new Exception(ErrorResult.NOT_EXIST_USER));
         if (!member.getAuthority().equals(Authority.ROLE_ADMIN.getKey())) {
-            throw new UserException(UserErrorResult.ACCESS_PRIVILEGE);
+            throw new Exception(ErrorResult.ACCESS_PRIVILEGE);
         }
 
         Brand brand = brandRepository.findById(brandId).orElseThrow(
-                () -> new UserException(UserErrorResult.BRAND_NOT_FOUND));
+            () -> new Exception(ErrorResult.BRAND_NOT_FOUND));
         brandRepository.delete(brand);
     }
 

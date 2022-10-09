@@ -1,14 +1,14 @@
 package com.onulstore.service;
 
 import com.onulstore.config.SecurityUtil;
+import com.onulstore.config.exception.Exception;
 import com.onulstore.domain.cart.Cart;
 import com.onulstore.domain.cart.CartRepository;
-import com.onulstore.domain.enums.UserErrorResult;
+import com.onulstore.domain.enums.ErrorResult;
 import com.onulstore.domain.member.Member;
 import com.onulstore.domain.member.MemberRepository;
 import com.onulstore.domain.product.Product;
 import com.onulstore.domain.product.ProductRepository;
-import com.onulstore.exception.UserException;
 import com.onulstore.web.dto.CartDto;
 import java.util.ArrayList;
 import java.util.List;
@@ -20,82 +20,82 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class CartService {
 
-  private final CartRepository cartRepository;
-  private final MemberRepository memberRepository;
-  private final ProductRepository productRepository;
+    private final CartRepository cartRepository;
+    private final MemberRepository memberRepository;
+    private final ProductRepository productRepository;
 
-  @Transactional
-  public void addCart(CartDto cartDto){
-    Member member = memberRepository.findByEmail(cartDto.getMemberEmail()).orElseThrow(
-        () -> new UserException(UserErrorResult.NOT_EXIST_USER));
-    Product product = productRepository.findById(cartDto.getProductId()).orElseThrow(
-        () -> new UserException(UserErrorResult.PRODUCT_NOT_FOUND));
-    boolean duplicate = false;
+    @Transactional
+    public void addCart(CartDto cartDto) {
+        Member member = memberRepository.findByEmail(cartDto.getMemberEmail()).orElseThrow(
+            () -> new Exception(ErrorResult.NOT_EXIST_USER));
+        Product product = productRepository.findById(cartDto.getProductId()).orElseThrow(
+            () -> new Exception(ErrorResult.PRODUCT_NOT_FOUND));
+        boolean duplicate = false;
 
-    if(product.getQuantity() < cartDto.getQuantity()){
-      throw new UserException(UserErrorResult.OUT_OF_STOCK);
+        if (product.getQuantity() < cartDto.getQuantity()) {
+            throw new Exception(ErrorResult.OUT_OF_STOCK);
+        }
+
+        for (Cart carts : member.getCarts()) {
+            if (carts.getProduct().getProductName().equals(product.getProductName())) {
+                carts.changeQuantity(cartDto.getQuantity());
+                duplicate = true;
+            }
+        }
+
+        if (!duplicate) {
+            Cart cart = Cart.builder()
+                .member(member)
+                .product(product)
+                .productCount(cartDto.getQuantity())
+                .build();
+
+            member.getCarts().add(cart);
+            product.getCarts().add(cart);
+            cartRepository.save(cart);
+        }
     }
 
-    for(Cart carts : member.getCarts()){
-      if(carts.getProduct().getProductName().equals(product.getProductName())){
-        carts.changeQuantity(cartDto.getQuantity());
-        duplicate = true;
-      }
+    @Transactional
+    public void deleteCart(Long cartId) {
+        Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId()).orElseThrow(
+            () -> new Exception(ErrorResult.NOT_EXIST_USER));
+
+        Cart cart = cartRepository.findById(cartId).orElseThrow(RuntimeException::new);
+        cartRepository.delete(cart);
+        member.getCarts().remove(cart);
     }
 
-    if(!duplicate) {
-      Cart cart = Cart.builder()
-          .member(member)
-          .product(product)
-          .productCount(cartDto.getQuantity())
-          .build();
+    @Transactional
+    public List<CartDto> getCartList() {
+        Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId()).orElseThrow(
+            () -> new Exception(ErrorResult.NOT_EXIST_USER));
 
-      member.getCarts().add(cart);
-      product.getCarts().add(cart);
-      cartRepository.save(cart);
+        List<CartDto> cartDtoList = new ArrayList<CartDto>();
+        for (Cart cart : member.getCarts()) {
+            CartDto cartDto = CartDto.of(cart);
+            cartDtoList.add(cartDto);
+        }
+        return cartDtoList;
     }
-  }
 
-  @Transactional
-  public void deleteCart(Long cartId) {
-    Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId()).orElseThrow(
-        () -> new UserException(UserErrorResult.NOT_EXIST_USER));
+    @Transactional
+    public CartDto plusOne(Long cartId) {
+        Cart cart = cartRepository.findById(cartId).orElseThrow(
+            () -> new Exception(ErrorResult.CART_NOT_FOUND));
 
-    Cart cart = cartRepository.findById(cartId).orElseThrow(RuntimeException::new);
-    cartRepository.delete(cart);
-    member.getCarts().remove(cart);
-  }
-
-  @Transactional
-  public List<CartDto> getCartList() {
-    Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId()).orElseThrow(
-        () -> new UserException(UserErrorResult.NOT_EXIST_USER));
-
-    List<CartDto> cartDtoList = new ArrayList<CartDto>();
-    for (Cart cart : member.getCarts()) {
-      CartDto cartDto = CartDto.of(cart);
-      cartDtoList.add(cartDto);
+        cart.plusOne();
+        CartDto cartDto = CartDto.of(cart);
+        return cartDto;
     }
-    return cartDtoList;
-  }
 
-  @Transactional
-  public CartDto plusOne(Long cartId) {
-    Cart cart = cartRepository.findById(cartId).orElseThrow(
-        () -> new UserException(UserErrorResult.CART_NOT_FOUND));
+    @Transactional
+    public CartDto minusOne(Long cartId) {
+        Cart cart = cartRepository.findById(cartId).orElseThrow(
+            () -> new Exception(ErrorResult.CART_NOT_FOUND));
 
-    cart.plusOne();
-    CartDto cartDto = CartDto.of(cart);
-    return cartDto;
-  }
-
-  @Transactional
-  public CartDto minusOne(Long cartId) {
-    Cart cart = cartRepository.findById(cartId).orElseThrow(
-        () -> new UserException(UserErrorResult.CART_NOT_FOUND));
-
-    cart.minusOne();
-    CartDto cartDto = CartDto.of(cart);
-    return cartDto;
-  }
+        cart.minusOne();
+        CartDto cartDto = CartDto.of(cart);
+        return cartDto;
+    }
 }

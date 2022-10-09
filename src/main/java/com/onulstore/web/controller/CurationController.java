@@ -26,35 +26,29 @@ public class CurationController {
     private final CurationService curationService;
 
     @GetMapping
-    @ApiOperation(value = "큐레이션 조회")
-    public ResponseEntity<Page<CurationDto.CurationResponse>> getCuration(Pageable pageable) {
+    @ApiOperation(value = "전체 큐레이션 조회")
+    public ResponseEntity<Page<CurationDto.CurationInfo>> getCuration(Pageable pageable) {
         return ResponseEntity.ok(curationService.getCuration(pageable));
     }
 
     @GetMapping("/{curationId}")
     @ApiOperation(value = "특정 큐레이션 조회")
-    public ResponseEntity<List<CurationProduct>> getCuration(@PathVariable Long curationId) {
+    public ResponseEntity<CurationDto.CurationInfo> getCuration(@PathVariable Long curationId) {
         return ResponseEntity.ok(curationService.getCurationList(curationId));
     }
 
     @PostMapping("/magazine")
     @ApiOperation(value = "매거진 등록")
-    public ResponseEntity<CurationDto.CurationResponse> addMagazine(
-            @Valid @RequestBody CurationDto.MagazineRequest magazineRequest) {
-        return ResponseEntity.ok(curationService.createMagazine(magazineRequest));
-    }
-
-    @PostMapping("/magazine/add")
-    @ApiOperation(value = "매거진 상품 등록")
-    public ResponseEntity<String> addProductIntoMagazine(
-            @Valid @RequestBody CurationDto.AddProductRequest addProductRequest) {
-        curationService.addProductIntoMagazine(addProductRequest);
-        return ResponseEntity.ok("매거진에 상품이 등록되었습니다.");
+    public ResponseEntity<String> addMagazine(
+        @Valid @RequestBody CurationDto.MagazineRequest magazineRequest) {
+        curationService.createMagazine(magazineRequest);
+        return ResponseEntity.ok("매거진 등록이 완료되었습니다.");
     }
 
     @PostMapping("/recommend")
     @ApiOperation(value = "추천제품 등록")
-    public ResponseEntity<String> addRecommend(@Valid @RequestBody CurationDto.RecommendRequest recommendRequest) {
+    public ResponseEntity<String> addRecommend(
+        @Valid @RequestBody CurationDto.RecommendRequest recommendRequest) {
         curationService.createRecommend(recommendRequest);
         return ResponseEntity.ok("추천제품 등록이 완료되었습니다.");
     }
@@ -67,31 +61,44 @@ public class CurationController {
     }
 
     @GetMapping("/magazine")
-    @ApiOperation(value = "매거진 조회")
-    public ResponseEntity<Page<CurationDto.CurationResponse>> getMagazine(Pageable pageable) {
+    @ApiOperation(value = "매거진 전체 조회")
+    public ResponseEntity<Page<CurationDto.CurationInfo>> getMagazine(Pageable pageable) {
         return ResponseEntity.ok(curationService.getMagazine(pageable));
     }
 
     @GetMapping("/recommend")
-    @ApiOperation(value = "추천제품 조회")
-    public ResponseEntity<Page<CurationDto.CurationResponse>> getRecommend(Pageable pageable) {
+    @ApiOperation(value = "추천제품 전체 조회")
+    public ResponseEntity<Page<CurationDto.CurationInfo>> getRecommend(Pageable pageable) {
         return ResponseEntity.ok(curationService.getRecommend(pageable));
     }
 
     @PutMapping("/{curationId}")
     @ApiOperation(value = "큐레이션 수정")
     public ResponseEntity<CurationDto.CurationResponse> updateCuration(
-            @RequestBody CurationDto.UpdateCuration updateCuration, @PathVariable Long curationId) {
+        @RequestBody CurationDto.UpdateCuration updateCuration, @PathVariable Long curationId) {
         return ResponseEntity.ok(curationService.updateCuration(updateCuration, curationId));
     }
 
     @PostMapping("/{curationId}/image")
     @ApiOperation(value = "큐레이션 이미지 업로드")
-    public ResponseEntity<String> uploadImage(
-            @RequestParam("images") MultipartFile multipartFile, @PathVariable Long curationId) throws IOException {
-        String image = curationService.upload(multipartFile.getInputStream(), multipartFile.getOriginalFilename());
-        curationService.addImage(curationId, image);
+    public ResponseEntity<String> uploadImage(@RequestParam("images") MultipartFile multipartFile,
+        @PathVariable Long curationId) throws IOException {
+        curationService.uploadImage(multipartFile, curationId);
         return ResponseEntity.ok("이미지가 등록되었습니다.");
+    }
+
+    @PutMapping("/{curationId}/display")
+    @ApiOperation(value = "공개 여부 TRUE")
+    public ResponseEntity<String> display(@PathVariable Long curationId) {
+        curationService.display(curationId);
+        return ResponseEntity.ok("해당 큐레이션이 공개 처리 되었습니다");
+    }
+
+    @PutMapping("/{curationId}/unDisplay")
+    @ApiOperation(value = "공개 여부 FALSE")
+    public ResponseEntity<String> unDisplay(@PathVariable Long curationId) {
+        curationService.unDisplay(curationId);
+        return ResponseEntity.ok("해당 큐레이션이 비공개 처리 되었습니다");
     }
 
 }

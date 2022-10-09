@@ -33,7 +33,7 @@ public class OrderProduct extends BaseTimeEntity {
         OrderProduct orderProduct = new OrderProduct();
         orderProduct.setProduct(product);
         orderProduct.setCount(count);
-        orderProduct.setOrderPrice(product.getPrice());
+        orderProduct.setOrderPrice(product.getPrice() * count);
 
         product.removeStock(count);
         return orderProduct;
