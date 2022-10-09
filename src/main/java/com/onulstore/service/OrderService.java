@@ -17,6 +17,7 @@ import com.onulstore.domain.payment.PaymentRepository;
 import com.onulstore.domain.product.Product;
 import com.onulstore.domain.product.ProductRepository;
 import com.onulstore.web.dto.OrderDto;
+import com.onulstore.web.dto.OrderDto.OrderHistory;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -56,6 +57,34 @@ public class OrderService {
             orderRequest.getDeliveryMeasure(), orderProduct);
 
         orderRepository.save(order);
+    }
+
+    /**
+     * 해당 주문 및 주문 결제 정보 조회
+     * @param orderId
+     * @return 해당 주문 및 주문 결제 정보
+     */
+    @Transactional(readOnly = true)
+    public OrderDto.OrderHistory getOrder(Long orderId) {
+        Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId()).orElseThrow(
+            () -> new Exception(ErrorResult.NOT_EXIST_USER));
+        Order order = orderRepository.findById(orderId).orElseThrow();
+        Payment payment = paymentRepository.findByOrderId(order.getId()).orElseThrow();
+
+        if (!(member.getAuthority().equals(Authority.ROLE_ADMIN) ||
+            order.getMember().equals(member))) {
+            throw new Exception(ErrorResult.ACCESS_PRIVILEGE);
+        }
+
+        OrderDto.OrderHistory orderHistory = new OrderDto.OrderHistory(order);
+        List<OrderProduct> orderProductList = order.getOrderProducts();
+        for (OrderProduct orderProduct : orderProductList) {
+            OrderDto.OrderProduct orderProductDto = new OrderDto.OrderProduct(orderProduct);
+            orderHistory.addOrderProduct(orderProductDto);
+            OrderDto.Payment paymentDto = new OrderDto.Payment(payment);
+            orderHistory.addPayment(paymentDto);
+        }
+        return orderHistory;
     }
 
     /**
