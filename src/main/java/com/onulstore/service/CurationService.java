@@ -6,7 +6,6 @@ import com.onulstore.config.SecurityUtil;
 import com.onulstore.config.exception.Exception;
 import com.onulstore.domain.curation.Curation;
 import com.onulstore.domain.curation.CurationProduct;
-import com.onulstore.domain.curation.CurationProductRepository;
 import com.onulstore.domain.curation.CurationRepository;
 import com.onulstore.domain.enums.Authority;
 import com.onulstore.domain.enums.CurationForm;
@@ -16,7 +15,6 @@ import com.onulstore.domain.member.MemberRepository;
 import com.onulstore.domain.product.Product;
 import com.onulstore.domain.product.ProductRepository;
 import com.onulstore.web.dto.CurationDto;
-import com.onulstore.web.dto.CurationDto.AddProductRequest;
 import com.onulstore.web.dto.CurationDto.CurationInfo;
 import java.io.IOException;
 import java.io.InputStream;
@@ -44,7 +42,6 @@ public class CurationService {
     private final CurationRepository curationRepository;
     private final ProductRepository productRepository;
     private final MemberRepository memberRepository;
-    private final CurationProductRepository curationProductRepository;
 
     /**
      * Magazine 등록
