@@ -11,6 +11,7 @@ import com.onulstore.domain.member.MemberRepository;
 import com.onulstore.domain.notice.Notice;
 import com.onulstore.domain.notice.NoticeRepository;
 import com.onulstore.web.dto.NoticeDto;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.List;
@@ -20,6 +21,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 @Transactional
@@ -108,24 +110,23 @@ public class NoticeService {
         noticeRepository.delete(notice);
     }
 
-    public String upload(InputStream inputStream, String originFileName) {
-        String s3FileName = UUID.randomUUID() + "-" + originFileName;
-        ObjectMetadata objMeta = new ObjectMetadata();
-        s3Client.putObject(bucket, s3FileName, inputStream, objMeta);
-        return s3FileName;
-
-    }
-
-    public void addImage(Long noticeId, String image) {
+    public String uploadImage(MultipartFile multipartFile, Long noticeId) throws IOException {
         Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId()).orElseThrow(
             () -> new Exception(ErrorResult.NOT_EXIST_USER));
         if (!member.getAuthority().equals(Authority.ROLE_ADMIN.getKey())) {
             throw new Exception(ErrorResult.ACCESS_PRIVILEGE);
         }
-
         Notice notice = noticeRepository.findById(noticeId).orElseThrow(
-            () -> new Exception(ErrorResult.NOT_FOUND_NOTICE));
-        notice.insertImage(image);
+            () -> new Exception(ErrorResult.CURATION_NOT_FOUND));
+
+        InputStream inputStream = multipartFile.getInputStream();
+        String originFileName = multipartFile.getOriginalFilename();
+        String s3FileName = UUID.randomUUID() + "-" + originFileName;
+        ObjectMetadata objMeta = new ObjectMetadata();
+        objMeta.setContentType(multipartFile.getContentType());
+        s3Client.putObject(bucket, s3FileName, inputStream, objMeta);
+        notice.insertImage(s3FileName);
+        return s3FileName;
     }
 
 }

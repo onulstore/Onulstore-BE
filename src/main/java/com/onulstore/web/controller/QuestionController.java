@@ -20,7 +20,7 @@ public class QuestionController {
     // 질문 등록
     @ApiOperation(value = "질문 등록")
     @PostMapping("/questions")
-    public ResponseEntity<String> insetQuestion(@RequestBody QuestionDto questionDto) {
+    public ResponseEntity<String> insetQuestion(@RequestBody QuestionDto.QuestionRequest questionDto) {
         questionService.insertQuestion(questionDto);
         return ResponseEntity.ok("해당 질문이 등록되었습니다.");
     }
@@ -28,7 +28,7 @@ public class QuestionController {
     // 질문 수정
     @ApiOperation(value = "질문 수정")
     @PutMapping("/questions/{questionId}")
-    public ResponseEntity<String> updateQuestion(@PathVariable Long questionId,@RequestBody QuestionDto questionDto) {
+    public ResponseEntity<String> updateQuestion(@PathVariable Long questionId,@RequestBody QuestionDto.QuestionRequest questionDto) {
         questionService.updateQuestion(questionId, questionDto);
         return ResponseEntity.ok("해당 질문이 수정되었습니다.");
     }
@@ -44,21 +44,21 @@ public class QuestionController {
     // 질문 상세 조회
     @ApiOperation(value = "질문 상세 조회")
     @GetMapping("/questions/{productId}/{questionId}")
-    public ResponseEntity<QuestionDto> getQuestion(@PathVariable Long productId, @PathVariable Long questionId) {
+    public ResponseEntity<QuestionDto.QuestionRes> getQuestion(@PathVariable Long productId, @PathVariable Long questionId) {
         return ResponseEntity.ok(questionService.getQuestion(productId,questionId));
     }
 
     // 질문 전체 조회(상품별)
     @ApiOperation(value = "질문 전체 조회(상품별)")
     @GetMapping("/questions/{productId}")
-    public ResponseEntity<List<QuestionDto>> getQuestionList(@PathVariable Long productId) {
+    public ResponseEntity<List<QuestionDto.QuestionResponse>> getQuestionList(@PathVariable Long productId) {
         return ResponseEntity.ok(questionService.getQuestionList(productId));
     }
 
     // 질문 전체 조회(멤버별)
     @ApiOperation(value = "질문 전체 조회(멤버별)")
     @GetMapping("/members/questions")
-    public ResponseEntity<List<QuestionDto>> getMemberQuestionList() {
+    public ResponseEntity<List<QuestionDto.QuestionResponse>> getMemberQuestionList() {
         return ResponseEntity.ok(questionService.getMemberQuestionList());
     }
 }

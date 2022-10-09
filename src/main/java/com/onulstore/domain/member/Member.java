@@ -2,9 +2,11 @@ package com.onulstore.domain.member;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.onulstore.common.BaseTimeEntity;
+import com.onulstore.config.exception.Exception;
 import com.onulstore.domain.cart.Cart;
 import com.onulstore.domain.coupon.Coupon;
 import com.onulstore.domain.curation.Curation;
+import com.onulstore.domain.enums.ErrorResult;
 import com.onulstore.domain.order.Order;
 import com.onulstore.domain.question.Question;
 import com.onulstore.domain.questionAnswer.QuestionAnswer;
@@ -16,6 +18,7 @@ import lombok.*;
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
+import org.hibernate.annotations.DynamicUpdate;
 
 @Getter
 @Setter
@@ -23,6 +26,7 @@ import java.util.List;
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
+@DynamicUpdate
 public class Member extends BaseTimeEntity {
 
     @Id
@@ -110,6 +114,10 @@ public class Member extends BaseTimeEntity {
     private List<Coupon> coupons = new ArrayList<>();
 
     public Member updateProfile(MemberDto.UpdateRequest updateRequest) {
+        this.firstName = updateRequest.getFirstName();
+        this.lastName = updateRequest.getLastName();
+        this.firstKana = updateRequest.getFirstKana();
+        this.lastKana = updateRequest.getLastKana();
         this.phoneNum = updateRequest.getPhoneNum();
         this.postalCode = updateRequest.getPostalCode();
         this.roadAddress = updateRequest.getRoadAddress();
@@ -121,6 +129,17 @@ public class Member extends BaseTimeEntity {
     public Member updatePassword(String password) {
         this.password = password;
         return this;
+    }
+
+    public void deductPoint(Integer mileage) {
+        this.setPoint(point - mileage);
+        if (point < 0) {
+            throw new Exception(ErrorResult.OUT_OF_POINT);
+        }
+    }
+
+    public void acquirePoint(Integer acquirePoint) {
+        this.setPoint(point + acquirePoint);
     }
 
 }

@@ -3,8 +3,9 @@ package com.onulstore.domain.order;
 import com.onulstore.common.BaseTimeEntity;
 import com.onulstore.domain.enums.DeliveryMeasure;
 import com.onulstore.domain.enums.OrderStatus;
-import com.onulstore.domain.enums.PaymentMeasure;
 import com.onulstore.domain.member.Member;
+import com.onulstore.domain.payment.Payment;
+import com.onulstore.web.dto.OrderDto;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -61,17 +62,16 @@ public class Order extends BaseTimeEntity {
     private OrderStatus orderStatus;
 
     @Enumerated(EnumType.STRING)
-    private PaymentMeasure paymentMeasure;
-
-    @Enumerated(EnumType.STRING)
     private DeliveryMeasure deliveryMeasure;
 
     private LocalDateTime orderDate;
 
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
     private Member member;
+
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<Payment> payments = new ArrayList<>();
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<OrderProduct> orderProducts = new ArrayList<>();
@@ -82,19 +82,32 @@ public class Order extends BaseTimeEntity {
         orderProduct.setOrder(this);
     }
 
-    public static Order createCartOrder(Member member, List<OrderProduct> orderProductList) {
+    public static Order createCartOrder(Member member, String deliveryMessage,
+        DeliveryMeasure deliveryMeasure, List<OrderProduct> orderProductList) {
         Order order = new Order();
         order.setMember(member);
+        order.setEmail(member.getEmail());
+        order.setLastKana(member.getLastKana());
+        order.setFirstKana(member.getFirstKana());
+        order.setLastName(member.getLastName());
+        order.setFirstName(member.getFirstName());
+        order.setPhoneNum(member.getPhoneNum());
+        order.setPostalCode(member.getPostalCode());
+        order.setRoadAddress(member.getRoadAddress());
+        order.setBuildingName(member.getBuildingName());
+        order.setDetailAddress(member.getDetailAddress());
+        order.setDeliveryMessage(deliveryMessage);
         for (OrderProduct orderProduct : orderProductList) {
             order.addOrderProduct(orderProduct);
         }
         order.setOrderDate(LocalDateTime.now());
         order.setOrderStatus(OrderStatus.COMPLETE);
+        order.setDeliveryMeasure(deliveryMeasure);
         return order;
     }
 
     public static Order createOrder(Member member, String deliveryMessage,
-        PaymentMeasure paymentMeasure, DeliveryMeasure deliveryMeasure, OrderProduct orderProduct) {
+        DeliveryMeasure deliveryMeasure, OrderProduct orderProduct) {
         Order order = new Order();
         order.setMember(member);
         order.setEmail(member.getEmail());
@@ -111,9 +124,17 @@ public class Order extends BaseTimeEntity {
         order.addOrderProduct(orderProduct);
         order.setOrderDate(LocalDateTime.now());
         order.setOrderStatus(OrderStatus.COMPLETE);
-        order.setPaymentMeasure(paymentMeasure);
         order.setDeliveryMeasure(deliveryMeasure);
         return order;
+    }
+
+    public Order modificationOrder(OrderDto.UpdateOrderRequest updateOrderRequest) {
+        this.phoneNum = updateOrderRequest.getPhoneNum();
+        this.postalCode = updateOrderRequest.getPostalCode();
+        this.roadAddress = updateOrderRequest.getRoadAddress();
+        this.buildingName = updateOrderRequest.getBuildingName();
+        this.detailAddress = updateOrderRequest.getDetailAddress();
+        return this;
     }
 
     public int getTotalPrice() {
@@ -130,6 +151,17 @@ public class Order extends BaseTimeEntity {
         for (OrderProduct orderProduct : orderProducts) {
             orderProduct.cancel();
         }
+    }
+
+    public void orderRefund() {
+        this.orderStatus = OrderStatus.REFUND_COMPLETE;
+        for (OrderProduct orderProduct : orderProducts) {
+            orderProduct.cancel();
+        }
+    }
+
+    public void paymentSuccess() {
+        this.orderStatus = OrderStatus.PAYMENT_COMPLETE;
     }
 
     public Order updateStatus(OrderStatus orderStatus) {

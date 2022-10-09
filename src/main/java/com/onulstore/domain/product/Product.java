@@ -71,6 +71,9 @@ public class Product extends BaseTimeEntity {
     private Integer purchaseCount;
 
     @Column
+    private float rating = 0;
+
+    @Column
     private boolean bookmark = false;
 
     @Column
@@ -143,7 +146,7 @@ public class Product extends BaseTimeEntity {
         this.productStatus = productStatus;
     }
 
-    public void changeContent(String contentImage){
+    public void changeContent(String contentImage) {
         this.content = contentImage;
     }
 
