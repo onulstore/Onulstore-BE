@@ -11,6 +11,7 @@ import com.onulstore.domain.member.Member;
 import com.onulstore.domain.member.MemberRepository;
 import com.onulstore.domain.order.Order;
 import com.onulstore.domain.order.OrderProduct;
+import com.onulstore.domain.order.OrderProductRepository;
 import com.onulstore.domain.order.OrderRepository;
 import com.onulstore.domain.payment.Payment;
 import com.onulstore.domain.payment.PaymentRepository;
@@ -38,6 +39,7 @@ public class OrderService {
     private final CartRepository cartRepository;
     private final OrderRepository orderRepository;
     private final PaymentRepository paymentRepository;
+    private final OrderProductRepository orderProductRepository;
 
     /**
      * 단일 상품 주문
@@ -56,6 +58,34 @@ public class OrderService {
             orderRequest.getDeliveryMeasure(), orderProduct);
 
         orderRepository.save(order);
+    }
+
+    /**
+     * 해당 주문 및 주문 결제 정보 조회
+     * @param orderId
+     * @return 해당 주문 및 주문 결제 정보
+     */
+    @Transactional(readOnly = true)
+    public OrderDto.OrderHistory getOrder(Long orderId) {
+        Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId()).orElseThrow(
+            () -> new Exception(ErrorResult.NOT_EXIST_USER));
+        Order order = orderRepository.findById(orderId).orElseThrow();
+        Payment payment = paymentRepository.findByOrderId(order.getId()).orElseThrow();
+
+        if (!(member.getAuthority().equals(Authority.ROLE_ADMIN) ||
+            order.getMember().equals(member))) {
+            throw new Exception(ErrorResult.ACCESS_PRIVILEGE);
+        }
+
+        OrderDto.OrderHistory orderHistory = new OrderDto.OrderHistory(order);
+        List<OrderProduct> orderProductList = order.getOrderProducts();
+        for (OrderProduct orderProduct : orderProductList) {
+            OrderDto.OrderProduct orderProductDto = new OrderDto.OrderProduct(orderProduct);
+            orderHistory.addOrderProduct(orderProductDto);
+            OrderDto.Payment paymentDto = new OrderDto.Payment(payment);
+            orderHistory.addPayment(paymentDto);
+        }
+        return orderHistory;
     }
 
     /**
@@ -93,6 +123,46 @@ public class OrderService {
             orderHistories.add(orderHistory);
         }
         return new PageImpl<>(orderHistories, pageable, totalCount);
+    }
+
+    /**
+     * 전체 주문 조회(관리자)
+     * @param pageable
+     * @return
+     */
+    @Transactional(readOnly = true)
+    public Page<OrderDto.OrderHistory> getAllOrders(Pageable pageable) {
+        Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId()).orElseThrow(
+            () -> new Exception(ErrorResult.NOT_EXIST_USER));
+
+        if (!member.getAuthority().equals(Authority.ROLE_ADMIN.getKey())) {
+            throw new Exception(ErrorResult.ACCESS_PRIVILEGE);
+        }
+
+        List<Order> orders = orderRepository.findAll();
+
+        List<Payment> payments = new ArrayList<>();
+        for (long orderId = 1L; orderId < orders.size(); orderId++) {
+            payments = paymentRepository.findPaymentsByOrderId(
+                orders.get(Math.toIntExact(orderId)).getId(), pageable);
+        }
+
+        List<OrderDto.OrderHistory> orderHistories = new ArrayList<>();
+
+        for (Order order : orders) {
+            OrderDto.OrderHistory orderHistory = new OrderDto.OrderHistory(order);
+            List<OrderProduct> orderProductList = order.getOrderProducts();
+            for (OrderProduct orderProduct : orderProductList) {
+                OrderDto.OrderProduct orderProductDto = new OrderDto.OrderProduct(orderProduct);
+                orderHistory.addOrderProduct(orderProductDto);
+                for (Payment payment : payments) {
+                    OrderDto.Payment paymentDto = new OrderDto.Payment(payment);
+                    orderHistory.addPayment(paymentDto);
+                }
+            }
+            orderHistories.add(orderHistory);
+        }
+        return new PageImpl<>(orderHistories, pageable, orders.size());
     }
 
     /**
@@ -167,6 +237,13 @@ public class OrderService {
 
         if (statusRequest.getOrderStatus().equals(OrderStatus.PURCHASE_CONFIRM)) {
             member.acquirePoint(payment.getAcquirePoint());
+            List<OrderProduct> orderProducts = orderProductRepository.findAllByOrderId(
+                order.getId());
+            for (OrderProduct orderProduct : orderProducts) {
+                Product product = productRepository.findById(orderProduct.getProduct().getId())
+                    .orElseThrow(() -> new Exception(ErrorResult.PRODUCT_NOT_FOUND));
+                product.addPurchaseCount(orderProduct.getCount());
+            }
         }
 
         return OrderDto.StatusResponse.of(updateOrder);
