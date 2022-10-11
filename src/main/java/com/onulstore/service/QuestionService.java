@@ -45,7 +45,7 @@ public class QuestionService {
             .product(product)
             .title(questionDto.getTitle())
             .content(questionDto.getContent())
-            .secret(questionDto.getSecret())
+            .secret(questionDto.isSecret())
             .build();
 
         questionRepository.save(question);
@@ -53,7 +53,8 @@ public class QuestionService {
 
     // 질문 수정
     @Transactional
-    public QuestionResponse updateQuestion(Long questionId, QuestionDto.QuestionRequest questionDto) {
+    public QuestionResponse updateQuestion(Long questionId,
+        QuestionDto.QuestionRequest questionDto) {
         Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId()).orElseThrow(
             () -> new Exception(ErrorResult.NOT_EXIST_USER));
         Product product = productRepository.findById(questionDto.getProductId()).orElseThrow(
@@ -95,9 +96,10 @@ public class QuestionService {
             () -> new Exception(ErrorResult.PRODUCT_NOT_FOUND));
         Question question = questionRepository.findById(questionId).orElseThrow(
             () -> new Exception(ErrorResult.NOT_EXIST_QUESTION));
-        QuestionAnswer questionAnswer = questionAnswerRepository.findByQuestionId(question.getId()).orElse(null);
+        QuestionAnswer questionAnswer = questionAnswerRepository.findByQuestionId(question.getId())
+            .orElse(null);
 
-        if (question.getSecret() == 'Y') {
+        if (question.isSecret() == true) {
             if (!(member.getId().equals(question.getMember().getId()) || member.getAuthority()
                 .equals(Authority.ROLE_ADMIN.getKey()))) {
                 throw new Exception(ErrorResult.SECRET_QUESTION);
