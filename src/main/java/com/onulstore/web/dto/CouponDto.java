@@ -22,11 +22,7 @@ public class CouponDto {
 
         private Long memberId;
         private String couponTitle;
-        private LocalDateTime createdDate;
-        private Long duration;
         private Integer discountValue;
-        private Integer leastRequiredValue;
-        private Integer maxDiscountValue;
         private DiscountType discountType;
         private CouponStatus couponStatus;
         private LocalDateTime expirationDate;
@@ -35,19 +31,34 @@ public class CouponDto {
             Coupon coupon = Coupon.builder()
                 .couponTitle(couponTitle)
                 .discountValue(discountValue)
-                .leastRequiredValue(leastRequiredValue)
-                .maxDiscountValue(maxDiscountValue)
                 .discountType(discountType)
+                .leastRequiredValue(0)
+                .maxDiscountValue(1000000)
                 .couponStatus(CouponStatus.DEFAULT)
                 .member(member)
-                .expirationDate(LocalDateTime.now().plusDays(duration))
+                .expirationDate(expirationDate)
                 .build();
             return coupon;
         }
+    }
 
-        public static RequestCoupon of(Coupon coupon){
-            RequestCoupon requestCoupon = RequestCoupon.builder()
-                .memberId(coupon.getMember().getId())
+    @Getter
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Builder
+    public static class ResponseCoupon {
+
+        private String memberEmail;
+        private String couponTitle;
+        private Integer discountValue;
+        private DiscountType discountType;
+        private CouponStatus couponStatus;
+        private LocalDateTime createdDate;
+        private LocalDateTime expirationDate;
+
+        public static ResponseCoupon of(Coupon coupon){
+            ResponseCoupon responseCoupon = ResponseCoupon.builder()
+                .memberEmail(coupon.getMember().getEmail())
                 .couponTitle(coupon.getCouponTitle())
                 .discountValue(coupon.getDiscountValue())
                 .discountType(coupon.getDiscountType())
@@ -55,7 +66,7 @@ public class CouponDto {
                 .createdDate(coupon.getCreatedDate())
                 .expirationDate(coupon.getExpirationDate())
                 .build();
-            return requestCoupon;
+            return responseCoupon;
         }
     }
 }
