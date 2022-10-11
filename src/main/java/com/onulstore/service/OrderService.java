@@ -126,6 +126,46 @@ public class OrderService {
     }
 
     /**
+     * 전체 주문 조회(관리자)
+     * @param pageable
+     * @return
+     */
+    @Transactional(readOnly = true)
+    public Page<OrderDto.OrderHistory> getAllOrders(Pageable pageable) {
+        Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId()).orElseThrow(
+            () -> new Exception(ErrorResult.NOT_EXIST_USER));
+
+        if (!member.getAuthority().equals(Authority.ROLE_ADMIN.getKey())) {
+            throw new Exception(ErrorResult.ACCESS_PRIVILEGE);
+        }
+
+        List<Order> orders = orderRepository.findAll();
+
+        List<Payment> payments = new ArrayList<>();
+        for (long orderId = 1L; orderId < orders.size(); orderId++) {
+            payments = paymentRepository.findPaymentsByOrderId(
+                orders.get(Math.toIntExact(orderId)).getId(), pageable);
+        }
+
+        List<OrderDto.OrderHistory> orderHistories = new ArrayList<>();
+
+        for (Order order : orders) {
+            OrderDto.OrderHistory orderHistory = new OrderDto.OrderHistory(order);
+            List<OrderProduct> orderProductList = order.getOrderProducts();
+            for (OrderProduct orderProduct : orderProductList) {
+                OrderDto.OrderProduct orderProductDto = new OrderDto.OrderProduct(orderProduct);
+                orderHistory.addOrderProduct(orderProductDto);
+                for (Payment payment : payments) {
+                    OrderDto.Payment paymentDto = new OrderDto.Payment(payment);
+                    orderHistory.addPayment(paymentDto);
+                }
+            }
+            orderHistories.add(orderHistory);
+        }
+        return new PageImpl<>(orderHistories, pageable, orders.size());
+    }
+
+    /**
      * 장바구니 상품 주문
      * @param cartOrderRequest
      */
