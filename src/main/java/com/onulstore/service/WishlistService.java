@@ -1,8 +1,9 @@
 package com.onulstore.service;
 
 import com.onulstore.config.SecurityUtil;
-import com.onulstore.config.exception.Exception;
-import com.onulstore.domain.enums.ErrorResult;
+import com.onulstore.config.exception.CustomException;
+import com.onulstore.domain.enums.Authority;
+import com.onulstore.domain.enums.CustomErrorResult;
 import com.onulstore.domain.member.Member;
 import com.onulstore.domain.member.MemberRepository;
 import com.onulstore.domain.product.Product;
@@ -14,6 +15,7 @@ import com.onulstore.web.dto.WishlistDto;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,17 +35,26 @@ public class WishlistService {
      * @return ProductDto.ProductRes
      */
     public ProductDto.ProductRes addWishlist(WishlistDto.WishlistRequest request) {
-        Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId()).orElseThrow(
-            () -> new Exception(ErrorResult.NOT_EXIST_USER));
+        if (SecurityContextHolder.getContext().getAuthentication().getPrincipal()
+            .equals("anonymousUser")) {
+            throw new CustomException(CustomErrorResult.LOGIN_NEEDED);
+        }
+        Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId())
+            .orElseThrow(() -> new CustomException(CustomErrorResult.NOT_EXIST_USER));
         Product product = productRepository.findById(request.getProductId()).orElseThrow(
-            () -> new Exception(ErrorResult.PRODUCT_NOT_FOUND));
+            () -> new CustomException(CustomErrorResult.PRODUCT_NOT_FOUND));
+
+        if (member.getWishlists().stream()
+            .anyMatch(wishlist -> product.equals(wishlist.getProduct()))) {
+            return deleteWishlist(product.getId());
+        }
 
         Wishlist wishlist = request.toWishlist(product, member);
         Wishlist findWishlist = wishlistRepository.findByProductIdAndMemberId(product.getId(),
             member.getId());
 
         if (findWishlist != null) {
-            throw new Exception(ErrorResult.WISHLIST_ALREADY_EXIST);
+            throw new CustomException(CustomErrorResult.WISHLIST_ALREADY_EXIST);
         }
         wishlistRepository.save(wishlist);
         ProductDto.ProductRes productRes = new ProductDto.ProductRes(
@@ -65,8 +76,12 @@ public class WishlistService {
      */
     @Transactional(readOnly = true)
     public List<ProductDto.ProductRes> getWishlist() {
-        Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId()).orElseThrow(
-            () -> new Exception(ErrorResult.NOT_EXIST_USER));
+        if (SecurityContextHolder.getContext().getAuthentication().getPrincipal()
+            .equals("anonymousUser")) {
+            throw new CustomException(CustomErrorResult.LOGIN_NEEDED);
+        }
+        Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId())
+            .orElseThrow(() -> new CustomException(CustomErrorResult.NOT_EXIST_USER));
 
         List<Wishlist> findWishlists = wishlistRepository.findAllByMember(member);
         List<ProductDto.ProductRes> wishlists = new ArrayList<>();
@@ -93,10 +108,14 @@ public class WishlistService {
      * @return ProductDto.ProductRes
      */
     public ProductDto.ProductRes deleteWishlist(Long productId) {
-        Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId()).orElseThrow(
-            () -> new Exception(ErrorResult.NOT_EXIST_USER));
+        if (SecurityContextHolder.getContext().getAuthentication().getPrincipal()
+            .equals("anonymousUser")) {
+            throw new CustomException(CustomErrorResult.LOGIN_NEEDED);
+        }
+        Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId())
+            .orElseThrow(() -> new CustomException(CustomErrorResult.NOT_EXIST_USER));
         Product product = productRepository.findById(productId).orElseThrow(
-            () -> new Exception(ErrorResult.PRODUCT_NOT_FOUND));
+            () -> new CustomException(CustomErrorResult.PRODUCT_NOT_FOUND));
 
         Wishlist wishlist = wishlistRepository.findByProductIdAndMemberId(product.getId(),
             member.getId());
