@@ -33,6 +33,12 @@ public class OrderController {
         return ResponseEntity.ok(orderService.getOrder(orderId));
     }
 
+    @GetMapping("/entire")
+    @ApiOperation(value = "전체 주문 및 결제 내역 조회 / 인증 필요(관리자)")
+    public ResponseEntity<Page<OrderDto.OrderHistory>> getAllOrders(Pageable pageable) {
+        return ResponseEntity.ok(orderService.getAllOrders(pageable));
+    }
+
     @PostMapping
     @ApiOperation(value = "단일 상품 주문 생성 / 인증 필요")
     public ResponseEntity<String> addCategory(
