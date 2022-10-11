@@ -23,14 +23,14 @@ public class NoticeController {
     private final NoticeService noticeService;
 
     @PostMapping
-    @ApiOperation(value = "공지 등록")
+    @ApiOperation(value = "공지 등록 / 인증 필요(관리자)")
     public ResponseEntity<NoticeDto.NoticeResponse> addNotice(
         @RequestBody NoticeDto.NoticeRequest noticeRequest) {
         return ResponseEntity.ok(noticeService.addNotice(noticeRequest));
     }
 
     @PutMapping("/{noticeId}")
-    @ApiOperation(value = "공지 수정")
+    @ApiOperation(value = "공지 수정 / 인증 필요(관리자)")
     public ResponseEntity<NoticeDto.NoticeResponse> updateNotice(
         @RequestBody NoticeDto.NoticeRequest noticeRequest, @PathVariable Long noticeId) {
         return ResponseEntity.ok(noticeService.updateNotice(noticeRequest, noticeId));
@@ -49,14 +49,14 @@ public class NoticeController {
     }
 
     @DeleteMapping("/{noticeId}")
-    @ApiOperation(value = "공지 삭제")
+    @ApiOperation(value = "공지 삭제 / 인증 필요(관리자)")
     public ResponseEntity<String> deleteNotice(@PathVariable Long noticeId) {
         noticeService.deleteNotice(noticeId);
         return ResponseEntity.ok("공지가 삭제되었습니다.");
     }
 
     @PostMapping("/{noticeId}/image")
-    @ApiOperation(value = "공지 이미지 업로드")
+    @ApiOperation(value = "공지 이미지 업로드 / 인증 필요(관리자)")
     public ResponseEntity<String> uploadImage(@RequestParam("images") MultipartFile multipartFile,
         @PathVariable Long noticeId) throws IOException {
         noticeService.uploadImage(multipartFile, noticeId);

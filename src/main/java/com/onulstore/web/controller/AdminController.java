@@ -41,7 +41,7 @@ public class AdminController {
         return ResponseEntity.ok(authService.sellerRegistration(request));
     }
 
-    @ApiOperation(value = "전체 회원 조회")
+    @ApiOperation(value = "전체 회원 조회 / 인증 필요(관리자)")
     @GetMapping("/find")
     public ResponseEntity<Map<String, List<Member>>> viewAllMember() {
         return ResponseEntity.ok().body(authService.viewAllMember());
@@ -49,7 +49,8 @@ public class AdminController {
 
     @ApiOperation(value = "대쉬보드 전체")
     @PostMapping("/dashboard")
-    public ResponseEntity<DashboardDto> getEntireDashboard(@RequestBody RequestTimeDto requestTimeDto) {
+    public ResponseEntity<DashboardDto> getEntireDashboard(
+        @RequestBody RequestTimeDto requestTimeDto) {
         LocalDateTime localDateTime = requestTimeDto.getLocalDateTime();
         List<Integer> members = memberService.memberDashBoard(localDateTime); // 회원 수, 입점사 수
         List<Integer> products = productService.productDashBoard(

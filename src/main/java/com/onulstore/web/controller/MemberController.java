@@ -27,13 +27,13 @@ public class MemberController {
     private final MemberService memberService;
 
     @GetMapping
-    @ApiOperation(value = "내 정보")
+    @ApiOperation(value = "내 정보 / 인증 필요")
     public ResponseEntity<MemberDto.MemberResponse> getMyMemberInfo() {
         return ResponseEntity.ok(memberService.getMyInfo());
     }
 
     @PutMapping
-    @ApiOperation(value = "프로필 수정")
+    @ApiOperation(value = "프로필 수정 / 인증 필요")
     public ResponseEntity<String> updateProfile(
         @RequestBody @Valid MemberDto.UpdateRequest updateRequest) {
         memberService.updateProfile(updateRequest);
@@ -41,21 +41,21 @@ public class MemberController {
     }
 
     @DeleteMapping
-    @ApiOperation(value = "회원 탈퇴")
+    @ApiOperation(value = "회원 탈퇴 / 인증 필요")
     public ResponseEntity<String> deleteProfile() {
         memberService.deleteProfile();
         return ResponseEntity.ok("회원 탈퇴가 완료되었습니다.");
     }
 
     @PutMapping("/password")
-    @ApiOperation(value = "회원 비밀번호 수정")
+    @ApiOperation(value = "회원 비밀번호 수정 / 인증 필요")
     public ResponseEntity<String> updatePassword(@RequestBody @Valid PasswordDto passwordDto) {
         memberService.updatePassword(passwordDto);
         return ResponseEntity.ok("비밀번호 수정이 완료되었습니다.");
     }
 
     @GetMapping("/latest")
-    @ApiOperation(value = "최근 본 상품")
+    @ApiOperation(value = "최근 본 상품 / 인증 필요")
     public ResponseEntity<ArrayList<ProductResponse>> latestProduct(HttpServletRequest request) {
         return ResponseEntity.ok(memberService.latestProduct(request));
     }
