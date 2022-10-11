@@ -1,12 +1,13 @@
 package com.onulstore.service;
 
 import com.onulstore.config.SecurityUtil;
-import com.onulstore.config.exception.Exception;
+import com.onulstore.config.exception.CustomException;
 import com.onulstore.domain.coupon.Coupon;
 import com.onulstore.domain.coupon.CouponRepository;
+import com.onulstore.domain.enums.Authority;
 import com.onulstore.domain.enums.CouponStatus;
 import com.onulstore.domain.enums.DiscountType;
-import com.onulstore.domain.enums.ErrorResult;
+import com.onulstore.domain.enums.CustomErrorResult;
 import com.onulstore.domain.enums.OrderStatus;
 import com.onulstore.domain.member.Member;
 import com.onulstore.domain.member.MemberRepository;
@@ -20,6 +21,7 @@ import com.onulstore.web.dto.PaymentDto;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -40,22 +42,26 @@ public class PaymentService {
      * @return 결제 내용
      */
     public PaymentDto.PaymentResponse paying(PaymentDto.PaymentRequest paymentRequest) {
-        Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId()).orElseThrow(
-            () -> new Exception(ErrorResult.NOT_EXIST_USER));
+        if (SecurityContextHolder.getContext().getAuthentication().getPrincipal()
+            .equals("anonymousUser")) {
+            throw new CustomException(CustomErrorResult.LOGIN_NEEDED);
+        }
+        Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId())
+            .orElseThrow(() -> new CustomException(CustomErrorResult.NOT_EXIST_USER));
         Order order = orderRepository.findById(paymentRequest.getOrderId()).orElseThrow(
-            () -> new Exception(ErrorResult.ORDER_NOT_FOUND));
+            () -> new CustomException(CustomErrorResult.ORDER_NOT_FOUND));
         Coupon coupon = Optional.ofNullable(paymentRequest.getCouponId())
             .map(id -> couponRepository.findById(id).orElseThrow(
-                () -> new Exception(ErrorResult.COUPON_NOT_FOUND))).orElse(null);
+                () -> new CustomException(CustomErrorResult.COUPON_NOT_FOUND))).orElse(null);
 
         if (paymentRepository.existsByOrderId(order.getId())) {
-            throw new Exception(ErrorResult.ORDER_ALREADY_PAYED);
+            throw new CustomException(CustomErrorResult.ORDER_ALREADY_PAYED);
         } else if (order.getOrderStatus().equals(OrderStatus.PAYMENT_COMPLETE)) {
-            throw new Exception(ErrorResult.ORDER_ALREADY_PAYED);
+            throw new CustomException(CustomErrorResult.ORDER_ALREADY_PAYED);
         } else if (coupon != null && !member.getId().equals(coupon.getMember().getId())) {
-            throw new Exception(ErrorResult.ACCESS_PRIVILEGE);
+            throw new CustomException(CustomErrorResult.ACCESS_PRIVILEGE);
         } else if (coupon != null && coupon.getCouponStatus().equals(CouponStatus.EXPIRED)) {
-            throw new Exception(ErrorResult.COUPON_EXPIRED);
+            throw new CustomException(CustomErrorResult.COUPON_EXPIRED);
         }
 
         int productPrice = 0;
