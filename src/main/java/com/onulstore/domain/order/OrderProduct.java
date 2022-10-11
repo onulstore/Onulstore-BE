@@ -17,7 +17,7 @@ public class OrderProduct extends BaseTimeEntity {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="product_id")
+    @JoinColumn(name = "product_id")
     private Product product;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -35,7 +35,7 @@ public class OrderProduct extends BaseTimeEntity {
         orderProduct.setCount(count);
         orderProduct.setOrderPrice(product.getPrice() * count);
 
-        product.removeStock(count);
+        product.removeStock(count, product);
         return orderProduct;
     }
 

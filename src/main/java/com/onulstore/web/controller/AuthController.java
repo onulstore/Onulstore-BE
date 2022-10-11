@@ -34,21 +34,21 @@ public class AuthController {
         return ResponseEntity.ok(memberResponse);
     }
 
-    @ApiOperation(value = "로그인")
+    @ApiOperation(value = "로그인 / 인증 필요")
     @PostMapping("/login")
     public ResponseEntity<TokenDto> login(@RequestBody LoginDto loginDto) {
         return ResponseEntity.ok(authService.login(loginDto));
     }
 
-    @ApiOperation(value = "Refresh Token 발급")
+    @ApiOperation(value = "Refresh Token 발급 / 인증 필요")
     @PostMapping("/refresh")
     public ResponseEntity<TokenDto> getRefreshToken(
         @RequestBody TokenDto.TokenRequest tokenRequest) {
         return ResponseEntity.ok(authService.getRefreshToken(tokenRequest));
     }
 
-    @ApiOperation(value = "휴대폰 번호로 이메일 찾기")
-    @GetMapping("/find/email")
+    @ApiOperation(value = "휴대폰 번호로 이메일 찾기 / 인증 필요")
+    @PostMapping("/find/email")
     public ResponseEntity<MemberDto.FindResponse> findEmail(
         @RequestBody MemberDto.FindRequest findRequest) {
         return ResponseEntity.ok(authService.findEmail(findRequest));

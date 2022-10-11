@@ -5,6 +5,7 @@ import com.onulstore.config.jwt.JwtAccessDeniedHandler;
 import com.onulstore.config.jwt.JwtAuthenticationEntryPoint;
 import com.onulstore.config.jwt.JwtSecurityConfig;
 import com.onulstore.config.jwt.TokenProvider;
+import com.onulstore.config.oauth2.OAuth2SuccessHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
@@ -28,6 +29,7 @@ public class SecurityConfig {
     private final JwtAccessDeniedHandler jwtAccessDeniedHandler;
     private final CorsFilter corsFilter;
     private final PrincipalOauth2UserService principalOauth2UserService;
+    private final OAuth2SuccessHandler oAuth2SuccessHandler;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -69,8 +71,8 @@ public class SecurityConfig {
             .and()
             .formLogin().disable()
             .oauth2Login()
-            .userInfoEndpoint()
-            .userService(principalOauth2UserService);
+            .successHandler(oAuth2SuccessHandler)
+            .userInfoEndpoint().userService(principalOauth2UserService);
 
         return http.build();
     }
