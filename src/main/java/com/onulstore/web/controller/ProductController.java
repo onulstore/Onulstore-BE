@@ -31,21 +31,21 @@ public class ProductController {
 
     private final ProductService productService;
 
-    @ApiOperation(value = "상품 등록")
+    @ApiOperation(value = "상품 등록  / 인증 필요(관리자)")
     @PostMapping("/products")
     public ResponseEntity<ProductDto.ProductResponse> registerProduct(
         @RequestBody ProductDto.ProductRequest requestDto) {
         return ResponseEntity.ok(productService.register(requestDto));
     }
 
-    @ApiOperation(value = "상품 수정")
+    @ApiOperation(value = "상품 수정  / 인증 필요(관리자)")
     @PutMapping("/products/{productId}")
     public ResponseEntity<ProductDto.ProductResponse> modifyProduct(@PathVariable Long productId,
         @RequestBody ProductDto.ProductRequest modifyRequest) {
         return ResponseEntity.ok(productService.modify(modifyRequest, productId));
     }
 
-    @ApiOperation(value = "상품 삭제")
+    @ApiOperation(value = "상품 삭제  / 인증 필요(관리자)")
     @DeleteMapping("/products/{productId}")
     public ResponseEntity<String> deleteProduct(@PathVariable Long productId) {
         productService.delete(productId);
@@ -74,7 +74,7 @@ public class ProductController {
         return ResponseEntity.ok(productService.searchProduct(pageable, product));
     }
 
-    @ApiOperation(value = "상품 이미지 업로드")
+    @ApiOperation(value = "상품 이미지 업로드  / 인증 필요(관리자)")
     @PostMapping("/products/{productId}/image")
     public ResponseEntity uploadImage(@RequestParam("images") List<MultipartFile> multipartFile,
         @PathVariable Long productId) throws IOException {
@@ -82,21 +82,21 @@ public class ProductController {
         return ResponseEntity.ok("상품 이미지가 등록되었습니다.");
     }
 
-    @ApiOperation(value = "상품 설명 업로드")
+    @ApiOperation(value = "상품 설명 업로드  / 인증 필요(관리자)")
     @PostMapping("/products/{productId}/content")
     public ResponseEntity<String> uploadContent(@RequestParam("images") MultipartFile multipartFile,
         @PathVariable Long productId) throws IOException {
         return ResponseEntity.ok(productService.uploadContent(multipartFile, productId));
     }
 
-    @ApiOperation(value = "상품 이미지 제거")
+    @ApiOperation(value = "상품 이미지 제거  / 인증 필요(관리자)")
     @DeleteMapping("/products/{productId}/image")
     public ResponseEntity deleteImage(@PathVariable Long productId) {
         productService.deleteImage(productId);
         return ResponseEntity.ok("상품 이미지가 제거되었습니다.");
     }
 
-    @ApiOperation(value = "상품 할인 추가")
+    @ApiOperation(value = "상품 할인 추가  / 인증 필요(관리자)")
     @PostMapping("/products/discount/{productId}")
     public ResponseEntity discountProduct(@RequestBody DiscountProductDto discountProductDto) {
         productService.discountProduct(discountProductDto);
