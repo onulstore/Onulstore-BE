@@ -34,13 +34,13 @@ public class AuthController {
         return ResponseEntity.ok(memberResponse);
     }
 
-    @ApiOperation(value = "로그인")
+    @ApiOperation(value = "로그인 / 인증 필요")
     @PostMapping("/login")
     public ResponseEntity<TokenDto> login(@RequestBody LoginDto loginDto) {
         return ResponseEntity.ok(authService.login(loginDto));
     }
 
-    @ApiOperation(value = "Refresh Token 발급")
+    @ApiOperation(value = "Refresh Token 발급 / 인증 필요")
     @PostMapping("/refresh")
     public ResponseEntity<TokenDto> getRefreshToken(
         @RequestBody TokenDto.TokenRequest tokenRequest) {
