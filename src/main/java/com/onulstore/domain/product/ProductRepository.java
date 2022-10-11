@@ -1,5 +1,6 @@
 package com.onulstore.domain.product;
 
+import com.onulstore.domain.enums.DiscountStatus;
 import com.onulstore.domain.enums.ProductStatus;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -17,6 +18,8 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     Optional<Product> findByCategoryId(Long categoryId);
     List<Product> findAllByProductStatusAndDiscountCheck(ProductStatus productStatus,
         boolean discountCheck);
-    List<Product> findAllByCreatedDateAfter(LocalDateTime localDateTime);
-    List<Product> findAllByProductStatusAndCreatedDateAfter(ProductStatus productStatus, LocalDateTime localDateTime);
+    Page<Product> findByProductNameContains(Pageable pageable, String productName);
+    Long countByProductStatusAndCreatedDateAfter(ProductStatus sale, LocalDateTime localDateTime);
+    Long countByCreatedDateAfter(LocalDateTime localDateTime);
+    boolean existsByDiscountStatus(DiscountStatus discountStatus);
 }

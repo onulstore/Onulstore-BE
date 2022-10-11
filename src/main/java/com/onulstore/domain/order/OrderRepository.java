@@ -27,4 +27,7 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
 
     Optional<Order> findByIdAndMember(Long orderId, Member member);
 
+    Long countByOrderStatusAndCreatedDateAfter(OrderStatus orderStatus, LocalDateTime localDateTime);
+
+    Long countByCreatedDateAfter(LocalDateTime localDateTime);
 }

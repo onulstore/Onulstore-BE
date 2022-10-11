@@ -3,13 +3,14 @@ package com.onulstore.service;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.onulstore.config.SecurityUtil;
-import com.onulstore.config.exception.Exception;
+import com.onulstore.config.exception.CustomException;
 import com.onulstore.domain.brand.Brand;
 import com.onulstore.domain.brand.BrandRepository;
 import com.onulstore.domain.category.Category;
 import com.onulstore.domain.category.CategoryRepository;
 import com.onulstore.domain.enums.Authority;
-import com.onulstore.domain.enums.ErrorResult;
+import com.onulstore.domain.enums.DiscountStatus;
+import com.onulstore.domain.enums.CustomErrorResult;
 import com.onulstore.domain.enums.ProductStatus;
 import com.onulstore.domain.member.Member;
 import com.onulstore.domain.member.MemberRepository;
@@ -26,6 +27,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
@@ -59,17 +61,34 @@ public class ProductService {
     private final WishlistRepository wishlistRepository;
     private final ProductImageRepository productImageRepository;
 
+    private final void authorityCheck(Member member) {
+        if (!member.getAuthority().equals(Authority.ROLE_ADMIN.getKey())) {
+            throw new CustomException(CustomErrorResult.ACCESS_PRIVILEGE);
+        }
+    }
+
+    private final Member getMember() {
+        return memberRepository.findById(SecurityUtil.getCurrentMemberId())
+            .orElseThrow(() -> new CustomException(CustomErrorResult.NOT_EXIST_USER));
+    }
+
+    private final void loginCheck() {
+        if (SecurityContextHolder.getContext().getAuthentication().getPrincipal()
+            .equals("anonymousUser")) {
+            throw new CustomException(CustomErrorResult.LOGIN_NEEDED);
+        }
+    }
+
     @Transactional
     public ProductDto.ProductResponse register(ProductDto.ProductRequest registration) {
-        Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId()).orElseThrow(
-            () -> new Exception(ErrorResult.NOT_EXIST_USER));
-        if (!member.getAuthority().equals(Authority.ROLE_ADMIN.getKey())) {
-            throw new Exception(ErrorResult.ACCESS_PRIVILEGE);
-        }
+        loginCheck();
+        Member member = getMember();
+        authorityCheck(member);
+
         Category category = categoryRepository.findById(registration.getCategoryId()).orElseThrow(
-            () -> new Exception(ErrorResult.CATEGORY_NOT_FOUND));
+            () -> new CustomException(CustomErrorResult.CATEGORY_NOT_FOUND));
         Brand brand = brandRepository.findById(registration.getBrandId()).orElseThrow(
-            () -> new Exception(ErrorResult.BRAND_NOT_FOUND));
+            () -> new CustomException(CustomErrorResult.BRAND_NOT_FOUND));
 
         Product product = productRepository.save(registration.toProduct(category, brand));
         product.newPurchaseCount();
@@ -79,13 +98,11 @@ public class ProductService {
     @Transactional
     public ProductDto.ProductResponse modify(ProductDto.ProductRequest modification,
         Long productId) {
-        Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId()).orElseThrow(
-            () -> new Exception(ErrorResult.NOT_EXIST_USER));
-        if (!member.getAuthority().equals(Authority.ROLE_ADMIN.getKey())) {
-            throw new Exception(ErrorResult.ACCESS_PRIVILEGE);
-        }
+        loginCheck();
+        Member member = getMember();
+        authorityCheck(member);
         Product product = productRepository.findById(productId).orElseThrow(
-            () -> new Exception(ErrorResult.PRODUCT_NOT_FOUND));
+            () -> new CustomException(CustomErrorResult.PRODUCT_NOT_FOUND));
 
         product.changeProductData(modification.getProductName(),
             modification.getPrice(),
@@ -96,20 +113,17 @@ public class ProductService {
 
     @Transactional
     public void delete(Long productId) {
-        Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId()).orElseThrow(
-            () -> new Exception(ErrorResult.NOT_EXIST_USER));
-        if (!member.getAuthority().equals(Authority.ROLE_ADMIN.getKey())) {
-            throw new Exception(ErrorResult.ACCESS_PRIVILEGE);
-        }
+        loginCheck();
+        Member member = getMember();
+        authorityCheck(member);
         Product product = productRepository.findById(productId).orElseThrow(
 
-            () -> new Exception(ErrorResult.ACCESS_PRIVILEGE));
+            () -> new CustomException(CustomErrorResult.ACCESS_PRIVILEGE));
         productRepository.delete(product);
     }
 
     @Transactional
     public ProductDto.ProductResponse detailInquiry(Long productId, HttpServletRequest request) {
-
         HttpSession session = request.getSession();
         boolean check = false;
         ArrayList<Product> latestViewedProductList = (ArrayList) session.getAttribute("List");
@@ -117,7 +131,7 @@ public class ProductService {
             latestViewedProductList = new ArrayList<>();
         }
         Product product = productRepository.findById(productId).orElseThrow(
-            () -> new Exception(ErrorResult.PRODUCT_NOT_FOUND));
+            () -> new CustomException(CustomErrorResult.PRODUCT_NOT_FOUND));
 
         for (Product products : latestViewedProductList) {
             if (products.getProductName().equals(product.getProductName())) {
@@ -145,8 +159,7 @@ public class ProductService {
         Member member = new Member();
         if (!SecurityContextHolder.getContext().getAuthentication().getPrincipal()
             .equals("anonymousUser")) {
-            member = memberRepository.findById(SecurityUtil.getCurrentMemberId())
-                .orElseThrow(() -> new Exception(ErrorResult.NOT_EXIST_USER));
+            member = getMember();
             check = true;
         }
         for (Product product : productList) {
@@ -165,13 +178,11 @@ public class ProductService {
 
     @Transactional
     public String uploadContent(MultipartFile multipartFile, Long productId) throws IOException {
-        Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId()).orElseThrow(
-            () -> new Exception(ErrorResult.NOT_EXIST_USER));
-        if (!member.getAuthority().equals(Authority.ROLE_ADMIN.getKey())) {
-            throw new Exception(ErrorResult.ACCESS_PRIVILEGE);
-        }
+        loginCheck();
+        Member member = getMember();
+        authorityCheck(member);
         Product product = productRepository.findById(productId).orElseThrow(
-            () -> new Exception(ErrorResult.PRODUCT_NOT_FOUND));
+            () -> new CustomException(CustomErrorResult.PRODUCT_NOT_FOUND));
 
         InputStream inputStream = multipartFile.getInputStream();
         String originFileName = multipartFile.getOriginalFilename();
@@ -186,15 +197,12 @@ public class ProductService {
     @Transactional
     public void uploadImages(List<MultipartFile> multipartFiles, Long productId)
         throws IOException {
-        Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId()).orElseThrow(
-            () -> new Exception(ErrorResult.NOT_EXIST_USER));
-
-        if (!member.getAuthority().equals(Authority.ROLE_ADMIN.getKey())) {
-            throw new Exception(ErrorResult.ACCESS_PRIVILEGE);
-        }
+        loginCheck();
+        Member member = getMember();
+        authorityCheck(member);
 
         Product product = productRepository.findById(productId).orElseThrow(
-            () -> new Exception(ErrorResult.PRODUCT_NOT_FOUND));
+            () -> new CustomException(CustomErrorResult.PRODUCT_NOT_FOUND));
 
         for (MultipartFile multipartFile : multipartFiles) {
             ProductImage productImage = new ProductImage();
@@ -221,8 +229,10 @@ public class ProductService {
      */
     @Transactional
     public boolean isWishlist(Long memberId, Long productId) {
+        loginCheck();
         Member member = memberRepository.findById(memberId).orElseThrow(
-            () -> new Exception(ErrorResult.NOT_EXIST_USER));
+            () -> new CustomException((CustomErrorResult.NOT_EXIST_USER))
+        );
         List<Wishlist> wishlists = wishlistRepository.findAllByMember(member);
         for (Wishlist wishlist : wishlists) {
             if (Objects.equals(productId, wishlist.getProduct().getId())) {
@@ -234,17 +244,14 @@ public class ProductService {
 
     @Transactional
     public void deleteImage(Long productId) {
-        Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId()).orElseThrow(
-            () -> new Exception(ErrorResult.NOT_EXIST_USER));
-
-        if (!member.getAuthority().equals(Authority.ROLE_ADMIN.getKey())) {
-            throw new Exception(ErrorResult.ACCESS_PRIVILEGE);
-        }
+        loginCheck();
+        Member member = getMember();
+        authorityCheck(member);
 
         Product product = productRepository.findById(productId).orElseThrow(
-            () -> new Exception(ErrorResult.PRODUCT_NOT_FOUND));
+            () -> new CustomException(CustomErrorResult.PRODUCT_NOT_FOUND));
 
-        for(ProductImage productImage : product.getProductImages()){
+        for (ProductImage productImage : product.getProductImages()) {
             productImageRepository.delete(productImage);
         }
         product.getProductImages().clear();
@@ -252,23 +259,36 @@ public class ProductService {
 
     @Transactional
     public void discountProduct(DiscountProductDto discountDto) {
+        loginCheck();
+        Member member = getMember();
+        authorityCheck(member);
         Product product = productRepository.findById(discountDto.getProductId()).orElseThrow(
-            () -> new Exception(ErrorResult.PRODUCT_NOT_FOUND));
+            () -> new CustomException(CustomErrorResult.PRODUCT_NOT_FOUND));
 
-        product.discountProduct(discountDto.getDiscountType(), discountDto.getDiscountValue(),
-            discountDto.getDiscountStartDate(), discountDto.getDiscountEndDate());
+        product.discountProduct(discountDto.getDiscountType(), DiscountStatus.TRUE,
+            discountDto.getDiscountValue(), discountDto.getDiscountStartDate(),
+            discountDto.getDiscountEndDate()
+        );
     }
 
     @Transactional
-    public List<Integer> productDashBoard(LocalDateTime localDateTime) {
-        List<Product> saleProductList = productRepository.findAllByProductStatusAndCreatedDateAfter(
+    public List<Long> productDashBoard(LocalDateTime localDateTime) {
+        loginCheck();
+        Member member = getMember();
+        authorityCheck(member);
+
+        Long saleProducts = productRepository.countByProductStatusAndCreatedDateAfter(
             ProductStatus.SALE, localDateTime);
-        List<Product> entireProductList = productRepository.findAllByCreatedDateAfter(
+        Long entireProducts = productRepository.countByCreatedDateAfter(
             localDateTime);
-        List<Integer> registerProductAndSaleProduct = new ArrayList<>();
-        registerProductAndSaleProduct.add(saleProductList.size());
-        registerProductAndSaleProduct.add(entireProductList.size());
-        return registerProductAndSaleProduct;
+        List<Long> registerProductsAndSaleProducts = Arrays.asList(entireProducts, saleProducts);
+        return registerProductsAndSaleProducts;
+    }
+
+    @Transactional
+    public Page searchProduct(Pageable pageable, String productName) {
+        return productRepository.findByProductNameContains(pageable, productName)
+            .map(ProductDto.ProductResponse::of);
     }
 
 }

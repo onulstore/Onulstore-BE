@@ -10,9 +10,9 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<ErrorResponse> exception(Exception Exception) {
-        return createErrorResponse(Exception.getErrorResult());
+    @ExceptionHandler(CustomException.class)
+    public ResponseEntity<ErrorResponse> exception(CustomException CustomException) {
+        return createErrorResponse(CustomException.getCustomErrorResult());
     }
 
     private ResponseEntity<ErrorResponse> createErrorResponse(SuperErrorResult errorResult) {

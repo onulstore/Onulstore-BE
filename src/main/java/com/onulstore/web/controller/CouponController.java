@@ -2,7 +2,6 @@ package com.onulstore.web.controller;
 
 import com.onulstore.service.CouponService;
 import com.onulstore.web.dto.CouponDto;
-import com.onulstore.web.dto.CouponDto.RequestCoupon;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import java.util.List;
@@ -36,7 +35,7 @@ public class CouponController {
 
     @ApiOperation(value = "쿠폰 조회")
     @GetMapping("/mycoupons")
-    public ResponseEntity<List<RequestCoupon>> myCoupons() {
+    public ResponseEntity<List<CouponDto.ResponseCoupon>> myCoupons() {
         return ResponseEntity.ok(couponService.myCoupons());
     }
 }

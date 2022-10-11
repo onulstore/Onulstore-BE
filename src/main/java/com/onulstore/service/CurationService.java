@@ -3,13 +3,13 @@ package com.onulstore.service;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.onulstore.config.SecurityUtil;
-import com.onulstore.config.exception.Exception;
+import com.onulstore.config.exception.CustomException;
 import com.onulstore.domain.curation.Curation;
 import com.onulstore.domain.curation.CurationProduct;
 import com.onulstore.domain.curation.CurationRepository;
 import com.onulstore.domain.enums.Authority;
 import com.onulstore.domain.enums.CurationForm;
-import com.onulstore.domain.enums.ErrorResult;
+import com.onulstore.domain.enums.CustomErrorResult;
 import com.onulstore.domain.member.Member;
 import com.onulstore.domain.member.MemberRepository;
 import com.onulstore.domain.product.Product;
@@ -26,6 +26,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -49,10 +50,14 @@ public class CurationService {
      * @return Magazine 내용 등록 정보
      */
     public void createMagazine(CurationDto.MagazineRequest magazineRequest) {
-        Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId()).orElseThrow(
-            () -> new Exception(ErrorResult.NOT_EXIST_USER));
+        if (SecurityContextHolder.getContext().getAuthentication().getPrincipal()
+            .equals("anonymousUser")) {
+            throw new CustomException(CustomErrorResult.LOGIN_NEEDED);
+        }
+        Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId())
+            .orElseThrow(() -> new CustomException(CustomErrorResult.NOT_EXIST_USER));
         if (!member.getAuthority().equals(Authority.ROLE_ADMIN.getKey())) {
-            throw new Exception(ErrorResult.ACCESS_PRIVILEGE);
+            throw new CustomException(CustomErrorResult.ACCESS_PRIVILEGE);
         }
 
         List<Product> products = new ArrayList<>();
@@ -60,7 +65,7 @@ public class CurationService {
 
         for (Long product : magazineRequest.getProductList()) {
             products.add(productRepository.findById(product).orElseThrow(
-                () -> new Exception(ErrorResult.PRODUCT_NOT_FOUND)));
+                () -> new CustomException(CustomErrorResult.PRODUCT_NOT_FOUND)));
         }
 
         for (Product product : products) {
@@ -79,14 +84,18 @@ public class CurationService {
      * @return curation.getId()
      */
     public void createRecommend(CurationDto.RecommendRequest recommendRequest) {
-        Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId()).orElseThrow(
-            () -> new Exception(ErrorResult.NOT_EXIST_USER));
+        if (SecurityContextHolder.getContext().getAuthentication().getPrincipal()
+            .equals("anonymousUser")) {
+            throw new CustomException(CustomErrorResult.LOGIN_NEEDED);
+        }
+        Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId())
+            .orElseThrow(() -> new CustomException(CustomErrorResult.NOT_EXIST_USER));
         if (!member.getAuthority().equals(Authority.ROLE_ADMIN.getKey())) {
-            throw new Exception(ErrorResult.ACCESS_PRIVILEGE);
+            throw new CustomException(CustomErrorResult.ACCESS_PRIVILEGE);
         }
 
         Product product = productRepository.findById(recommendRequest.getProductId()).orElseThrow(
-            () -> new Exception(ErrorResult.PRODUCT_NOT_FOUND));
+            () -> new CustomException(CustomErrorResult.PRODUCT_NOT_FOUND));
 
         CurationProduct curationProduct = CurationProduct.createCurationProduct(product);
 
@@ -103,7 +112,7 @@ public class CurationService {
     @Transactional(readOnly = true)
     public CurationDto.CurationInfo getCurationList(Long curationId) {
         Curation curation = curationRepository.findById(curationId).orElseThrow(
-            () -> new Exception(ErrorResult.CURATION_NOT_FOUND));
+            () -> new CustomException(CustomErrorResult.CURATION_NOT_FOUND));
         CurationDto.CurationInfo curationInfo = new CurationInfo(curation);
         List<CurationProduct> curationProductList = curation.getCurationProducts();
         for (CurationProduct curationProduct : curationProductList) {
@@ -142,13 +151,17 @@ public class CurationService {
      * @param curationId
      */
     public void deleteCuration(Long curationId) {
-        Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId()).orElseThrow(
-            () -> new Exception(ErrorResult.NOT_EXIST_USER));
+        if (SecurityContextHolder.getContext().getAuthentication().getPrincipal()
+            .equals("anonymousUser")) {
+            throw new CustomException(CustomErrorResult.LOGIN_NEEDED);
+        }
+        Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId())
+            .orElseThrow(() -> new CustomException(CustomErrorResult.NOT_EXIST_USER));
         if (!member.getAuthority().equals(Authority.ROLE_ADMIN.getKey())) {
-            throw new Exception(ErrorResult.ACCESS_PRIVILEGE);
+            throw new CustomException(CustomErrorResult.ACCESS_PRIVILEGE);
         }
         Curation curation = curationRepository.findById(curationId).orElseThrow(
-            () -> new Exception(ErrorResult.CURATION_NOT_FOUND));
+            () -> new CustomException(CustomErrorResult.CURATION_NOT_FOUND));
         curationRepository.delete(curation);
     }
 
@@ -210,14 +223,18 @@ public class CurationService {
      */
     public CurationDto.CurationResponse updateCuration(CurationDto.UpdateCuration updateCuration,
         Long curationId) {
-        Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId()).orElseThrow(
-            () -> new Exception(ErrorResult.NOT_EXIST_USER));
+        if (SecurityContextHolder.getContext().getAuthentication().getPrincipal()
+            .equals("anonymousUser")) {
+            throw new CustomException(CustomErrorResult.LOGIN_NEEDED);
+        }
+        Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId())
+            .orElseThrow(() -> new CustomException(CustomErrorResult.NOT_EXIST_USER));
         if (!member.getAuthority().equals(Authority.ROLE_ADMIN.getKey())) {
-            throw new Exception(ErrorResult.ACCESS_PRIVILEGE);
+            throw new CustomException(CustomErrorResult.ACCESS_PRIVILEGE);
         }
 
         Curation findCuration = curationRepository.findById(curationId).orElseThrow(
-            () -> new Exception(ErrorResult.CURATION_NOT_FOUND));
+            () -> new CustomException(CustomErrorResult.CURATION_NOT_FOUND));
         Curation curation = findCuration.updateCuration(updateCuration);
 
         return CurationDto.CurationResponse.of(curationRepository.save(curation));
@@ -231,13 +248,17 @@ public class CurationService {
      * @throws IOException
      */
     public String uploadImage(MultipartFile multipartFile, Long curationId) throws IOException {
-        Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId()).orElseThrow(
-            () -> new Exception(ErrorResult.NOT_EXIST_USER));
+        if (SecurityContextHolder.getContext().getAuthentication().getPrincipal()
+            .equals("anonymousUser")) {
+            throw new CustomException(CustomErrorResult.LOGIN_NEEDED);
+        }
+        Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId())
+            .orElseThrow(() -> new CustomException(CustomErrorResult.NOT_EXIST_USER));
         if (!member.getAuthority().equals(Authority.ROLE_ADMIN.getKey())) {
-            throw new Exception(ErrorResult.ACCESS_PRIVILEGE);
+            throw new CustomException(CustomErrorResult.ACCESS_PRIVILEGE);
         }
         Curation curation = curationRepository.findById(curationId).orElseThrow(
-            () -> new Exception(ErrorResult.CURATION_NOT_FOUND));
+            () -> new CustomException(CustomErrorResult.CURATION_NOT_FOUND));
 
         InputStream inputStream = multipartFile.getInputStream();
         String originFileName = multipartFile.getOriginalFilename();
@@ -254,14 +275,18 @@ public class CurationService {
      * @param curationId
      */
     public void display(Long curationId) {
-        Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId()).orElseThrow(
-            () -> new Exception(ErrorResult.NOT_EXIST_USER));
+        if (SecurityContextHolder.getContext().getAuthentication().getPrincipal()
+            .equals("anonymousUser")) {
+            throw new CustomException(CustomErrorResult.LOGIN_NEEDED);
+        }
+        Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId())
+            .orElseThrow(() -> new CustomException(CustomErrorResult.NOT_EXIST_USER));
         if (!member.getAuthority().equals(Authority.ROLE_ADMIN.getKey())) {
-            throw new Exception(ErrorResult.ACCESS_PRIVILEGE);
+            throw new CustomException(CustomErrorResult.ACCESS_PRIVILEGE);
         }
 
         Curation curation = curationRepository.findById(curationId).orElseThrow(
-            () -> new Exception(ErrorResult.CURATION_NOT_FOUND));
+            () -> new CustomException(CustomErrorResult.CURATION_NOT_FOUND));
 
         curation.display();
     }
@@ -271,14 +296,18 @@ public class CurationService {
      * @param curationId
      */
     public void unDisplay(Long curationId) {
-        Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId()).orElseThrow(
-            () -> new Exception(ErrorResult.NOT_EXIST_USER));
+        if (SecurityContextHolder.getContext().getAuthentication().getPrincipal()
+            .equals("anonymousUser")) {
+            throw new CustomException(CustomErrorResult.LOGIN_NEEDED);
+        }
+        Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId())
+            .orElseThrow(() -> new CustomException(CustomErrorResult.NOT_EXIST_USER));
         if (!member.getAuthority().equals(Authority.ROLE_ADMIN.getKey())) {
-            throw new Exception(ErrorResult.ACCESS_PRIVILEGE);
+            throw new CustomException(CustomErrorResult.ACCESS_PRIVILEGE);
         }
 
         Curation curation = curationRepository.findById(curationId).orElseThrow(
-            () -> new Exception(ErrorResult.CURATION_NOT_FOUND));
+            () -> new CustomException(CustomErrorResult.CURATION_NOT_FOUND));
 
         curation.unDisplay();
     }
