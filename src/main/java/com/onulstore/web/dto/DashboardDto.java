@@ -12,9 +12,10 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Builder
 public class DashboardDto {
-    List<Integer> members = new ArrayList<>();
-    List<Integer> products = new ArrayList<>();
-    List<Integer> categorycounts = new ArrayList<>();
-    List<Integer> orders = new ArrayList<>();
-    List<Integer> customerPosts = new ArrayList<>();
+    List<Long> members = new ArrayList<>();
+    List<Long> products = new ArrayList<>();
+    List<Long> categorycounts = new ArrayList<>();
+    List<Long> orders = new ArrayList<>();
+    List<Long> customerPosts = new ArrayList<>();
+    List<Long> paidOrders = new ArrayList<>();
 }
