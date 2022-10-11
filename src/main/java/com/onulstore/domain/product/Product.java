@@ -154,11 +154,13 @@ public class Product extends BaseTimeEntity {
         this.purchaseCount = 0;
     }
 
-    public void removeStock(int quantity) {
+    public void removeStock(int quantity, Product product) {
 
         int restStock = this.quantity - quantity;
-        if (restStock < 1) {
+        if (restStock < 0) {
             throw new Exception(ErrorResult.OUT_OF_STOCK);
+        } else if (restStock == 0) {
+            product.setProductStatus(ProductStatus.SOLD_OUT);
         }
         this.quantity = restStock;
     }
