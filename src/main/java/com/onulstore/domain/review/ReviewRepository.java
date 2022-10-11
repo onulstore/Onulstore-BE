@@ -15,9 +15,9 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
 
     List<Review> findAllByProductId(Long productId, Pageable pageable);
 
-    List<Review> findAllByCreatedDateAfter(LocalDateTime localDateTime);
-
     Long countByProduct(Product product);
 
     Optional<Review> findByMemberAndId(Member member, Long reviewId);
+
+    Long countByCreatedDateAfter(LocalDateTime localDateTime);
 }
