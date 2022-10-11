@@ -1,12 +1,12 @@
 package com.onulstore.service;
 
 import com.onulstore.config.SecurityUtil;
-import com.onulstore.config.exception.Exception;
+import com.onulstore.config.exception.CustomException;
 import com.onulstore.config.jwt.RefreshToken;
 import com.onulstore.config.jwt.RefreshTokenRepository;
 import com.onulstore.config.jwt.TokenProvider;
 import com.onulstore.domain.enums.Authority;
-import com.onulstore.domain.enums.ErrorResult;
+import com.onulstore.domain.enums.CustomErrorResult;
 import com.onulstore.domain.member.Member;
 import com.onulstore.domain.member.MemberRepository;
 import com.onulstore.web.dto.LoginDto;
@@ -16,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -42,15 +43,15 @@ public class AuthService {
      */
     public MemberDto.MemberResponse signup(MemberDto.MemberRequest signupRequest) {
         if (memberRepository.existsByEmail(signupRequest.getEmail())) {
-            throw new Exception(ErrorResult.DUPLICATE_USER_ID);
+            throw new CustomException(CustomErrorResult.DUPLICATE_USER_ID);
         }
 
         if (memberRepository.existsByPhoneNum(signupRequest.getPhoneNum())) {
-            throw new Exception(ErrorResult.DUPLICATE_PHONE_NUMBER);
+            throw new CustomException(CustomErrorResult.DUPLICATE_PHONE_NUMBER);
         }
 
         if (!signupRequest.getPassword().equals(signupRequest.getPasswordConfirm())) {
-            throw new Exception(ErrorResult.PASSWORD_MISMATCH);
+            throw new CustomException(CustomErrorResult.PASSWORD_MISMATCH);
         }
 
         Member member = signupRequest.toMember(passwordEncoder);
@@ -86,7 +87,7 @@ public class AuthService {
      */
     public MemberDto.MemberResponse sellerRegistration(MemberDto.SellerRequest sellerRequest) {
         if (memberRepository.existsByEmail(sellerRequest.getEmail())) {
-            throw new Exception(ErrorResult.DUPLICATE_USER_ID);
+            throw new CustomException(CustomErrorResult.DUPLICATE_USER_ID);
         }
 
         Member member = sellerRequest.toMember(passwordEncoder);
@@ -101,11 +102,15 @@ public class AuthService {
     public Map<String, List<Member>> viewAllMember() {
         Map<String, List<Member>> resultMap = new HashMap<>();
 
-        Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId()).orElseThrow(
-            () -> new Exception(ErrorResult.NOT_EXIST_USER));
+        if (SecurityContextHolder.getContext().getAuthentication().getPrincipal()
+            .equals("anonymousUser")) {
+            throw new CustomException(CustomErrorResult.LOGIN_NEEDED);
+        }
+        Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId())
+            .orElseThrow(() -> new CustomException(CustomErrorResult.NOT_EXIST_USER));
 
         if (!member.getAuthority().equals(Authority.ROLE_ADMIN.getKey())) {
-            throw new Exception(ErrorResult.ACCESS_PRIVILEGE);
+            throw new CustomException(CustomErrorResult.ACCESS_PRIVILEGE);
         }
 
         List<Member> allMemberList = memberRepository.findAll();
@@ -121,16 +126,16 @@ public class AuthService {
      */
     public TokenDto getRefreshToken(TokenDto.TokenRequest tokenRequest) {
         if (!tokenProvider.validateToken(tokenRequest.getRefreshToken())) {
-            throw new Exception(ErrorResult.INVALID_REFRESH_TOKEN);
+            throw new CustomException(CustomErrorResult.INVALID_REFRESH_TOKEN);
         }
 
         Authentication authentication = tokenProvider.getAuthentication(
             tokenRequest.getAccessToken());
         RefreshToken refreshToken = refreshTokenRepository.findByKey(authentication.getName())
-            .orElseThrow(() -> new Exception(ErrorResult.LOGOUT_USER));
+            .orElseThrow(() -> new CustomException(CustomErrorResult.LOGOUT_USER));
 
         if (!refreshToken.getValue().equals(tokenRequest.getRefreshToken())) {
-            throw new Exception(ErrorResult.TOKEN_INFO_NOT_MATCH);
+            throw new CustomException(CustomErrorResult.TOKEN_INFO_NOT_MATCH);
         }
 
         TokenDto tokenDto = tokenProvider.generateToken(authentication);
@@ -149,7 +154,7 @@ public class AuthService {
     @Transactional(readOnly = true)
     public MemberDto.FindResponse findEmail(MemberDto.FindRequest findRequest) {
         Member member = memberRepository.findByPhoneNum(findRequest.getPhoneNum())
-            .orElseThrow(() -> new Exception(ErrorResult.NOT_EXIST_USER));
+            .orElseThrow(() -> new CustomException(CustomErrorResult.NOT_EXIST_USER));
 
         return MemberDto.FindResponse.ofEmail(member);
     }
