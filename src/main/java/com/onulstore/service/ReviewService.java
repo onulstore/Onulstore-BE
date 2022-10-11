@@ -46,7 +46,6 @@ public class ReviewService {
     private final MemberRepository memberRepository;
     private final ProductRepository productRepository;
     private final OrderRepository orderRepository;
-    private final OrderProductRepository orderProductRepository;
     private final ReviewImageRepository reviewImageRepository;
 
     // 리뷰 등록
@@ -58,13 +57,9 @@ public class ReviewService {
             () -> new Exception(ErrorResult.PRODUCT_NOT_FOUND));
         Order order = orderRepository.findByIdAndMember(orderId, member).orElseThrow(
             () -> new Exception(ErrorResult.ORDER_NOT_FOUND));
-        OrderProduct orderProduct = orderProductRepository.findOrderByProduct(product).orElseThrow(
-            () -> new Exception(ErrorResult.ORDER_NOT_FOUND));
 
         if (!order.getOrderStatus().equals(OrderStatus.PURCHASE_CONFIRM)) {
             throw new Exception(ErrorResult.NOT_PURCHASE_CONFIRM_ORDER);
-        } else if (!orderProduct.getOrder().getId().equals(order.getId())) {
-            throw new Exception(ErrorResult.ORDER_PRODUCT_NOT_FOUND);
         }
 
         Long count = reviewRepository.countByProduct(product);
