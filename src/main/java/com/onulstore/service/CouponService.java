@@ -1,20 +1,21 @@
 package com.onulstore.service;
 
 import com.onulstore.config.SecurityUtil;
-import com.onulstore.config.exception.Exception;
+import com.onulstore.config.exception.CustomException;
 import com.onulstore.domain.coupon.Coupon;
 import com.onulstore.domain.coupon.CouponRepository;
 import com.onulstore.domain.enums.Authority;
+import com.onulstore.domain.enums.CouponStatus;
+import com.onulstore.domain.enums.CustomErrorResult;
 import com.onulstore.domain.enums.DiscountType;
-import com.onulstore.domain.enums.ErrorResult;
 import com.onulstore.domain.member.Member;
 import com.onulstore.domain.member.MemberRepository;
 import com.onulstore.web.dto.CouponDto;
-import com.onulstore.web.dto.CouponDto.RequestCoupon;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,26 +27,35 @@ public class CouponService {
     private final CouponRepository couponRepository;
 
     @Transactional
-    public void specificUser(CouponDto.RequestCoupon request) {
-        Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId()).orElseThrow(
-            () -> new Exception(ErrorResult.NOT_EXIST_USER));
+    public CouponDto.ResponseCoupon specificUser(CouponDto.RequestCoupon request) {
+        if (SecurityContextHolder.getContext().getAuthentication().getPrincipal()
+            .equals("anonymousUser")) {
+            throw new CustomException(CustomErrorResult.LOGIN_NEEDED);
+        }
+        Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId())
+            .orElseThrow(() -> new CustomException(CustomErrorResult.NOT_EXIST_USER));
         if (!member.getAuthority().equals(Authority.ROLE_ADMIN.getKey())) {
-            throw new Exception(ErrorResult.ACCESS_PRIVILEGE);
+            throw new CustomException(CustomErrorResult.ACCESS_PRIVILEGE);
         }
 
         Member toMember = memberRepository.findById(request.getMemberId())
-            .orElseThrow(() -> new Exception(ErrorResult.NOT_EXIST_USER));
+            .orElseThrow(() -> new CustomException(CustomErrorResult.NOT_EXIST_USER));
         Coupon coupon = request.toCoupon(toMember);
         toMember.getCoupons().add(coupon);
         couponRepository.save(coupon);
+        return CouponDto.ResponseCoupon.of(coupon);
     }
 
     @Transactional
     public void allUser(CouponDto.RequestCoupon request) {
-        Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId()).orElseThrow(
-            () -> new Exception(ErrorResult.NOT_EXIST_USER));
+        if (SecurityContextHolder.getContext().getAuthentication().getPrincipal()
+            .equals("anonymousUser")) {
+            throw new CustomException(CustomErrorResult.LOGIN_NEEDED);
+        }
+        Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId())
+            .orElseThrow(() -> new CustomException(CustomErrorResult.NOT_EXIST_USER));
         if (!member.getAuthority().equals(Authority.ROLE_ADMIN.getKey())) {
-            throw new Exception(ErrorResult.ACCESS_PRIVILEGE);
+            throw new CustomException(CustomErrorResult.ACCESS_PRIVILEGE);
         }
 
         List<Member> memberList = memberRepository.findAll();
@@ -58,9 +68,10 @@ public class CouponService {
     @Transactional
     public void newUser(String memberEmail) {
         Member member = memberRepository.findByEmail(memberEmail).orElseThrow(
-            () -> new Exception(ErrorResult.NOT_EXIST_USER));
+            () -> new CustomException(CustomErrorResult.NOT_EXIST_USER));
         Coupon coupon = Coupon.builder()
             .couponTitle("신규")
+            .couponStatus(CouponStatus.DEFAULT)
             .discountValue(10)
             .leastRequiredValue(0)
             .maxDiscountValue(1000000)
@@ -74,12 +85,16 @@ public class CouponService {
     }
 
     @Transactional
-    public List<RequestCoupon> myCoupons() {
-        Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId()).orElseThrow(
-            () -> new Exception(ErrorResult.NOT_EXIST_USER));
+    public List<CouponDto.ResponseCoupon> myCoupons() {
+        if (SecurityContextHolder.getContext().getAuthentication().getPrincipal()
+            .equals("anonymousUser")) {
+            throw new CustomException(CustomErrorResult.LOGIN_NEEDED);
+        }
+        Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId())
+            .orElseThrow(() -> new CustomException(CustomErrorResult.NOT_EXIST_USER));
 
-        List<RequestCoupon> couponList = couponRepository.findAllByMember(member).stream()
-            .map(CouponDto.RequestCoupon::of).collect(Collectors.toList());
+        List<CouponDto.ResponseCoupon> couponList = couponRepository.findAllByMember(member).stream()
+            .map(CouponDto.ResponseCoupon::of).collect(Collectors.toList());
         return couponList;
     }
 }
