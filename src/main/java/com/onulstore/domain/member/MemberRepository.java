@@ -21,4 +21,6 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
 
     List<Member> findAllByAuthorityAndCreatedDateAfter(
         Authority roleUser, LocalDateTime localDateTime);
+
+    Long countByAuthorityAndCreatedDateAfter(Authority roleUser, LocalDateTime localDateTime);
 }

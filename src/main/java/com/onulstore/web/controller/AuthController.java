@@ -47,7 +47,7 @@ public class AuthController {
         return ResponseEntity.ok(authService.getRefreshToken(tokenRequest));
     }
 
-    @ApiOperation(value = "휴대폰 번호로 이메일 찾기 / 인증 필요")
+    @ApiOperation(value = "휴대폰 번호로 이메일 찾기")
     @PostMapping("/find/email")
     public ResponseEntity<MemberDto.FindResponse> findEmail(
         @RequestBody MemberDto.FindRequest findRequest) {

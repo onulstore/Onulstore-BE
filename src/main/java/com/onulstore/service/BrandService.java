@@ -1,11 +1,11 @@
 package com.onulstore.service;
 
 import com.onulstore.config.SecurityUtil;
-import com.onulstore.config.exception.Exception;
+import com.onulstore.config.exception.CustomException;
 import com.onulstore.domain.brand.Brand;
 import com.onulstore.domain.brand.BrandRepository;
 import com.onulstore.domain.enums.Authority;
-import com.onulstore.domain.enums.ErrorResult;
+import com.onulstore.domain.enums.CustomErrorResult;
 import com.onulstore.domain.member.Member;
 import com.onulstore.domain.member.MemberRepository;
 import com.onulstore.domain.product.ProductRepository;
@@ -17,6 +17,7 @@ import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -51,7 +52,7 @@ public class BrandService {
     @Transactional(readOnly = true)
     public Page<ProductDto.ProductResponse> findProductByBrand(Long brandId, Pageable pageable) {
         Brand brand = brandRepository.findById(brandId).orElseThrow(
-            () -> new Exception(ErrorResult.BRAND_NOT_FOUND));
+            () -> new CustomException(CustomErrorResult.BRAND_NOT_FOUND));
 
         return productRepository.findByBrandId(brand.getId(), pageable)
             .map(ProductDto.ProductResponse::of);
@@ -63,10 +64,14 @@ public class BrandService {
      * @return 브랜드 등록 정보
      */
     public BrandDto.BrandResponse addBrand(BrandDto.BrandRequest brandRequest) {
-        Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId()).orElseThrow(
-            () -> new Exception(ErrorResult.NOT_EXIST_USER));
+        if (SecurityContextHolder.getContext().getAuthentication().getPrincipal()
+            .equals("anonymousUser")) {
+            throw new CustomException(CustomErrorResult.LOGIN_NEEDED);
+        }
+        Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId())
+            .orElseThrow(() -> new CustomException(CustomErrorResult.NOT_EXIST_USER));
         if (!member.getAuthority().equals(Authority.ROLE_ADMIN.getKey())) {
-            throw new Exception(ErrorResult.ACCESS_PRIVILEGE);
+            throw new CustomException(CustomErrorResult.ACCESS_PRIVILEGE);
         }
 
         return BrandDto.BrandResponse.of(
@@ -80,14 +85,18 @@ public class BrandService {
      * @return 수정된 브랜드 정보
      */
     public BrandDto.BrandResponse updateBrand(BrandDto.UpdateRequest updateRequest, Long brandId) {
-        Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId()).orElseThrow(
-            () -> new Exception(ErrorResult.NOT_EXIST_USER));
+        if (SecurityContextHolder.getContext().getAuthentication().getPrincipal()
+            .equals("anonymousUser")) {
+            throw new CustomException(CustomErrorResult.LOGIN_NEEDED);
+        }
+        Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId())
+            .orElseThrow(() -> new CustomException(CustomErrorResult.NOT_EXIST_USER));
         if (!member.getAuthority().equals(Authority.ROLE_ADMIN.getKey())) {
-            throw new Exception(ErrorResult.ACCESS_PRIVILEGE);
+            throw new CustomException(CustomErrorResult.ACCESS_PRIVILEGE);
         }
 
         Brand brand = brandRepository.findById(brandId).orElseThrow(
-            () -> new Exception(ErrorResult.BRAND_NOT_FOUND));
+            () -> new CustomException(CustomErrorResult.BRAND_NOT_FOUND));
         Brand updateBrand = brand.updateBrand(updateRequest);
         return BrandDto.BrandResponse.of(brandRepository.save(updateBrand));
     }
@@ -97,14 +106,18 @@ public class BrandService {
      * @param brandId
      */
     public void deleteBrand(Long brandId) {
-        Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId()).orElseThrow(
-            () -> new Exception(ErrorResult.NOT_EXIST_USER));
+        if (SecurityContextHolder.getContext().getAuthentication().getPrincipal()
+            .equals("anonymousUser")) {
+            throw new CustomException(CustomErrorResult.LOGIN_NEEDED);
+        }
+        Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId())
+            .orElseThrow(() -> new CustomException(CustomErrorResult.NOT_EXIST_USER));
         if (!member.getAuthority().equals(Authority.ROLE_ADMIN.getKey())) {
-            throw new Exception(ErrorResult.ACCESS_PRIVILEGE);
+            throw new CustomException(CustomErrorResult.ACCESS_PRIVILEGE);
         }
 
         Brand brand = brandRepository.findById(brandId).orElseThrow(
-            () -> new Exception(ErrorResult.BRAND_NOT_FOUND));
+            () -> new CustomException(CustomErrorResult.BRAND_NOT_FOUND));
         brandRepository.delete(brand);
     }
 
