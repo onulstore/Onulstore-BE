@@ -6,7 +6,7 @@ import org.springframework.http.HttpStatus;
 
 @Getter
 @RequiredArgsConstructor
-public enum ErrorResult implements SuperErrorResult {
+public enum CustomErrorResult implements SuperErrorResult {
 
     // 400 BAD_REQUEST
     TOKEN_INFO_NOT_MATCH(HttpStatus.BAD_REQUEST, "토큰의 유저 정보가 일치하지 않습니다."),
@@ -23,6 +23,7 @@ public enum ErrorResult implements SuperErrorResult {
 
     // 401 UNAUTHORIZED
     ACCESS_PRIVILEGE(HttpStatus.UNAUTHORIZED, "접근 권한이 없습니다."),
+    LOGIN_NEEDED(HttpStatus.UNAUTHORIZED, "로그인이 필요한 기능입니다."),
 
     // 403 FORBIDDEN
     NOT_EXIST_USER(HttpStatus.FORBIDDEN, "존재하지 않는 유저입니다."),
@@ -43,7 +44,6 @@ public enum ErrorResult implements SuperErrorResult {
     PAYMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 결재 내역을 찾을 수 없습니다."),
     ORDER_PRODUCT_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 상품으로 주문된 내역을 찾을 수 없습니다."),
     REVIEW_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 리뷰를 찾을 수 없습니다."),
-
 
     // 409 CONFLICT
     DUPLICATE_USER_ID(HttpStatus.CONFLICT, "이미 존재하는 이메일입니다."),
