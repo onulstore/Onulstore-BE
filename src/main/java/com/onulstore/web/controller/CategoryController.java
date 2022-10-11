@@ -34,24 +34,27 @@ public class CategoryController {
     }
 
     @PostMapping
-    @ApiOperation(value = "카테고리 생성")
-    public ResponseEntity<String> addCategory(@Valid @RequestBody CategoryDto.CategoryRequest categoryRequest) {
+    @ApiOperation(value = "카테고리 생성 / 인증 필요(관리자)")
+    public ResponseEntity<String> addCategory(
+        @Valid @RequestBody CategoryDto.CategoryRequest categoryRequest) {
         categoryService.addCategory(categoryRequest);
         return ResponseEntity.ok("카테고리가 등록되었습니다.");
     }
 
     @PutMapping("/{categoryId}")
-    @ApiOperation(value = "카테고리 수정")
-    public ResponseEntity<String> addCategory(@Valid @RequestBody CategoryDto.updateCatRequest updateCatRequest,
-                                              @ApiParam(required = true)
-                                              @PathVariable Long categoryId) {
+    @ApiOperation(value = "카테고리 수정 / 인증 필요(관리자)")
+    public ResponseEntity<String> addCategory(
+        @Valid @RequestBody CategoryDto.updateCatRequest updateCatRequest,
+        @ApiParam(required = true)
+        @PathVariable Long categoryId) {
         categoryService.updateCategory(updateCatRequest, categoryId);
         return ResponseEntity.ok("카테고리가 수정되었습니다.");
     }
 
     @DeleteMapping("/{categoryId}")
-    @ApiOperation(value = "카테고리 삭제")
-    public ResponseEntity<String> deleteCategory(@ApiParam(required = true) @PathVariable Long categoryId) {
+    @ApiOperation(value = "카테고리 삭제 / 인증 필요(관리자)")
+    public ResponseEntity<String> deleteCategory(
+        @ApiParam(required = true) @PathVariable Long categoryId) {
         categoryService.deleteCategory(categoryId);
         return ResponseEntity.ok("카테고리가 삭제되었습니다.");
     }
@@ -59,8 +62,8 @@ public class CategoryController {
     @GetMapping("/{categoryId}/products")
     @ApiOperation(value = "카테고리 아이디로 상품 조회(2depth 까지)")
     public ResponseEntity<Page<ProductDto.ProductResponse>> getCategoryById(
-            @ApiParam(required = true) @PathVariable Long categoryId,
-            @PageableDefault(sort = "id", direction = Sort.Direction.DESC, size=8) Pageable pageable) {
+        @ApiParam(required = true) @PathVariable Long categoryId,
+        @PageableDefault(sort = "id", direction = Sort.Direction.DESC, size = 8) Pageable pageable) {
         return ResponseEntity.ok(categoryService.getCategoryById(categoryId, pageable));
     }
 
