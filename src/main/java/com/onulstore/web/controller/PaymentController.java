@@ -20,7 +20,7 @@ public class PaymentController {
     private final PaymentService paymentService;
 
     @PostMapping
-    @ApiOperation(value = "결제하기")
+    @ApiOperation(value = "결제하기 / 인증 필요")
     public ResponseEntity<PaymentDto.PaymentResponse> paying(
         @RequestBody PaymentDto.PaymentRequest paymentRequest) {
         return ResponseEntity.ok(paymentService.paying(paymentRequest));
