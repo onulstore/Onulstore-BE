@@ -123,7 +123,7 @@ public class NoticeService {
         noticeRepository.delete(notice);
     }
 
-    public String uploadImage(MultipartFile multipartFile, Long noticeId) throws IOException {
+    public String uploadContent(MultipartFile multipartFile, Long noticeId) throws IOException {
         if (SecurityContextHolder.getContext().getAuthentication().getPrincipal()
             .equals("anonymousUser")) {
             throw new CustomException(CustomErrorResult.LOGIN_NEEDED);
@@ -133,8 +133,9 @@ public class NoticeService {
         if (!member.getAuthority().equals(Authority.ROLE_ADMIN.getKey())) {
             throw new CustomException(CustomErrorResult.ACCESS_PRIVILEGE);
         }
+
         Notice notice = noticeRepository.findById(noticeId).orElseThrow(
-            () -> new CustomException(CustomErrorResult.CURATION_NOT_FOUND));
+            () -> new CustomException(CustomErrorResult.NOT_FOUND_NOTICE));
 
         InputStream inputStream = multipartFile.getInputStream();
         String originFileName = multipartFile.getOriginalFilename();
