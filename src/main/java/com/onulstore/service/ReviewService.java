@@ -10,8 +10,6 @@ import com.onulstore.domain.enums.OrderStatus;
 import com.onulstore.domain.member.Member;
 import com.onulstore.domain.member.MemberRepository;
 import com.onulstore.domain.order.Order;
-import com.onulstore.domain.order.OrderProduct;
-import com.onulstore.domain.order.OrderProductRepository;
 import com.onulstore.domain.order.OrderRepository;
 import com.onulstore.domain.product.Product;
 import com.onulstore.domain.product.ProductRepository;
@@ -27,7 +25,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -95,7 +92,6 @@ public class ReviewService {
         if (!member.getId().equals(review.getMember().getId())) {
             throw new CustomException(CustomErrorResult.USER_NOT_MATCH);
         }
-        review.setTitle(request.getTitle());
         review.setContent(request.getContent());
         review.setRate(request.getRate());
 
