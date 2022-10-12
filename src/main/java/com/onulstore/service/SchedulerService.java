@@ -27,11 +27,11 @@ public class SchedulerService {
     @EventListener(ApplicationReadyEvent.class)
     @Transactional
     public void checkExpiration(){
+        discountProductValidation();
+        discountCouponValidation();
         if(!productRepository.existsByDiscountStatus(DiscountStatus.ONUL)){
             todayDiscount();
         }
-        discountProductValidation();
-        discountCouponValidation();
     }
 
     @Scheduled(cron = "0 0 0 * * *")

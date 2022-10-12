@@ -23,8 +23,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
 
     List<Product> findAllByProductStatusAndDiscountCheck(ProductStatus productStatus,
         boolean discountCheck);
-
-    Page<Product> findByProductNameContains(Pageable pageable, String productName);
+    List<Product> findByProductNameContains(String productName);
 
     Long countByProductStatusAndCreatedDateAfter(ProductStatus sale, LocalDateTime localDateTime);
 

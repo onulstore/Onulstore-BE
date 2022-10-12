@@ -84,6 +84,7 @@ public class ProductDto {
         private Category category;
         private List<ProductImageMaker> productImage;
         private Integer wishListCount;
+        private boolean bookmarked;
         private Brand brand;
 
         public static ProductResponse of(Product product) {
@@ -99,6 +100,7 @@ public class ProductDto {
                 .rating(product.getRating())
                 .category(product.getCategory())
                 .productImage(ProductImageMaker.of(product.getProductImages()))
+                .bookmarked(product.isBookmark())
                 .wishListCount(product.getWishlists().size())
                 .brand(product.getBrand())
                 .build();
