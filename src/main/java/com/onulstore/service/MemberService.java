@@ -110,11 +110,11 @@ public class MemberService {
         Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId())
             .orElseThrow(() -> new CustomException(CustomErrorResult.NOT_EXIST_USER));
         if (!member.getAuthority().equals(Authority.ROLE_ADMIN.getKey())) {
-            throw new CustomException(CustomErrorResult.ACCESS_PRIVILEGE);
+            throw new CustomException(CustomErrorResult.ACCESS_PRIVILEGE); // 에러위치
         }
 
-        Long members = memberRepository.countByAuthorityAndCreatedDateAfter(Authority.ROLE_USER, localDateTime);
-        Long sellers = memberRepository.countByAuthorityAndCreatedDateAfter(Authority.ROLE_SELLER, localDateTime);
+        Long members = memberRepository.countByAuthorityAndCreatedDateAfter(Authority.ROLE_USER.getKey(), localDateTime);
+        Long sellers = memberRepository.countByAuthorityAndCreatedDateAfter(Authority.ROLE_SELLER.getKey(), localDateTime);
         List<Long> memberAmount = Arrays.asList(members, sellers);
         return memberAmount;
     }
