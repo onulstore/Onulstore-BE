@@ -87,8 +87,7 @@ public class CartService {
 
         List<CartDto.CartResponse> cartResponseList = new ArrayList<>();
         for (Cart cart : member.getCarts()) {
-            CartDto.CartResponse cartResponse = CartDto.CartResponse.of(cart);
-            cartResponseList.add(cartResponse);
+            cartResponseList.add(CartDto.CartResponse.of(cart));
         }
         return cartResponseList;
     }

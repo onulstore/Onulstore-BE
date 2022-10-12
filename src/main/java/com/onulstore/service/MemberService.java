@@ -91,6 +91,9 @@ public class MemberService {
         HttpSession session = request.getSession();
 
         ArrayList<Product> latest = (ArrayList) session.getAttribute("List");
+        if(latest.isEmpty()){
+            latest = new ArrayList<>();
+        }
         ArrayList<ProductDto.ProductResponse> recentlyViewed = new ArrayList<>();
         for (Product product : latest) {
             recentlyViewed.add(ProductDto.ProductResponse.of(product));
@@ -107,11 +110,11 @@ public class MemberService {
         Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId())
             .orElseThrow(() -> new CustomException(CustomErrorResult.NOT_EXIST_USER));
         if (!member.getAuthority().equals(Authority.ROLE_ADMIN.getKey())) {
-            throw new CustomException(CustomErrorResult.ACCESS_PRIVILEGE);
+            throw new CustomException(CustomErrorResult.ACCESS_PRIVILEGE); // 에러위치
         }
 
-        Long members = memberRepository.countByAuthorityAndCreatedDateAfter(Authority.ROLE_USER, localDateTime);
-        Long sellers = memberRepository.countByAuthorityAndCreatedDateAfter(Authority.ROLE_SELLER, localDateTime);
+        Long members = memberRepository.countByAuthorityAndCreatedDateAfter(Authority.ROLE_USER.getKey(), localDateTime);
+        Long sellers = memberRepository.countByAuthorityAndCreatedDateAfter(Authority.ROLE_SELLER.getKey(), localDateTime);
         List<Long> memberAmount = Arrays.asList(members, sellers);
         return memberAmount;
     }
