@@ -2,7 +2,6 @@ package com.onulstore.domain.question;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.onulstore.common.BaseTimeEntity;
-import com.onulstore.domain.enums.AnswerStatus;
 import com.onulstore.domain.member.Member;
 import com.onulstore.domain.product.Product;
 import com.onulstore.domain.questionAnswer.QuestionAnswer;
@@ -28,8 +27,7 @@ public class Question extends BaseTimeEntity {
 
     private String content;
 
-    private Character secret = 'N'; // 비밀글 여부 (Y -> 비밀글, N -> 공개글)
-
+    private boolean secret = false;
     @Column
     private boolean answerStatus = false;   // 답변 유무
 
