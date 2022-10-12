@@ -23,7 +23,7 @@ public class Brand {
         this.brandName = brandName;
     }
 
-    public Brand updateBrand(BrandDto.UpdateRequest updateRequest) {
+    public Brand updateBrand(BrandDto.BrandRequest updateRequest) {
         this.brandName = updateRequest.getBrandName();
         return this;
     }
