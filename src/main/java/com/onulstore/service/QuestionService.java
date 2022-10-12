@@ -50,7 +50,7 @@ public class QuestionService {
             .product(product)
             .title(questionDto.getTitle())
             .content(questionDto.getContent())
-            .secret(questionDto.getSecret())
+            .secret(questionDto.isSecret())
             .build();
 
         questionRepository.save(question);
@@ -115,7 +115,7 @@ public class QuestionService {
             () -> new CustomException(CustomErrorResult.NOT_EXIST_QUESTION));
         QuestionAnswer questionAnswer = questionAnswerRepository.findByQuestionId(question.getId()).orElse(null);
 
-        if (question.getSecret() == 'Y') {
+        if (question.isSecret() == true) {
             if (!(member.getId().equals(question.getMember().getId()) || member.getAuthority()
                 .equals(Authority.ROLE_ADMIN.getKey()))) {
                 throw new CustomException(CustomErrorResult.SECRET_QUESTION);
