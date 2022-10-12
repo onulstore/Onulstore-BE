@@ -55,12 +55,11 @@ public class NoticeController {
         return ResponseEntity.ok("공지가 삭제되었습니다.");
     }
 
-    @PostMapping("/{noticeId}/image")
-    @ApiOperation(value = "공지 이미지 업로드 / 인증 필요(관리자)")
-    public ResponseEntity<String> uploadImage(@RequestParam("images") MultipartFile multipartFile,
+    @PostMapping("/{noticeId}/content")
+    @ApiOperation(value = "공지 내용 업로드 / 인증 필요(관리자)")
+    public ResponseEntity<String> uploadImage(@RequestParam("contents") MultipartFile multipartFile,
         @PathVariable Long noticeId) throws IOException {
-        noticeService.uploadImage(multipartFile, noticeId);
-        return ResponseEntity.ok("이미지가 등록되었습니다.");
+        return ResponseEntity.ok(noticeService.uploadContent(multipartFile, noticeId));
     }
 
 }
