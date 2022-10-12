@@ -91,6 +91,9 @@ public class MemberService {
         HttpSession session = request.getSession();
 
         ArrayList<Product> latest = (ArrayList) session.getAttribute("List");
+        if(latest.isEmpty()){
+            latest = new ArrayList<>();
+        }
         ArrayList<ProductDto.ProductResponse> recentlyViewed = new ArrayList<>();
         for (Product product : latest) {
             recentlyViewed.add(ProductDto.ProductResponse.of(product));
