@@ -18,7 +18,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     Optional<Product> findByCategoryId(Long categoryId);
     List<Product> findAllByProductStatusAndDiscountCheck(ProductStatus productStatus,
         boolean discountCheck);
-    Page<Product> findByProductNameContains(Pageable pageable, String productName);
+    List<Product> findByProductNameContains(String productName);
     Long countByProductStatusAndCreatedDateAfter(ProductStatus sale, LocalDateTime localDateTime);
     Long countByCreatedDateAfter(LocalDateTime localDateTime);
     boolean existsByDiscountStatus(DiscountStatus discountStatus);
