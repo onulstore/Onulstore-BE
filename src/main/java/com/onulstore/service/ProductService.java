@@ -298,8 +298,20 @@ public class ProductService {
 
     @Transactional
     public Page searchProduct(Pageable pageable, String productName) {
-        return productRepository.findByProductNameContains(pageable, productName)
-            .map(ProductDto.ProductResponse::of);
+        loginCheck();
+        Member member = getMember();
+        List<Product> productList = productRepository.findByProductNameContains(productName);
+        List<ProductResponse> productResponseList = new ArrayList<>();
+        for (Product product : productList) {
+            List<Wishlist> wishlists = wishlistRepository.findAllByMember(member);
+            for (Wishlist wishlist : wishlists) {
+                if (wishlist.getProduct().getId().equals(product.getId())) {
+                    product.bookmarked();
+                }
+            }
+            productResponseList.add(ProductDto.ProductResponse.of(product));
+        }
+        return new PageImpl<>(productResponseList, pageable, productResponseList.size());
     }
 
 }
