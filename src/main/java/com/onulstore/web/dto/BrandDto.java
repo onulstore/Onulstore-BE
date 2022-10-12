@@ -11,6 +11,7 @@ public class BrandDto {
     @Getter
     @Setter
     public static class BrandRequest {
+
         @NotBlank
         @ApiModelProperty(value = "브랜드 이름", required = true)
         private String brandName;
@@ -21,25 +22,17 @@ public class BrandDto {
     @NoArgsConstructor
     @Builder
     public static class BrandResponse {
+
         private Long id;
         private String brandName;
 
         public static BrandResponse of(Brand brand) {
             return BrandResponse.builder()
-                    .id(brand.getId())
-                    .brandName(brand.getBrandName())
-                    .build();
+                .id(brand.getId())
+                .brandName(brand.getBrandName())
+                .build();
         }
 
-    }
-
-    @Getter
-    @AllArgsConstructor
-    @NoArgsConstructor
-    @Builder
-    public static class UpdateRequest {
-        @NotBlank
-        private String brandName;
     }
 
 }

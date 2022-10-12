@@ -84,7 +84,7 @@ public class BrandService {
      * @param brandId
      * @return 수정된 브랜드 정보
      */
-    public BrandDto.BrandResponse updateBrand(BrandDto.UpdateRequest updateRequest, Long brandId) {
+    public BrandDto.BrandResponse updateBrand(BrandDto.BrandRequest updateRequest, Long brandId) {
         if (SecurityContextHolder.getContext().getAuthentication().getPrincipal()
             .equals("anonymousUser")) {
             throw new CustomException(CustomErrorResult.LOGIN_NEEDED);
