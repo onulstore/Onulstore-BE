@@ -23,11 +23,15 @@ public class Question extends BaseTimeEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column
     private String title;
 
+    @Column
     private String content;
 
+    @Column
     private boolean secret = false;
+
     @Column
     private boolean answerStatus = false;   // 답변 유무
 

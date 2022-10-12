@@ -19,6 +19,7 @@ public class QuestionAnswer extends BaseTimeEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column
     private String answer;
 
     @ManyToOne

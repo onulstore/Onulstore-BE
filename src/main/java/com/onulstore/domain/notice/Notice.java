@@ -30,7 +30,6 @@ public class Notice extends BaseTimeEntity {
     public Notice updateNotice(NoticeDto.NoticeRequest noticeRequest) {
         this.title = noticeRequest.getTitle();
         this.content = noticeRequest.getContent();
-        this.noticeImg = noticeRequest.getNoticeImg();
         return this;
     }
 
