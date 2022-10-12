@@ -3,8 +3,9 @@ package com.onulstore.service;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.onulstore.config.SecurityUtil;
-import com.onulstore.config.exception.Exception;
-import com.onulstore.domain.enums.ErrorResult;
+import com.onulstore.config.exception.CustomException;
+import com.onulstore.domain.enums.Authority;
+import com.onulstore.domain.enums.CustomErrorResult;
 import com.onulstore.domain.enums.OrderStatus;
 import com.onulstore.domain.member.Member;
 import com.onulstore.domain.member.MemberRepository;
@@ -31,6 +32,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -46,25 +48,24 @@ public class ReviewService {
     private final MemberRepository memberRepository;
     private final ProductRepository productRepository;
     private final OrderRepository orderRepository;
-    private final OrderProductRepository orderProductRepository;
     private final ReviewImageRepository reviewImageRepository;
 
     // 리뷰 등록
     @Transactional
     public ReviewDto.ReviewResponse insertReview(ReviewDto.ReviewRequest request, Long orderId) {
-        Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId()).orElseThrow(
-            () -> new Exception(ErrorResult.NOT_EXIST_USER));
+        if (SecurityContextHolder.getContext().getAuthentication().getPrincipal()
+            .equals("anonymousUser")) {
+            throw new CustomException(CustomErrorResult.LOGIN_NEEDED);
+        }
+        Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId())
+            .orElseThrow(() -> new CustomException(CustomErrorResult.NOT_EXIST_USER));
         Product product = productRepository.findById(request.getProductId()).orElseThrow(
-            () -> new Exception(ErrorResult.PRODUCT_NOT_FOUND));
+            () -> new CustomException(CustomErrorResult.PRODUCT_NOT_FOUND));
         Order order = orderRepository.findByIdAndMember(orderId, member).orElseThrow(
-            () -> new Exception(ErrorResult.ORDER_NOT_FOUND));
-        OrderProduct orderProduct = orderProductRepository.findOrderByProduct(product).orElseThrow(
-            () -> new Exception(ErrorResult.ORDER_NOT_FOUND));
+            () -> new CustomException(CustomErrorResult.ORDER_NOT_FOUND));
 
         if (!order.getOrderStatus().equals(OrderStatus.PURCHASE_CONFIRM)) {
-            throw new Exception(ErrorResult.NOT_PURCHASE_CONFIRM_ORDER);
-        } else if (!orderProduct.getOrder().getId().equals(order.getId())) {
-            throw new Exception(ErrorResult.ORDER_PRODUCT_NOT_FOUND);
+            throw new CustomException(CustomErrorResult.NOT_PURCHASE_CONFIRM_ORDER);
         }
 
         Long count = reviewRepository.countByProduct(product);
@@ -82,12 +83,17 @@ public class ReviewService {
     // 리뷰 수정
     @Transactional
     public ReviewDto.ReviewResponse updateReview(Long reviewId, ReviewDto.ReviewRequest request) {
-        Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId()).orElseThrow(
-            () -> new Exception(ErrorResult.NOT_EXIST_USER));
-        Review review = reviewRepository.findById(reviewId).orElseThrow();
+        if (SecurityContextHolder.getContext().getAuthentication().getPrincipal()
+            .equals("anonymousUser")) {
+            throw new CustomException(CustomErrorResult.LOGIN_NEEDED);
+        }
+        Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId())
+            .orElseThrow(() -> new CustomException(CustomErrorResult.NOT_EXIST_USER));
+        Review review = reviewRepository.findById(reviewId)
+            .orElseThrow(() -> new CustomException(CustomErrorResult.REVIEW_NOT_FOUND));
 
         if (!member.getId().equals(review.getMember().getId())) {
-            throw new Exception(ErrorResult.USER_NOT_MATCH);
+            throw new CustomException(CustomErrorResult.USER_NOT_MATCH);
         }
         review.setTitle(request.getTitle());
         review.setContent(request.getContent());
@@ -99,13 +105,17 @@ public class ReviewService {
     // 리뷰 삭제
     @Transactional
     public void deleteReview(Long reviewId) {
-        Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId()).orElseThrow(
-            () -> new Exception(ErrorResult.NOT_EXIST_USER));
-
-        Review review = reviewRepository.findById(reviewId).orElseThrow();
+        if (SecurityContextHolder.getContext().getAuthentication().getPrincipal()
+            .equals("anonymousUser")) {
+            throw new CustomException(CustomErrorResult.LOGIN_NEEDED);
+        }
+        Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId())
+            .orElseThrow(() -> new CustomException(CustomErrorResult.NOT_EXIST_USER));
+        Review review = reviewRepository.findById(reviewId)
+            .orElseThrow(() -> new CustomException(CustomErrorResult.REVIEW_NOT_FOUND));
 
         if (!member.getId().equals(review.getMember().getId())) {
-            throw new Exception(ErrorResult.USER_NOT_MATCH);
+            throw new CustomException(CustomErrorResult.USER_NOT_MATCH);
         }
         reviewRepository.delete(review);
     }
@@ -113,15 +123,20 @@ public class ReviewService {
     // 리뷰 상세 조회
     @Transactional
     public ReviewDto.ReviewResponse getReview(Long reviewId) {
-        Review review = reviewRepository.findById(reviewId).orElseThrow();
+        Review review = reviewRepository.findById(reviewId)
+            .orElseThrow(() -> new CustomException(CustomErrorResult.REVIEW_NOT_FOUND));
         return ReviewDto.ReviewResponse.of(review);
     }
 
     // 리뷰 목록 조회(멤버별)
     @Transactional
     public List<ReviewDto.ReviewResponse> getMemberReviewList() {
-        Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId()).orElseThrow(
-            () -> new Exception(ErrorResult.NOT_EXIST_USER));
+        if (SecurityContextHolder.getContext().getAuthentication().getPrincipal()
+            .equals("anonymousUser")) {
+            throw new CustomException(CustomErrorResult.LOGIN_NEEDED);
+        }
+        Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId())
+            .orElseThrow(() -> new CustomException(CustomErrorResult.NOT_EXIST_USER));
 
         List<Review> reviews = reviewRepository.findAllByMemberId(member.getId());
         List<ReviewDto.ReviewResponse> reviewList = new ArrayList<>();
@@ -136,7 +151,7 @@ public class ReviewService {
     @Transactional
     public Page<ReviewDto.ReviewResponse> getProductReviewList(Long productId, Pageable pageable) {
         Product product = productRepository.findById(productId).orElseThrow(
-            () -> new Exception(ErrorResult.PRODUCT_NOT_FOUND));
+            () -> new CustomException(CustomErrorResult.PRODUCT_NOT_FOUND));
 
         List<Review> reviews = reviewRepository.findAllByProductId(product.getId(), pageable);
         List<ReviewDto.ReviewResponse> reviewList = new ArrayList<>();
@@ -150,11 +165,14 @@ public class ReviewService {
     // 리뷰 이미지 등록
     @Transactional
     public void uploadImages(List<MultipartFile> multipartFiles, Long reviewId) throws IOException {
-        Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId()).orElseThrow(
-            () -> new Exception(ErrorResult.NOT_EXIST_USER));
-
+        if (SecurityContextHolder.getContext().getAuthentication().getPrincipal()
+            .equals("anonymousUser")) {
+            throw new CustomException(CustomErrorResult.LOGIN_NEEDED);
+        }
+        Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId())
+            .orElseThrow(() -> new CustomException(CustomErrorResult.NOT_EXIST_USER));
         Review review = reviewRepository.findByMemberAndId(member, reviewId).orElseThrow(
-            () -> new Exception(ErrorResult.REVIEW_NOT_FOUND));
+            () -> new CustomException(CustomErrorResult.REVIEW_NOT_FOUND));
 
         for (MultipartFile multipartFile : multipartFiles) {
             ReviewImage reviewImage = new ReviewImage();
@@ -174,8 +192,18 @@ public class ReviewService {
     }
 
     @Transactional
-    public Integer reviewDashBoard(LocalDateTime localDateTime) {
-        List<Review> reviewList = reviewRepository.findAllByCreatedDateAfter(localDateTime);
-        return reviewList.size();
+    public Long reviewDashBoard(LocalDateTime localDateTime) {
+        if (SecurityContextHolder.getContext().getAuthentication().getPrincipal()
+            .equals("anonymousUser")) {
+            throw new CustomException(CustomErrorResult.LOGIN_NEEDED);
+        }
+        Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId())
+            .orElseThrow(() -> new CustomException(CustomErrorResult.NOT_EXIST_USER));
+        if (!member.getAuthority().equals(Authority.ROLE_ADMIN.getKey())) {
+            throw new CustomException(CustomErrorResult.ACCESS_PRIVILEGE);
+        }
+
+        Long reviews = reviewRepository.countByCreatedDateAfter(localDateTime);
+        return reviews;
     }
 }

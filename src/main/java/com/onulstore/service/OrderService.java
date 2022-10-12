@@ -1,11 +1,11 @@
 package com.onulstore.service;
 
 import com.onulstore.config.SecurityUtil;
-import com.onulstore.config.exception.Exception;
+import com.onulstore.config.exception.CustomException;
 import com.onulstore.domain.cart.Cart;
 import com.onulstore.domain.cart.CartRepository;
 import com.onulstore.domain.enums.Authority;
-import com.onulstore.domain.enums.ErrorResult;
+import com.onulstore.domain.enums.CustomErrorResult;
 import com.onulstore.domain.enums.OrderStatus;
 import com.onulstore.domain.member.Member;
 import com.onulstore.domain.member.MemberRepository;
@@ -26,6 +26,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -46,10 +47,14 @@ public class OrderService {
      * @param orderRequest
      */
     public void createOrder(OrderDto.OrderRequest orderRequest) {
-        Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId()).orElseThrow(
-            () -> new Exception(ErrorResult.NOT_EXIST_USER));
+        if (SecurityContextHolder.getContext().getAuthentication().getPrincipal()
+            .equals("anonymousUser")) {
+            throw new CustomException(CustomErrorResult.LOGIN_NEEDED);
+        }
+        Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId())
+            .orElseThrow(() -> new CustomException(CustomErrorResult.NOT_EXIST_USER));
         Product product = productRepository.findById(orderRequest.getProductId()).orElseThrow(
-            () -> new Exception(ErrorResult.PRODUCT_NOT_FOUND));
+            () -> new CustomException(CustomErrorResult.PRODUCT_NOT_FOUND));
 
         OrderProduct orderProduct =
             OrderProduct.createOrderProduct(product, orderRequest.getCount());
@@ -67,14 +72,18 @@ public class OrderService {
      */
     @Transactional(readOnly = true)
     public OrderDto.OrderHistory getOrder(Long orderId) {
-        Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId()).orElseThrow(
-            () -> new Exception(ErrorResult.NOT_EXIST_USER));
+        if (SecurityContextHolder.getContext().getAuthentication().getPrincipal()
+            .equals("anonymousUser")) {
+            throw new CustomException(CustomErrorResult.LOGIN_NEEDED);
+        }
+        Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId())
+            .orElseThrow(() -> new CustomException(CustomErrorResult.NOT_EXIST_USER));
         Order order = orderRepository.findById(orderId).orElseThrow();
         Payment payment = paymentRepository.findByOrderId(order.getId()).orElseThrow();
 
         if (!(member.getAuthority().equals(Authority.ROLE_ADMIN) ||
             order.getMember().equals(member))) {
-            throw new Exception(ErrorResult.ACCESS_PRIVILEGE);
+            throw new CustomException(CustomErrorResult.ACCESS_PRIVILEGE);
         }
 
         OrderDto.OrderHistory orderHistory = new OrderDto.OrderHistory(order);
@@ -95,8 +104,12 @@ public class OrderService {
      */
     @Transactional(readOnly = true)
     public Page<OrderDto.OrderHistory> getOrderList(Pageable pageable) {
-        Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId()).orElseThrow(
-            () -> new Exception(ErrorResult.NOT_EXIST_USER));
+        if (SecurityContextHolder.getContext().getAuthentication().getPrincipal()
+            .equals("anonymousUser")) {
+            throw new CustomException(CustomErrorResult.LOGIN_NEEDED);
+        }
+        Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId())
+            .orElseThrow(() -> new CustomException(CustomErrorResult.NOT_EXIST_USER));
 
         List<Order> orders = orderRepository.findOrders(member.getEmail(), pageable);
         Long totalCount = orderRepository.countOrder(member.getEmail());
@@ -126,12 +139,60 @@ public class OrderService {
     }
 
     /**
+     * 전체 주문 조회(관리자)
+     * @param pageable
+     * @return
+     */
+    @Transactional(readOnly = true)
+    public Page<OrderDto.OrderHistory> getAllOrders(Pageable pageable) {
+        if (SecurityContextHolder.getContext().getAuthentication().getPrincipal()
+            .equals("anonymousUser")) {
+            throw new CustomException(CustomErrorResult.LOGIN_NEEDED);
+        }
+        Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId())
+            .orElseThrow(() -> new CustomException(CustomErrorResult.NOT_EXIST_USER));
+
+        if (!member.getAuthority().equals(Authority.ROLE_ADMIN.getKey())) {
+            throw new CustomException(CustomErrorResult.ACCESS_PRIVILEGE);
+        }
+
+        List<Order> orders = orderRepository.findAll();
+
+        List<Payment> payments = new ArrayList<>();
+        for (long orderId = 1L; orderId < orders.size(); orderId++) {
+            payments = paymentRepository.findPaymentsByOrderId(
+                orders.get(Math.toIntExact(orderId)).getId(), pageable);
+        }
+
+        List<OrderDto.OrderHistory> orderHistories = new ArrayList<>();
+
+        for (Order order : orders) {
+            OrderDto.OrderHistory orderHistory = new OrderDto.OrderHistory(order);
+            List<OrderProduct> orderProductList = order.getOrderProducts();
+            for (OrderProduct orderProduct : orderProductList) {
+                OrderDto.OrderProduct orderProductDto = new OrderDto.OrderProduct(orderProduct);
+                orderHistory.addOrderProduct(orderProductDto);
+                for (Payment payment : payments) {
+                    OrderDto.Payment paymentDto = new OrderDto.Payment(payment);
+                    orderHistory.addPayment(paymentDto);
+                }
+            }
+            orderHistories.add(orderHistory);
+        }
+        return new PageImpl<>(orderHistories, pageable, orders.size());
+    }
+
+    /**
      * 장바구니 상품 주문
      * @param cartOrderRequest
      */
     public void createSelectedCartOrder(OrderDto.CartOrderRequest cartOrderRequest) {
-        Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId()).orElseThrow(
-            () -> new Exception(ErrorResult.NOT_EXIST_USER));
+        if (SecurityContextHolder.getContext().getAuthentication().getPrincipal()
+            .equals("anonymousUser")) {
+            throw new CustomException(CustomErrorResult.LOGIN_NEEDED);
+        }
+        Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId())
+            .orElseThrow(() -> new CustomException(CustomErrorResult.NOT_EXIST_USER));
         List<Cart> carts = new ArrayList<>();
         List<OrderProduct> orderProductList = new ArrayList<>();
 
@@ -142,6 +203,7 @@ public class OrderService {
         for (Cart cart : carts) {
             orderProductList.add(OrderProduct
                 .createOrderProduct(cart.getProduct(), cart.getProductCount()));
+            member.getCarts().remove(cart);
         }
 
         Order order = Order.createCartOrder(member, cartOrderRequest.getDeliveryMessage(),
@@ -155,14 +217,18 @@ public class OrderService {
      * @param orderId
      */
     public void orderCancel(Long orderId) {
-        Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId()).orElseThrow(
-            () -> new Exception(ErrorResult.NOT_EXIST_USER));
+        if (SecurityContextHolder.getContext().getAuthentication().getPrincipal()
+            .equals("anonymousUser")) {
+            throw new CustomException(CustomErrorResult.LOGIN_NEEDED);
+        }
+        Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId())
+            .orElseThrow(() -> new CustomException(CustomErrorResult.NOT_EXIST_USER));
 
         Order order = orderRepository.findById(orderId).orElseThrow(
-            () -> new Exception(ErrorResult.ORDER_NOT_FOUND));
+            () -> new CustomException(CustomErrorResult.ORDER_NOT_FOUND));
 
         if (!order.getMember().getId().equals(member.getId())) {
-            throw new Exception(ErrorResult.USER_NOT_MATCH);
+            throw new CustomException(CustomErrorResult.USER_NOT_MATCH);
         }
 
         order.orderCancel();
@@ -174,26 +240,30 @@ public class OrderService {
      * @return
      */
     public OrderDto.StatusResponse updateStatus(OrderDto.StatusRequest statusRequest) {
-        Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId()).orElseThrow(
-            () -> new Exception(ErrorResult.NOT_EXIST_USER));
+        if (SecurityContextHolder.getContext().getAuthentication().getPrincipal()
+            .equals("anonymousUser")) {
+            throw new CustomException(CustomErrorResult.LOGIN_NEEDED);
+        }
+        Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId())
+            .orElseThrow(() -> new CustomException(CustomErrorResult.NOT_EXIST_USER));
 
         if (!(statusRequest.getOrderStatus().equals(OrderStatus.REFUND_REQUEST) ||
             statusRequest.getOrderStatus().equals(OrderStatus.PURCHASE_CONFIRM))) {
-            throw new Exception(ErrorResult.ACCESS_PRIVILEGE);
+            throw new CustomException(CustomErrorResult.ACCESS_PRIVILEGE);
         }
 
         Order order = orderRepository.findById(statusRequest.getOrderId()).orElseThrow(
-            () -> new Exception(ErrorResult.ORDER_NOT_FOUND));
+            () -> new CustomException(CustomErrorResult.ORDER_NOT_FOUND));
 
         if (!(order.getMember().getId().equals(member.getId()) || member.getAuthority()
             .equals(Authority.ROLE_ADMIN.getKey()))) {
-            throw new Exception(ErrorResult.USER_NOT_MATCH);
+            throw new CustomException(CustomErrorResult.USER_NOT_MATCH);
         }
 
         Order updateOrder = order.updateStatus(statusRequest.getOrderStatus());
 
         Payment payment = paymentRepository.findByOrderId(order.getId()).orElseThrow(
-            () -> new Exception(ErrorResult.PAYMENT_NOT_FOUND));
+            () -> new CustomException(CustomErrorResult.PAYMENT_NOT_FOUND));
 
         if (statusRequest.getOrderStatus().equals(OrderStatus.PURCHASE_CONFIRM)) {
             member.acquirePoint(payment.getAcquirePoint());
@@ -201,7 +271,7 @@ public class OrderService {
                 order.getId());
             for (OrderProduct orderProduct : orderProducts) {
                 Product product = productRepository.findById(orderProduct.getProduct().getId())
-                    .orElseThrow(() -> new Exception(ErrorResult.PRODUCT_NOT_FOUND));
+                    .orElseThrow(() -> new CustomException(CustomErrorResult.PRODUCT_NOT_FOUND));
                 product.addPurchaseCount(orderProduct.getCount());
             }
         }
@@ -214,18 +284,23 @@ public class OrderService {
      * @param orderId
      */
     public void orderRefund(Long orderId) {
-        Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId()).orElseThrow(
-            () -> new Exception(ErrorResult.NOT_EXIST_USER));
+        if (SecurityContextHolder.getContext().getAuthentication().getPrincipal()
+            .equals("anonymousUser")) {
+            throw new CustomException(CustomErrorResult.LOGIN_NEEDED);
+        }
+
+        Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId())
+            .orElseThrow(() -> new CustomException(CustomErrorResult.NOT_EXIST_USER));
 
         if (!member.getAuthority().equals(Authority.ROLE_ADMIN.getKey())) {
-            throw new Exception(ErrorResult.ACCESS_PRIVILEGE);
+            throw new CustomException(CustomErrorResult.ACCESS_PRIVILEGE);
         }
 
         Order order = orderRepository.findById(orderId).orElseThrow(
-            () -> new Exception(ErrorResult.ORDER_NOT_FOUND));
+            () -> new CustomException(CustomErrorResult.ORDER_NOT_FOUND));
 
         if (!order.getOrderStatus().equals(OrderStatus.REFUND_REQUEST)) {
-            throw new Exception(ErrorResult.NOT_REFUND_REQUEST_ORDER);
+            throw new CustomException(CustomErrorResult.NOT_REFUND_REQUEST_ORDER);
         }
 
         order.orderRefund();
@@ -236,43 +311,75 @@ public class OrderService {
      * @param updateOrderRequest
      */
     public void orderModification(OrderDto.UpdateOrderRequest updateOrderRequest) {
-        memberRepository.findById(SecurityUtil.getCurrentMemberId()).orElseThrow(
-            () -> new Exception(ErrorResult.NOT_EXIST_USER));
+        if (SecurityContextHolder.getContext().getAuthentication().getPrincipal()
+            .equals("anonymousUser")) {
+            throw new CustomException(CustomErrorResult.LOGIN_NEEDED);
+        }
+        Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId())
+            .orElseThrow(() -> new CustomException(CustomErrorResult.NOT_EXIST_USER));
         Order order = orderRepository.findById(updateOrderRequest.getOrderId()).orElseThrow(
-            () -> new Exception(ErrorResult.ORDER_NOT_FOUND));
+            () -> new CustomException(CustomErrorResult.ORDER_NOT_FOUND));
 
         order.modificationOrder(updateOrderRequest);
     }
 
-    public Integer orderDashBoard(LocalDateTime localDateTime) {
-        List<Order> orderList = orderRepository.findAllByOrderStatusAndCreatedDateAfter(
+    public Long orderDashBoard(LocalDateTime localDateTime) {
+        if (SecurityContextHolder.getContext().getAuthentication().getPrincipal()
+            .equals("anonymousUser")) {
+            throw new CustomException(CustomErrorResult.LOGIN_NEEDED);
+        }
+        Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId())
+            .orElseThrow(() -> new CustomException(CustomErrorResult.NOT_EXIST_USER));
+        if (!member.getAuthority().equals(Authority.ROLE_ADMIN.getKey())) {
+            throw new CustomException(CustomErrorResult.ACCESS_PRIVILEGE);
+        }
+
+        Long orders = orderRepository.countByOrderStatusAndCreatedDateAfter(
             OrderStatus.PURCHASE_CONFIRM, localDateTime);
-        return orderList.size();
+        return orders;
     }
 
-    public List<Integer> salesAmount(LocalDateTime localDateTime) {
+    public List<Long> salesAmount(LocalDateTime localDateTime) {
+        if (SecurityContextHolder.getContext().getAuthentication().getPrincipal()
+            .equals("anonymousUser")) {
+            throw new CustomException(CustomErrorResult.LOGIN_NEEDED);
+        }
+        Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId())
+            .orElseThrow(() -> new CustomException(CustomErrorResult.NOT_EXIST_USER));
+        if (!member.getAuthority().equals(Authority.ROLE_ADMIN.getKey())) {
+            throw new CustomException(CustomErrorResult.ACCESS_PRIVILEGE);
+        }
+
         List<Order> orderList = orderRepository.findAllByOrderStatusAndCreatedDateAfter(
             OrderStatus.PURCHASE_CONFIRM, localDateTime);
-        Integer totalPrice = 0;
-        Integer totalCount = 0;
+        Long totalPrice = 0L;
+        Long totalCount = 0L;
         for (Order order : orderList) {
             totalPrice += order.getTotalPrice();
             for (OrderProduct orderProduct : order.getOrderProducts()) {
                 totalCount += orderProduct.getCount();
             }
         }
-        List<Integer> salesAmount = new ArrayList<>();
-        salesAmount.add(totalPrice);
-        salesAmount.add(totalCount);
+        List<Long> salesAmount = Arrays.asList(totalPrice, totalCount);
         return salesAmount;
     }
 
-    public List<Integer> salesByCategory(LocalDateTime localDateTime) {
+    public List<Long> salesByCategory(LocalDateTime localDateTime) {
+        if (SecurityContextHolder.getContext().getAuthentication().getPrincipal()
+            .equals("anonymousUser")) {
+            throw new CustomException(CustomErrorResult.LOGIN_NEEDED);
+        }
+        Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId())
+            .orElseThrow(() -> new CustomException(CustomErrorResult.NOT_EXIST_USER));
+        if (!member.getAuthority().equals(Authority.ROLE_ADMIN.getKey())) {
+            throw new CustomException(CustomErrorResult.ACCESS_PRIVILEGE);
+        }
+
         List<Order> orderList = orderRepository.findAllByOrderStatusAndCreatedDateAfter(
             OrderStatus.PURCHASE_CONFIRM, localDateTime);
-        Integer fashion = 0;
-        Integer living = 0;
-        Integer beauty = 0;
+        Long fashion = 0L;
+        Long living = 0L;
+        Long beauty = 0L;
         for (Order order : orderList) {
             for (OrderProduct orderProduct : order.getOrderProducts()) {
                 if (orderProduct.getProduct().getCategory().getParent().equals("1")) {
@@ -284,8 +391,28 @@ public class OrderService {
                 }
             }
         }
-        List<Integer> countByCategory = Arrays.asList(fashion, living, beauty);
+        List<Long> countByCategory = Arrays.asList(fashion, living, beauty);
         return countByCategory;
+    }
+
+    public List<Long> paidAndDeliver(LocalDateTime localDateTime) {
+        if (SecurityContextHolder.getContext().getAuthentication().getPrincipal()
+            .equals("anonymousUser")) {
+            throw new CustomException(CustomErrorResult.LOGIN_NEEDED);
+        }
+        Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId())
+            .orElseThrow(() -> new CustomException(CustomErrorResult.NOT_EXIST_USER));
+        if (!member.getAuthority().equals(Authority.ROLE_ADMIN.getKey())) {
+            throw new CustomException(CustomErrorResult.ACCESS_PRIVILEGE);
+        }
+
+        Long paidOrders = orderRepository.countByOrderStatusAndCreatedDateAfter(
+            OrderStatus.PAYMENT_COMPLETE, localDateTime);
+        Long deliveredOrders = orderRepository.countByOrderStatusAndCreatedDateAfter(
+            OrderStatus.PURCHASE_CONFIRM, localDateTime);
+        Long entireOrders = orderRepository.countByCreatedDateAfter(localDateTime);
+        List<Long> countByOrders = Arrays.asList(paidOrders, deliveredOrders, entireOrders);
+        return countByOrders;
     }
 
 }

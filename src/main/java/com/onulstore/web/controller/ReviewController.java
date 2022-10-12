@@ -24,7 +24,7 @@ public class ReviewController {
     private final ReviewService reviewService;
 
     // 리뷰 등록
-    @ApiOperation(value = "리뷰 등록")
+    @ApiOperation(value = "리뷰 등록 / 인증 필요")
     @PostMapping("/reviews/{orderId}")
     public ResponseEntity<ReviewDto.ReviewResponse> insertReview(
         @RequestBody ReviewDto.ReviewRequest request, @PathVariable Long orderId) {
@@ -32,7 +32,7 @@ public class ReviewController {
     }
 
     // 리뷰 수정
-    @ApiOperation(value = "리뷰 수정")
+    @ApiOperation(value = "리뷰 수정 / 인증 필요")
     @PutMapping("/reviews/{reviewId}")
     public ResponseEntity<ReviewDto.ReviewResponse> updateReview(@PathVariable Long reviewId,
         @RequestBody ReviewDto.ReviewRequest request) {
@@ -40,7 +40,7 @@ public class ReviewController {
     }
 
     // 리뷰 삭제
-    @ApiOperation(value = "리뷰 삭제")
+    @ApiOperation(value = "리뷰 삭제 / 인증 필요")
     @DeleteMapping("/reviews/{reviewId}")
     public ResponseEntity<String> deleteReview(@PathVariable Long reviewId) {
         reviewService.deleteReview(reviewId);
@@ -55,7 +55,7 @@ public class ReviewController {
     }
 
     // 리뷰 목록 조회(사용자별)
-    @ApiOperation(value = "리뷰 목록 조회(멤버별)")
+    @ApiOperation(value = "리뷰 목록 조회(멤버별) / 인증 필요")
     @GetMapping("/members/reviews")
     public ResponseEntity<List<ReviewDto.ReviewResponse>> getMemberReviewList() {
         return ResponseEntity.ok(reviewService.getMemberReviewList());
@@ -71,7 +71,7 @@ public class ReviewController {
     }
 
     // 리뷰 이미지 등록
-    @ApiOperation(value = "리뷰 이미지 등록")
+    @ApiOperation(value = "리뷰 이미지 등록 / 인증 필요")
     @PostMapping("/reviews/{reviewId}/image")
     public ResponseEntity<String> uploadImage(
         @RequestParam("images") List<MultipartFile> multipartFiles, @PathVariable Long reviewId)

@@ -38,7 +38,7 @@ public class CurationController {
     }
 
     @PostMapping("/magazine")
-    @ApiOperation(value = "매거진 등록")
+    @ApiOperation(value = "매거진 등록 / 인증 필요(관리자)")
     public ResponseEntity<String> addMagazine(
         @Valid @RequestBody CurationDto.MagazineRequest magazineRequest) {
         curationService.createMagazine(magazineRequest);
@@ -46,7 +46,7 @@ public class CurationController {
     }
 
     @PostMapping("/recommend")
-    @ApiOperation(value = "추천제품 등록")
+    @ApiOperation(value = "추천제품 등록 / 인증 필요(관리자)")
     public ResponseEntity<String> addRecommend(
         @Valid @RequestBody CurationDto.RecommendRequest recommendRequest) {
         curationService.createRecommend(recommendRequest);
@@ -54,7 +54,7 @@ public class CurationController {
     }
 
     @DeleteMapping("/{curationId}")
-    @ApiOperation(value = "큐레이션 삭제")
+    @ApiOperation(value = "큐레이션 삭제 / 인증 필요(관리자)")
     public ResponseEntity<String> deleteCuration(@PathVariable Long curationId) {
         curationService.deleteCuration(curationId);
         return ResponseEntity.ok("큐레이션 상품이 삭제되었습니다.");
@@ -73,14 +73,14 @@ public class CurationController {
     }
 
     @PutMapping("/{curationId}")
-    @ApiOperation(value = "큐레이션 수정")
+    @ApiOperation(value = "큐레이션 수정 / 인증 필요(관리자)")
     public ResponseEntity<CurationDto.CurationResponse> updateCuration(
         @RequestBody CurationDto.UpdateCuration updateCuration, @PathVariable Long curationId) {
         return ResponseEntity.ok(curationService.updateCuration(updateCuration, curationId));
     }
 
     @PostMapping("/{curationId}/image")
-    @ApiOperation(value = "큐레이션 이미지 업로드")
+    @ApiOperation(value = "큐레이션 이미지 업로드 / 인증 필요(관리자)")
     public ResponseEntity<String> uploadImage(@RequestParam("images") MultipartFile multipartFile,
         @PathVariable Long curationId) throws IOException {
         curationService.uploadImage(multipartFile, curationId);
@@ -88,14 +88,14 @@ public class CurationController {
     }
 
     @PutMapping("/{curationId}/display")
-    @ApiOperation(value = "공개 여부 TRUE")
+    @ApiOperation(value = "공개 여부 TRUE / 인증 필요(관리자)")
     public ResponseEntity<String> display(@PathVariable Long curationId) {
         curationService.display(curationId);
         return ResponseEntity.ok("해당 큐레이션이 공개 처리 되었습니다");
     }
 
     @PutMapping("/{curationId}/unDisplay")
-    @ApiOperation(value = "공개 여부 FALSE")
+    @ApiOperation(value = "공개 여부 FALSE / 인증 필요(관리자)")
     public ResponseEntity<String> unDisplay(@PathVariable Long curationId) {
         curationService.unDisplay(curationId);
         return ResponseEntity.ok("해당 큐레이션이 비공개 처리 되었습니다");

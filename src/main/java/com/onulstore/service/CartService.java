@@ -1,10 +1,10 @@
 package com.onulstore.service;
 
 import com.onulstore.config.SecurityUtil;
-import com.onulstore.config.exception.Exception;
+import com.onulstore.config.exception.CustomException;
 import com.onulstore.domain.cart.Cart;
 import com.onulstore.domain.cart.CartRepository;
-import com.onulstore.domain.enums.ErrorResult;
+import com.onulstore.domain.enums.CustomErrorResult;
 import com.onulstore.domain.member.Member;
 import com.onulstore.domain.member.MemberRepository;
 import com.onulstore.domain.product.Product;
@@ -13,6 +13,7 @@ import com.onulstore.web.dto.CartDto;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,20 +26,24 @@ public class CartService {
     private final ProductRepository productRepository;
 
     @Transactional
-    public void addCart(CartDto cartDto) {
-        Member member = memberRepository.findByEmail(cartDto.getMemberEmail()).orElseThrow(
-            () -> new Exception(ErrorResult.NOT_EXIST_USER));
-        Product product = productRepository.findById(cartDto.getProductId()).orElseThrow(
-            () -> new Exception(ErrorResult.PRODUCT_NOT_FOUND));
+    public void addCart(CartDto.CartRequest cartRequest) {
+        if (SecurityContextHolder.getContext().getAuthentication().getPrincipal()
+            .equals("anonymousUser")) {
+            throw new CustomException(CustomErrorResult.LOGIN_NEEDED);
+        }
+        Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId())
+            .orElseThrow(() -> new CustomException(CustomErrorResult.NOT_EXIST_USER));
+        Product product = productRepository.findById(cartRequest.getProductId()).orElseThrow(
+            () -> new CustomException(CustomErrorResult.PRODUCT_NOT_FOUND));
         boolean duplicate = false;
 
-        if (product.getQuantity() < cartDto.getQuantity()) {
-            throw new Exception(ErrorResult.OUT_OF_STOCK);
+        if (product.getQuantity() < cartRequest.getQuantity()) {
+            throw new CustomException(CustomErrorResult.OUT_OF_STOCK);
         }
 
         for (Cart carts : member.getCarts()) {
             if (carts.getProduct().getProductName().equals(product.getProductName())) {
-                carts.changeQuantity(cartDto.getQuantity());
+                carts.changeQuantity(cartRequest.getQuantity());
                 duplicate = true;
             }
         }
@@ -47,7 +52,7 @@ public class CartService {
             Cart cart = Cart.builder()
                 .member(member)
                 .product(product)
-                .productCount(cartDto.getQuantity())
+                .productCount(cartRequest.getQuantity())
                 .build();
 
             member.getCarts().add(cart);
@@ -58,44 +63,65 @@ public class CartService {
 
     @Transactional
     public void deleteCart(Long cartId) {
-        Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId()).orElseThrow(
-            () -> new Exception(ErrorResult.NOT_EXIST_USER));
-
-        Cart cart = cartRepository.findById(cartId).orElseThrow(RuntimeException::new);
+        if (SecurityContextHolder.getContext().getAuthentication().getPrincipal()
+            .equals("anonymousUser")) {
+            throw new CustomException(CustomErrorResult.LOGIN_NEEDED);
+        }
+        Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId())
+            .orElseThrow(() -> new CustomException(CustomErrorResult.NOT_EXIST_USER));
+        Cart cart = cartRepository.findById(cartId).orElseThrow(() -> new CustomException(
+            CustomErrorResult.CART_NOT_FOUND));
+        
         cartRepository.delete(cart);
         member.getCarts().remove(cart);
     }
 
     @Transactional
-    public List<CartDto> getCartList() {
-        Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId()).orElseThrow(
-            () -> new Exception(ErrorResult.NOT_EXIST_USER));
-
-        List<CartDto> cartDtoList = new ArrayList<CartDto>();
-        for (Cart cart : member.getCarts()) {
-            CartDto cartDto = CartDto.of(cart);
-            cartDtoList.add(cartDto);
+    public List<CartDto.CartResponse> getCartList() {
+        if (SecurityContextHolder.getContext().getAuthentication().getPrincipal()
+            .equals("anonymousUser")) {
+            throw new CustomException(CustomErrorResult.LOGIN_NEEDED);
         }
-        return cartDtoList;
+        Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId())
+            .orElseThrow(() -> new CustomException(CustomErrorResult.NOT_EXIST_USER));
+
+        List<CartDto.CartResponse> cartResponseList = new ArrayList<>();
+        for (Cart cart : member.getCarts()) {
+            CartDto.CartResponse cartResponse = CartDto.CartResponse.of(cart);
+            cartResponseList.add(cartResponse);
+        }
+        return cartResponseList;
     }
 
     @Transactional
-    public CartDto plusOne(Long cartId) {
+    public CartDto.CartResponse plusOne(Long cartId) {
+        if (SecurityContextHolder.getContext().getAuthentication().getPrincipal()
+            .equals("anonymousUser")) {
+            throw new CustomException(CustomErrorResult.LOGIN_NEEDED);
+        }
+        Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId())
+            .orElseThrow(() -> new CustomException(CustomErrorResult.NOT_EXIST_USER));
         Cart cart = cartRepository.findById(cartId).orElseThrow(
-            () -> new Exception(ErrorResult.CART_NOT_FOUND));
+            () -> new CustomException(CustomErrorResult.CART_NOT_FOUND));
 
         cart.plusOne();
-        CartDto cartDto = CartDto.of(cart);
-        return cartDto;
+        CartDto.CartResponse cartResponse = CartDto.CartResponse.of(cart);
+        return cartResponse;
     }
 
     @Transactional
-    public CartDto minusOne(Long cartId) {
+    public CartDto.CartResponse minusOne(Long cartId) {
+        if (SecurityContextHolder.getContext().getAuthentication().getPrincipal()
+            .equals("anonymousUser")) {
+            throw new CustomException(CustomErrorResult.LOGIN_NEEDED);
+        }
+        Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId())
+            .orElseThrow(() -> new CustomException(CustomErrorResult.NOT_EXIST_USER));
         Cart cart = cartRepository.findById(cartId).orElseThrow(
-            () -> new Exception(ErrorResult.CART_NOT_FOUND));
+            () -> new CustomException(CustomErrorResult.CART_NOT_FOUND));
 
         cart.minusOne();
-        CartDto cartDto = CartDto.of(cart);
-        return cartDto;
+        CartDto.CartResponse cartResponse = CartDto.CartResponse.of(cart);
+        return cartResponse;
     }
 }

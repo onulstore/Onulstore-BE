@@ -2,8 +2,8 @@ package com.onulstore.domain.cart;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.onulstore.common.BaseTimeEntity;
-import com.onulstore.config.exception.Exception;
-import com.onulstore.domain.enums.ErrorResult;
+import com.onulstore.config.exception.CustomException;
+import com.onulstore.domain.enums.CustomErrorResult;
 import com.onulstore.domain.member.Member;
 import com.onulstore.domain.order.Order;
 import com.onulstore.domain.product.Product;
@@ -55,14 +55,14 @@ public class Cart extends BaseTimeEntity {
 
     public void plusOne() {
         if (this.productCount >= product.getQuantity()) {
-            throw new Exception(ErrorResult.OUT_OF_STOCK);
+            throw new CustomException(CustomErrorResult.OUT_OF_STOCK);
         }
         this.productCount = productCount + 1;
     }
 
     public void minusOne() {
         if (this.productCount <= 1) {
-            throw new Exception(ErrorResult.OUT_OF_STOCK);
+            throw new CustomException(CustomErrorResult.OUT_OF_STOCK);
         }
         this.productCount = productCount - 1;
     }

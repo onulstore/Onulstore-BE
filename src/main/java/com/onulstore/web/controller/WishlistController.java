@@ -19,19 +19,20 @@ public class WishlistController {
 
     private final WishlistService wishlistService;
 
-    @ApiOperation(value = "찜 조회")
+    @ApiOperation(value = "찜 조회 / 인증 필요")
     @GetMapping
     public ResponseEntity<List<ProductDto.ProductRes>> getWishlist() {
         return ResponseEntity.ok(wishlistService.getWishlist());
     }
 
-    @ApiOperation(value = "찜 등록")
+    @ApiOperation(value = "찜 등록 / 인증 필요")
     @PostMapping
-    public ResponseEntity<ProductDto.ProductRes> addWishlist(@RequestBody WishlistDto.WishlistRequest request) {
+    public ResponseEntity<ProductDto.ProductRes> addWishlist(
+        @RequestBody WishlistDto.WishlistRequest request) {
         return ResponseEntity.ok(wishlistService.addWishlist(request));
     }
 
-    @ApiOperation(value = "찜 삭제")
+    @ApiOperation(value = "찜 삭제 / 인증 필요")
     @DeleteMapping("/{productId}")
     public ResponseEntity<String> deleteWishlist(@PathVariable Long productId) {
         wishlistService.deleteWishlist(productId);

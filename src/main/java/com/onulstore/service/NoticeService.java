@@ -3,9 +3,9 @@ package com.onulstore.service;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.onulstore.config.SecurityUtil;
-import com.onulstore.config.exception.Exception;
+import com.onulstore.config.exception.CustomException;
 import com.onulstore.domain.enums.Authority;
-import com.onulstore.domain.enums.ErrorResult;
+import com.onulstore.domain.enums.CustomErrorResult;
 import com.onulstore.domain.member.Member;
 import com.onulstore.domain.member.MemberRepository;
 import com.onulstore.domain.notice.Notice;
@@ -19,6 +19,7 @@ import java.util.Map;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -40,10 +41,14 @@ public class NoticeService {
      * @return Notice 등록 정보
      */
     public NoticeDto.NoticeResponse addNotice(NoticeDto.NoticeRequest noticeRequest) {
-        Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId()).orElseThrow(
-            () -> new Exception(ErrorResult.NOT_EXIST_USER));
+        if (SecurityContextHolder.getContext().getAuthentication().getPrincipal()
+            .equals("anonymousUser")) {
+            throw new CustomException(CustomErrorResult.LOGIN_NEEDED);
+        }
+        Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId())
+            .orElseThrow(() -> new CustomException(CustomErrorResult.NOT_EXIST_USER));
         if (!member.getAuthority().equals(Authority.ROLE_ADMIN.getKey())) {
-            throw new Exception(ErrorResult.ACCESS_PRIVILEGE);
+            throw new CustomException(CustomErrorResult.ACCESS_PRIVILEGE);
         }
 
         Notice notice = noticeRequest.toNotice();
@@ -58,14 +63,18 @@ public class NoticeService {
      */
     public NoticeDto.NoticeResponse updateNotice(NoticeDto.NoticeRequest noticeRequest,
         Long noticeId) {
-        Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId()).orElseThrow(
-            () -> new Exception(ErrorResult.NOT_EXIST_USER));
-        Notice findNotice = noticeRepository.findById(noticeId).orElseThrow(
-            () -> new Exception(ErrorResult.NOT_FOUND_NOTICE));
-
-        if (!member.getAuthority().equals(Authority.ROLE_ADMIN.getKey())) {
-            throw new Exception(ErrorResult.ACCESS_PRIVILEGE);
+        if (SecurityContextHolder.getContext().getAuthentication().getPrincipal()
+            .equals("anonymousUser")) {
+            throw new CustomException(CustomErrorResult.LOGIN_NEEDED);
         }
+        Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId())
+            .orElseThrow(() -> new CustomException(CustomErrorResult.NOT_EXIST_USER));
+        if (!member.getAuthority().equals(Authority.ROLE_ADMIN.getKey())) {
+            throw new CustomException(CustomErrorResult.ACCESS_PRIVILEGE);
+        }
+        Notice findNotice = noticeRepository.findById(noticeId).orElseThrow(
+            () -> new CustomException(CustomErrorResult.NOT_FOUND_NOTICE));
+
         Notice notice = findNotice.updateNotice(noticeRequest);
         return NoticeDto.NoticeResponse.of(noticeRepository.save(notice));
     }
@@ -78,7 +87,7 @@ public class NoticeService {
     @Transactional(readOnly = true)
     public NoticeDto.NoticeResponse getNotice(Long noticeId) {
         return noticeRepository.findById(noticeId).map(NoticeDto.NoticeResponse::of)
-            .orElseThrow(() -> new Exception(ErrorResult.NOT_FOUND_NOTICE));
+            .orElseThrow(() -> new CustomException(CustomErrorResult.NOT_FOUND_NOTICE));
     }
 
     /**
@@ -98,26 +107,34 @@ public class NoticeService {
      * @param noticeId
      */
     public void deleteNotice(Long noticeId) {
-        Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId()).orElseThrow(
-            () -> new Exception(ErrorResult.NOT_EXIST_USER));
+        if (SecurityContextHolder.getContext().getAuthentication().getPrincipal()
+            .equals("anonymousUser")) {
+            throw new CustomException(CustomErrorResult.LOGIN_NEEDED);
+        }
+        Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId())
+            .orElseThrow(() -> new CustomException(CustomErrorResult.NOT_EXIST_USER));
         if (!member.getAuthority().equals(Authority.ROLE_ADMIN.getKey())) {
-            throw new Exception(ErrorResult.ACCESS_PRIVILEGE);
+            throw new CustomException(CustomErrorResult.ACCESS_PRIVILEGE);
         }
 
         Notice notice = noticeRepository.findById(noticeId).orElseThrow(
-            () -> new Exception(ErrorResult.NOT_FOUND_NOTICE));
+            () -> new CustomException(CustomErrorResult.NOT_FOUND_NOTICE));
 
         noticeRepository.delete(notice);
     }
 
     public String uploadImage(MultipartFile multipartFile, Long noticeId) throws IOException {
-        Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId()).orElseThrow(
-            () -> new Exception(ErrorResult.NOT_EXIST_USER));
+        if (SecurityContextHolder.getContext().getAuthentication().getPrincipal()
+            .equals("anonymousUser")) {
+            throw new CustomException(CustomErrorResult.LOGIN_NEEDED);
+        }
+        Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId())
+            .orElseThrow(() -> new CustomException(CustomErrorResult.NOT_EXIST_USER));
         if (!member.getAuthority().equals(Authority.ROLE_ADMIN.getKey())) {
-            throw new Exception(ErrorResult.ACCESS_PRIVILEGE);
+            throw new CustomException(CustomErrorResult.ACCESS_PRIVILEGE);
         }
         Notice notice = noticeRepository.findById(noticeId).orElseThrow(
-            () -> new Exception(ErrorResult.CURATION_NOT_FOUND));
+            () -> new CustomException(CustomErrorResult.CURATION_NOT_FOUND));
 
         InputStream inputStream = multipartFile.getInputStream();
         String originFileName = multipartFile.getOriginalFilename();

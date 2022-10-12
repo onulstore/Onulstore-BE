@@ -2,6 +2,7 @@ package com.onulstore.web.dto;
 
 import com.onulstore.domain.brand.Brand;
 import com.onulstore.domain.category.Category;
+import com.onulstore.domain.enums.DiscountStatus;
 import com.onulstore.domain.enums.DiscountType;
 import com.onulstore.domain.enums.ProductStatus;
 import com.onulstore.domain.product.Product;
@@ -24,25 +25,28 @@ public class ProductDto {
     public static class ProductRequest {
 
         private String productName;
-        private String content;
         private Integer price;
         private Integer quantity;
 
         @ApiModelProperty(value = "상품 상태", example = "SALE / NEW")
         private ProductStatus productStatus;
+        private DiscountStatus discountStatus = DiscountStatus.FALSE;
         private Long categoryId;
         private Long brandId;
 
         public Product toProduct(Category category, Brand brand) {
             return Product.builder()
                 .productName(productName)
-                .content(content)
                 .originalPrice(price)
                 .price(price)
                 .quantity(quantity)
                 .productStatus(productStatus)
+                .discountStatus(discountStatus)
                 .category(category)
                 .brand(brand)
+                .discountValue(0)
+                .discountCheck(false)
+                .discountType(DiscountType.NONE)
                 .productImages(new ArrayList<>())
                 .wishlists(new ArrayList<>())
                 .build();
