@@ -12,14 +12,12 @@ public class NoticeDto {
 
         private String title;
         private String content;
-        private String noticeImg;
 
         public Notice toNotice() {
             return Notice.builder()
-                    .title(title)
-                    .content(content)
-                    .noticeImg(noticeImg)
-                    .build();
+                .title(title)
+                .content(content)
+                .build();
         }
 
     }
@@ -35,11 +33,11 @@ public class NoticeDto {
 
         public static NoticeResponse of(Notice notice) {
             return NoticeResponse.builder()
-                    .id(notice.getId())
-                    .title(notice.getTitle())
-                    .content(notice.getContent())
-                    .noticeImg(notice.getNoticeImg())
-                    .build();
+                .id(notice.getId())
+                .title(notice.getTitle())
+                .content(notice.getContent())
+                .noticeImg(notice.getNoticeImg())
+                .build();
         }
 
     }
