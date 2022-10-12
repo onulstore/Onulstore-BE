@@ -124,6 +124,11 @@ public class ProductService {
 
     @Transactional
     public ProductDto.ProductResponse detailInquiry(Long productId, HttpServletRequest request) {
+        Member member = new Member();
+        if (!SecurityContextHolder.getContext().getAuthentication().getPrincipal()
+            .equals("anonymousUser")) {
+            member = getMember();
+        }
         HttpSession session = request.getSession();
         boolean check = false;
         ArrayList<Product> latestViewedProductList = (ArrayList) session.getAttribute("List");
@@ -132,6 +137,13 @@ public class ProductService {
         }
         Product product = productRepository.findById(productId).orElseThrow(
             () -> new CustomException(CustomErrorResult.PRODUCT_NOT_FOUND));
+
+        List<Wishlist> wishlists = wishlistRepository.findAllByMember(member);
+        for (Wishlist wishlist : wishlists) {
+            if (wishlist.getProduct().getId().equals(product.getId())) {
+                product.bookmarked();
+            }
+        }
 
         for (Product products : latestViewedProductList) {
             if (products.getProductName().equals(product.getProductName())) {
@@ -148,7 +160,6 @@ public class ProductService {
         session.setAttribute("List", latestViewedProductList);
 
         return ProductDto.ProductResponse.of(product);
-
     }
 
     @Transactional(readOnly = true)
