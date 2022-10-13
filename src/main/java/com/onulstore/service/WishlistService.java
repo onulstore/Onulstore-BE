@@ -2,7 +2,6 @@ package com.onulstore.service;
 
 import com.onulstore.config.SecurityUtil;
 import com.onulstore.config.exception.CustomException;
-import com.onulstore.domain.enums.Authority;
 import com.onulstore.domain.enums.CustomErrorResult;
 import com.onulstore.domain.member.Member;
 import com.onulstore.domain.member.MemberRepository;
@@ -39,15 +38,10 @@ public class WishlistService {
             .equals("anonymousUser")) {
             throw new CustomException(CustomErrorResult.LOGIN_NEEDED);
         }
-        Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId())
-            .orElseThrow(() -> new CustomException(CustomErrorResult.NOT_EXIST_USER));
+        Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId()).orElseThrow(
+            () -> new CustomException(CustomErrorResult.NOT_EXIST_USER));
         Product product = productRepository.findById(request.getProductId()).orElseThrow(
             () -> new CustomException(CustomErrorResult.PRODUCT_NOT_FOUND));
-
-        if (member.getWishlists().stream()
-            .anyMatch(wishlist -> product.equals(wishlist.getProduct()))) {
-            return deleteWishlist(product.getId());
-        }
 
         Wishlist wishlist = request.toWishlist(product, member);
         Wishlist findWishlist = wishlistRepository.findByProductIdAndMemberId(product.getId(),
@@ -80,8 +74,8 @@ public class WishlistService {
             .equals("anonymousUser")) {
             throw new CustomException(CustomErrorResult.LOGIN_NEEDED);
         }
-        Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId())
-            .orElseThrow(() -> new CustomException(CustomErrorResult.NOT_EXIST_USER));
+        Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId()).orElseThrow(
+            () -> new CustomException(CustomErrorResult.NOT_EXIST_USER));
 
         List<Wishlist> findWishlists = wishlistRepository.findAllByMember(member);
         List<ProductDto.ProductRes> wishlists = new ArrayList<>();
@@ -101,7 +95,6 @@ public class WishlistService {
         return wishlists;
     }
 
-
     /**
      * Wishlist 삭제
      * @param productId
@@ -112,13 +105,14 @@ public class WishlistService {
             .equals("anonymousUser")) {
             throw new CustomException(CustomErrorResult.LOGIN_NEEDED);
         }
-        Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId())
-            .orElseThrow(() -> new CustomException(CustomErrorResult.NOT_EXIST_USER));
+        Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId()).orElseThrow(
+            () -> new CustomException(CustomErrorResult.NOT_EXIST_USER));
         Product product = productRepository.findById(productId).orElseThrow(
             () -> new CustomException(CustomErrorResult.PRODUCT_NOT_FOUND));
 
         Wishlist wishlist = wishlistRepository.findByProductIdAndMemberId(product.getId(),
             member.getId());
+        product.getWishlists().remove(wishlist);
         wishlistRepository.delete(wishlist);
 
         ProductDto.ProductRes productRes = new ProductDto.ProductRes(

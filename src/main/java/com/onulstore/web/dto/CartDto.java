@@ -1,7 +1,7 @@
 package com.onulstore.web.dto;
 
 import com.onulstore.domain.cart.Cart;
-import com.onulstore.domain.product.ProductImage;
+import com.onulstore.web.dto.ProductImageDto.ProductImageMaker;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -31,7 +31,7 @@ public class CartDto {
         private Long productId;
         private Long cartId;
         private Integer quantity;
-        private List<ProductImage> images;
+        private List<ProductImageMaker> images;
 
         public static CartResponse of(Cart cart) {
             return CartResponse.builder()
@@ -39,7 +39,7 @@ public class CartDto {
                 .productId(cart.getProduct().getId())
                 .cartId(cart.getId())
                 .quantity(cart.getProductCount())
-                .images(cart.getProduct().getProductImages())
+                .images(ProductImageMaker.of(cart.getProduct().getProductImages()))
                 .build();
         }
     }

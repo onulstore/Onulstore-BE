@@ -40,7 +40,7 @@ public class BrandController {
     @PutMapping("/{brandId}")
     @ApiOperation(value = "브랜드 수정 / 인증 필요(관리자)")
     public ResponseEntity<BrandDto.BrandResponse> updateBrand(
-        @RequestBody BrandDto.UpdateRequest updateRequest,
+        @RequestBody BrandDto.BrandRequest updateRequest,
         @ApiParam(required = true) @PathVariable Long brandId) {
         return ResponseEntity.ok(brandService.updateBrand(updateRequest, brandId));
     }

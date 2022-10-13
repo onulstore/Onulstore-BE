@@ -79,10 +79,12 @@ public class ProductDto {
         private Integer price;
         private Integer quantity;
         private Integer purchaseCount;
+        private float rating;
         private ProductStatus productStatus;
         private Category category;
         private List<ProductImageMaker> productImage;
         private Integer wishListCount;
+        private boolean bookmarked;
         private Brand brand;
 
         public static ProductResponse of(Product product) {
@@ -95,8 +97,10 @@ public class ProductDto {
                 .quantity(product.getQuantity())
                 .purchaseCount(product.getPurchaseCount())
                 .productStatus(product.getProductStatus())
+                .rating(product.getRating())
                 .category(product.getCategory())
                 .productImage(ProductImageMaker.of(product.getProductImages()))
+                .bookmarked(product.isBookmark())
                 .wishListCount(product.getWishlists().size())
                 .brand(product.getBrand())
                 .build();

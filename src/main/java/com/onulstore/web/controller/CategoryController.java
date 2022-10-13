@@ -61,7 +61,7 @@ public class CategoryController {
 
     @GetMapping("/{categoryId}/products")
     @ApiOperation(value = "카테고리 아이디로 상품 조회(2depth 까지)")
-    public ResponseEntity<Page<ProductDto.ProductResponse>> getCategoryById(
+    public ResponseEntity<Page<List<ProductDto.ProductResponse>>> getCategoryById(
         @ApiParam(required = true) @PathVariable Long categoryId,
         @PageableDefault(sort = "id", direction = Sort.Direction.DESC, size = 8) Pageable pageable) {
         return ResponseEntity.ok(categoryService.getCategoryById(categoryId, pageable));

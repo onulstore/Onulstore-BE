@@ -40,19 +40,19 @@ public class CartController {
 
     @ApiOperation(value = "장바구니 조회 / 인증 필요")
     @GetMapping("/carts")
-    public ResponseEntity<List<CartResponse>> getCartList() {
+    public ResponseEntity<List<CartDto.CartResponse>> getCartList() {
         return ResponseEntity.ok(cartService.getCartList());
     }
 
     @ApiOperation(value = "장바구니 수량 증가버튼 / 인증 필요")
     @PostMapping("/carts/{cartId}/plus")
-    public ResponseEntity<CartResponse> plusQuantity(@PathVariable Long cartId) {
+    public ResponseEntity<CartDto.CartResponse> plusQuantity(@PathVariable Long cartId) {
         return ResponseEntity.ok(cartService.plusOne(cartId));
     }
 
     @ApiOperation(value = "장바구니 수량 감소버튼 / 인증 필요")
     @PostMapping("/carts/{cartId}/minus")
-    public ResponseEntity<CartResponse> minusQuantity(@PathVariable Long cartId) {
+    public ResponseEntity<CartDto.CartResponse> minusQuantity(@PathVariable Long cartId) {
         return ResponseEntity.ok(cartService.minusOne(cartId));
     }
 

@@ -20,6 +20,8 @@ import com.onulstore.domain.product.ProductImageRepository;
 import com.onulstore.domain.product.ProductRepository;
 import com.onulstore.domain.wishlist.Wishlist;
 import com.onulstore.domain.wishlist.WishlistRepository;
+import com.onulstore.web.dto.DashboardDto;
+import com.onulstore.web.dto.DashboardDto.DashboardProductResponse;
 import com.onulstore.web.dto.ProductDto;
 import com.onulstore.web.dto.ProductDto.DiscountProductDto;
 import com.onulstore.web.dto.ProductDto.ProductResponse;
@@ -124,6 +126,11 @@ public class ProductService {
 
     @Transactional
     public ProductDto.ProductResponse detailInquiry(Long productId, HttpServletRequest request) {
+        Member member = new Member();
+        if (!SecurityContextHolder.getContext().getAuthentication().getPrincipal()
+            .equals("anonymousUser")) {
+            member = getMember();
+        }
         HttpSession session = request.getSession();
         boolean check = false;
         ArrayList<Product> latestViewedProductList = (ArrayList) session.getAttribute("List");
@@ -132,6 +139,13 @@ public class ProductService {
         }
         Product product = productRepository.findById(productId).orElseThrow(
             () -> new CustomException(CustomErrorResult.PRODUCT_NOT_FOUND));
+
+        List<Wishlist> wishlists = wishlistRepository.findAllByMember(member);
+        for (Wishlist wishlist : wishlists) {
+            if (wishlist.getProduct().getId().equals(product.getId())) {
+                product.bookmarked();
+            }
+        }
 
         for (Product products : latestViewedProductList) {
             if (products.getProductName().equals(product.getProductName())) {
@@ -148,7 +162,6 @@ public class ProductService {
         session.setAttribute("List", latestViewedProductList);
 
         return ProductDto.ProductResponse.of(product);
-
     }
 
     @Transactional(readOnly = true)
@@ -272,7 +285,7 @@ public class ProductService {
     }
 
     @Transactional
-    public List<Long> productDashBoard(LocalDateTime localDateTime) {
+    public DashboardDto.DashboardProductResponse productDashBoard(LocalDateTime localDateTime) {
         loginCheck();
         Member member = getMember();
         authorityCheck(member);
@@ -281,14 +294,30 @@ public class ProductService {
             ProductStatus.SALE, localDateTime);
         Long entireProducts = productRepository.countByCreatedDateAfter(
             localDateTime);
-        List<Long> registerProductsAndSaleProducts = Arrays.asList(entireProducts, saleProducts);
-        return registerProductsAndSaleProducts;
+        DashboardDto.DashboardProductResponse dashboardProductResponse =
+            DashboardProductResponse.builder()
+                .onSaleProducts(saleProducts)
+                .entireProducts(entireProducts)
+                .build();
+        return dashboardProductResponse;
     }
 
     @Transactional
     public Page searchProduct(Pageable pageable, String productName) {
-        return productRepository.findByProductNameContains(pageable, productName)
-            .map(ProductDto.ProductResponse::of);
+        loginCheck();
+        Member member = getMember();
+        List<Product> productList = productRepository.findByProductNameContains(productName);
+        List<ProductResponse> productResponseList = new ArrayList<>();
+        for (Product product : productList) {
+            List<Wishlist> wishlists = wishlistRepository.findAllByMember(member);
+            for (Wishlist wishlist : wishlists) {
+                if (wishlist.getProduct().getId().equals(product.getId())) {
+                    product.bookmarked();
+                }
+            }
+            productResponseList.add(ProductDto.ProductResponse.of(product));
+        }
+        return new PageImpl<>(productResponseList, pageable, productResponseList.size());
     }
 
 }

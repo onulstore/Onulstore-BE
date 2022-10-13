@@ -7,14 +7,14 @@ import com.onulstore.domain.enums.CustomErrorResult;
 import com.onulstore.domain.member.Member;
 import com.onulstore.domain.member.MemberRepository;
 import com.onulstore.domain.product.Product;
+import com.onulstore.web.dto.DashboardDto;
+import com.onulstore.web.dto.DashboardDto.DashboardMemberResponse;
 import com.onulstore.web.dto.MemberDto;
 import com.onulstore.web.dto.PasswordDto;
 import com.onulstore.web.dto.ProductDto;
 import com.onulstore.web.dto.ProductDto.ProductResponse;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
@@ -91,6 +91,9 @@ public class MemberService {
         HttpSession session = request.getSession();
 
         ArrayList<Product> latest = (ArrayList) session.getAttribute("List");
+        if (latest.isEmpty()) {
+            latest = new ArrayList<>();
+        }
         ArrayList<ProductDto.ProductResponse> recentlyViewed = new ArrayList<>();
         for (Product product : latest) {
             recentlyViewed.add(ProductDto.ProductResponse.of(product));
@@ -99,7 +102,7 @@ public class MemberService {
     }
 
     @Transactional
-    public List<Long> memberDashBoard(LocalDateTime localDateTime){
+    public DashboardDto.DashboardMemberResponse memberDashBoard(LocalDateTime localDateTime) {
         if (SecurityContextHolder.getContext().getAuthentication().getPrincipal()
             .equals("anonymousUser")) {
             throw new CustomException(CustomErrorResult.LOGIN_NEEDED);
@@ -107,12 +110,18 @@ public class MemberService {
         Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId())
             .orElseThrow(() -> new CustomException(CustomErrorResult.NOT_EXIST_USER));
         if (!member.getAuthority().equals(Authority.ROLE_ADMIN.getKey())) {
-            throw new CustomException(CustomErrorResult.ACCESS_PRIVILEGE);
+            throw new CustomException(CustomErrorResult.ACCESS_PRIVILEGE); // 에러위치
         }
 
-        Long members = memberRepository.countByAuthorityAndCreatedDateAfter(Authority.ROLE_USER, localDateTime);
-        Long sellers = memberRepository.countByAuthorityAndCreatedDateAfter(Authority.ROLE_SELLER, localDateTime);
-        List<Long> memberAmount = Arrays.asList(members, sellers);
-        return memberAmount;
+        Long members = memberRepository.countByAuthorityAndCreatedDateAfter(
+            Authority.ROLE_USER.getKey(), localDateTime);
+        Long sellers = memberRepository.countByAuthorityAndCreatedDateAfter(
+            Authority.ROLE_SELLER.getKey(), localDateTime);
+        DashboardDto.DashboardMemberResponse dashboardMemberResponse =
+            DashboardMemberResponse.builder()
+                .memberCounts(members)
+                .sellerCounts(sellers)
+                .build();
+        return dashboardMemberResponse;
     }
 }
