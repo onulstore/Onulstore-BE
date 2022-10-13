@@ -5,17 +5,16 @@ import com.onulstore.domain.enums.OrderStatus;
 import com.onulstore.domain.enums.PaymentMeasure;
 import com.onulstore.domain.order.Order;
 import io.swagger.annotations.ApiModelProperty;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
-
-import javax.validation.constraints.Max;
-import javax.validation.constraints.Min;
-import javax.validation.constraints.NotNull;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
 
 public class OrderDto {
 
@@ -31,6 +30,26 @@ public class OrderDto {
         private String deliveryMessage;
         @ApiModelProperty(value = "배송 방법", required = true, example = "INTERNATIONAL/DOMESTIC/STORE")
         private DeliveryMeasure deliveryMeasure;
+
+    }
+
+    @Getter
+    @Setter
+    @Builder
+    public static class OrderResponse {
+
+        private Long orderId;
+        private Long memberId;
+        private List orderProductList;
+
+        public static OrderDto.OrderResponse of(Order order){
+            OrderDto.OrderResponse orderResponse = OrderResponse.builder()
+                .orderId(order.getId())
+                .memberId(order.getMember().getId())
+                .orderProductList(order.getOrderProducts())
+                .build();
+            return orderResponse;
+        }
 
     }
 

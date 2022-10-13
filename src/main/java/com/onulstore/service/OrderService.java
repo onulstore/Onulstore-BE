@@ -17,11 +17,13 @@ import com.onulstore.domain.payment.Payment;
 import com.onulstore.domain.payment.PaymentRepository;
 import com.onulstore.domain.product.Product;
 import com.onulstore.domain.product.ProductRepository;
+import com.onulstore.web.dto.DashboardDto;
+import com.onulstore.web.dto.DashboardDto.PaidAndDeliveredOrders;
 import com.onulstore.web.dto.OrderDto;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -339,7 +341,7 @@ public class OrderService {
         return orders;
     }
 
-    public List<Long> salesAmount(LocalDateTime localDateTime) {
+    public DashboardDto.TotalSaleAmounts salesAmount(LocalDateTime localDateTime) {
         if (SecurityContextHolder.getContext().getAuthentication().getPrincipal()
             .equals("anonymousUser")) {
             throw new CustomException(CustomErrorResult.LOGIN_NEEDED);
@@ -360,11 +362,14 @@ public class OrderService {
                 totalCount += orderProduct.getCount();
             }
         }
-        List<Long> salesAmount = Arrays.asList(totalPrice, totalCount);
-        return salesAmount;
+        DashboardDto.TotalSaleAmounts totalSaleAmounts = DashboardDto.TotalSaleAmounts.builder()
+            .totalCount(totalCount)
+            .totalPrice(totalPrice)
+            .build();
+        return totalSaleAmounts;
     }
 
-    public List<Long> salesByCategory(LocalDateTime localDateTime) {
+    public DashboardDto.DashboardCategoryResponse salesByCategory(LocalDateTime localDateTime) {
         if (SecurityContextHolder.getContext().getAuthentication().getPrincipal()
             .equals("anonymousUser")) {
             throw new CustomException(CustomErrorResult.LOGIN_NEEDED);
@@ -391,11 +396,16 @@ public class OrderService {
                 }
             }
         }
-        List<Long> countByCategory = Arrays.asList(fashion, living, beauty);
-        return countByCategory;
+        DashboardDto.DashboardCategoryResponse dashboardCategoryResponse =
+            DashboardDto.DashboardCategoryResponse.builder()
+                .fashionCounts(fashion)
+                .livingCounts(living)
+                .beautyCounts(beauty)
+                .build();
+        return dashboardCategoryResponse;
     }
 
-    public List<Long> paidAndDeliver(LocalDateTime localDateTime) {
+    public PaidAndDeliveredOrders paidAndDeliveredOrders(LocalDateTime localDateTime) {
         if (SecurityContextHolder.getContext().getAuthentication().getPrincipal()
             .equals("anonymousUser")) {
             throw new CustomException(CustomErrorResult.LOGIN_NEEDED);
@@ -411,11 +421,15 @@ public class OrderService {
         Long deliveredOrders = orderRepository.countByOrderStatusAndCreatedDateAfter(
             OrderStatus.PURCHASE_CONFIRM, localDateTime);
         Long entireOrders = orderRepository.countByCreatedDateAfter(localDateTime);
-        List<Long> countByOrders = Arrays.asList(paidOrders, deliveredOrders, entireOrders);
-        return countByOrders;
+        DashboardDto.PaidAndDeliveredOrders orders = DashboardDto.PaidAndDeliveredOrders.builder()
+            .paidOrders(paidOrders)
+            .deliveredOrders(deliveredOrders)
+            .entireOrders(entireOrders)
+            .build();
+        return orders;
     }
 
-    public List<Long> dailyOrderStatistic(LocalDateTime localDateTime, OrderStatus orderStatus) {
+    public DashboardDto.DailyStatistic dailyOrderStatistic(LocalDateTime localDateTime, OrderStatus orderStatus) {
         if (SecurityContextHolder.getContext().getAuthentication().getPrincipal()
             .equals("anonymousUser")) {
             throw new CustomException(CustomErrorResult.LOGIN_NEEDED);
@@ -427,9 +441,20 @@ public class OrderService {
         }
 
         List<Long> dailyOrderStatistic = new ArrayList<>();
-        for(int i=0; i<7; i++) {
-            dailyOrderStatistic.add(orderRepository.countByOrderStatusAndCreatedDateBetween(orderStatus, localDateTime.plusDays(i), localDateTime.plusDays(i+1)));
+        for (int i = 0; i < 7; i++) {
+            dailyOrderStatistic.add(
+                orderRepository.countByOrderStatusAndCreatedDateBetween(orderStatus,
+                    localDateTime.plusDays(i), localDateTime.plusDays(i + 1)));
         }
-        return dailyOrderStatistic;
+        DashboardDto.DailyStatistic dailyStatistic = DashboardDto.DailyStatistic.builder()
+            .statistic(dailyOrderStatistic)
+            .build();
+        return dailyStatistic;
+    }
+
+    public List<OrderDto.OrderResponse> recentOrders() {
+        List<OrderDto.OrderResponse> orderResponsesList = orderRepository.findTop10ByOrderByCreatedDateDesc()
+            .stream().map(OrderDto.OrderResponse::of).collect(Collectors.toList());
+        return orderResponsesList;
     }
 }
