@@ -415,4 +415,21 @@ public class OrderService {
         return countByOrders;
     }
 
+    public List<Long> dailyOrderStatistic(LocalDateTime localDateTime, OrderStatus orderStatus) {
+        if (SecurityContextHolder.getContext().getAuthentication().getPrincipal()
+            .equals("anonymousUser")) {
+            throw new CustomException(CustomErrorResult.LOGIN_NEEDED);
+        }
+        Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId())
+            .orElseThrow(() -> new CustomException(CustomErrorResult.NOT_EXIST_USER));
+        if (!member.getAuthority().equals(Authority.ROLE_ADMIN.getKey())) {
+            throw new CustomException(CustomErrorResult.ACCESS_PRIVILEGE);
+        }
+
+        List<Long> dailyOrderStatistic = new ArrayList<>();
+        for(int i=0; i<7; i++) {
+            dailyOrderStatistic.add(orderRepository.countByOrderStatusAndCreatedDateBetween(orderStatus, localDateTime.plusDays(i), localDateTime.plusDays(i+1)));
+        }
+        return dailyOrderStatistic;
+    }
 }
