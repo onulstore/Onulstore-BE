@@ -1,5 +1,6 @@
 package com.onulstore.web.controller;
 
+import com.onulstore.domain.enums.OrderStatus;
 import com.onulstore.domain.member.Member;
 import com.onulstore.service.AuthService;
 import com.onulstore.service.MemberService;
@@ -7,6 +8,7 @@ import com.onulstore.service.OrderService;
 import com.onulstore.service.ProductService;
 import com.onulstore.service.QuestionService;
 import com.onulstore.service.ReviewService;
+import com.onulstore.web.dto.DailyStatisticDto;
 import com.onulstore.web.dto.DashboardDto;
 import com.onulstore.web.dto.MemberDto;
 import com.onulstore.web.dto.RequestTimeDto;
@@ -22,6 +24,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -122,4 +125,12 @@ public class AdminController {
         return ResponseEntity.ok(orderService.paidAndDeliver(requestTimeDto.getLocalDateTime()));
     }
 
+    @ApiOperation(value = "대쉬보드 통계 / 인증 필요(관리자)")
+    @PostMapping("dashboard/dailystatistic")
+    public ResponseEntity<List<Long>> getDailyStatistic(
+        @RequestBody DailyStatisticDto dailyStatisticDto) {
+        return ResponseEntity.ok(
+            orderService.dailyOrderStatistic(dailyStatisticDto.getLocalDateTime(),
+                dailyStatisticDto.getOrderStatus()));
+    }
 }

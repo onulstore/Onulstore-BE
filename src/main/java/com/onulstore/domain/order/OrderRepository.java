@@ -30,4 +30,6 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
     Long countByOrderStatusAndCreatedDateAfter(OrderStatus orderStatus, LocalDateTime localDateTime);
 
     Long countByCreatedDateAfter(LocalDateTime localDateTime);
+
+    Long countByOrderStatusAndCreatedDateBetween(OrderStatus orderStatus, LocalDateTime start, LocalDateTime end);
 }
