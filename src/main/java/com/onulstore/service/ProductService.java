@@ -20,6 +20,8 @@ import com.onulstore.domain.product.ProductImageRepository;
 import com.onulstore.domain.product.ProductRepository;
 import com.onulstore.domain.wishlist.Wishlist;
 import com.onulstore.domain.wishlist.WishlistRepository;
+import com.onulstore.web.dto.DashboardDto;
+import com.onulstore.web.dto.DashboardDto.DashboardProductResponse;
 import com.onulstore.web.dto.ProductDto;
 import com.onulstore.web.dto.ProductDto.DiscountProductDto;
 import com.onulstore.web.dto.ProductDto.ProductResponse;
@@ -283,7 +285,7 @@ public class ProductService {
     }
 
     @Transactional
-    public List<Long> productDashBoard(LocalDateTime localDateTime) {
+    public DashboardDto.DashboardProductResponse productDashBoard(LocalDateTime localDateTime) {
         loginCheck();
         Member member = getMember();
         authorityCheck(member);
@@ -292,8 +294,12 @@ public class ProductService {
             ProductStatus.SALE, localDateTime);
         Long entireProducts = productRepository.countByCreatedDateAfter(
             localDateTime);
-        List<Long> registerProductsAndSaleProducts = Arrays.asList(entireProducts, saleProducts);
-        return registerProductsAndSaleProducts;
+        DashboardDto.DashboardProductResponse dashboardProductResponse =
+            DashboardProductResponse.builder()
+                .onSaleProducts(saleProducts)
+                .entireProducts(entireProducts)
+                .build();
+        return dashboardProductResponse;
     }
 
     @Transactional
