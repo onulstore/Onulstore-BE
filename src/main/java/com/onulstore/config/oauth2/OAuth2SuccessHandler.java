@@ -2,10 +2,12 @@ package com.onulstore.config.oauth2;
 
 import com.onulstore.config.jwt.TokenProvider;
 import com.onulstore.web.dto.TokenDto;
+
 import java.io.IOException;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
@@ -21,7 +23,7 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
-        Authentication authentication) throws IOException {
+                                        Authentication authentication) throws IOException {
 
         TokenDto tokenDto = tokenProvider.generateToken(authentication);
 
@@ -32,6 +34,6 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         response.addCookie(refreshToken);
         log.info(accessToken.getName() + " : " + accessToken.getValue());
 
-        response.sendRedirect("http://onulstore.dlcpop.com/");
+        response.sendRedirect("https://onulstore.netlify.app/");
     }
 }
