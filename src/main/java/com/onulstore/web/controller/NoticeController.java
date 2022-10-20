@@ -24,15 +24,14 @@ public class NoticeController {
 
     @PostMapping
     @ApiOperation(value = "공지 등록 / 인증 필요(관리자)")
-    public ResponseEntity<NoticeDto.NoticeResponse> addNotice(
-        @RequestBody NoticeDto.NoticeRequest noticeRequest) {
+    public ResponseEntity<NoticeDto.NoticeResponse> addNotice(@RequestBody NoticeDto.NoticeRequest noticeRequest) {
         return ResponseEntity.ok(noticeService.addNotice(noticeRequest));
     }
 
     @PutMapping("/{noticeId}")
     @ApiOperation(value = "공지 수정 / 인증 필요(관리자)")
-    public ResponseEntity<NoticeDto.NoticeResponse> updateNotice(
-        @RequestBody NoticeDto.NoticeRequest noticeRequest, @PathVariable Long noticeId) {
+    public ResponseEntity<NoticeDto.NoticeResponse> updateNotice(@RequestBody NoticeDto.NoticeRequest noticeRequest,
+                                                                 @PathVariable Long noticeId) {
         return ResponseEntity.ok(noticeService.updateNotice(noticeRequest, noticeId));
     }
 
@@ -55,11 +54,26 @@ public class NoticeController {
         return ResponseEntity.ok("공지가 삭제되었습니다.");
     }
 
+    @PostMapping("/banner")
+    @ApiOperation(value = "홈 배너 내용 등록 / 인증 필요(관리자)")
+    public ResponseEntity<NoticeDto.NoticeResponse> addBanner(@RequestBody NoticeDto.BannerRequest bannerRequest) {
+        return ResponseEntity.ok(noticeService.addBanner(bannerRequest));
+    }
+
+    @PutMapping("/{noticeId}/banner")
+    @ApiOperation(value = "홈 배너 내용 수정 / 인증 필요(관리자)")
+    public ResponseEntity<NoticeDto.NoticeResponse> addBanner(@RequestBody NoticeDto.BannerRequest bannerRequest,
+                                                              @PathVariable Long noticeId) {
+        return ResponseEntity.ok(noticeService.updateBanner(bannerRequest, noticeId));
+    }
+
+
     @PostMapping("/{noticeId}/content")
-    @ApiOperation(value = "공지 내용 업로드 / 인증 필요(관리자)")
+    @ApiOperation(value = "공지 내용(이미지) 업로드 / 인증 필요(관리자)")
     public ResponseEntity<String> uploadImage(@RequestParam("contents") MultipartFile multipartFile,
-        @PathVariable Long noticeId) throws IOException {
-        return ResponseEntity.ok(noticeService.uploadContent(multipartFile, noticeId));
+                                              @PathVariable Long noticeId) throws IOException {
+        noticeService.uploadContent(multipartFile, noticeId);
+        return ResponseEntity.ok("공지 내용(이미지)이 등록되었습니다.");
     }
 
 }
