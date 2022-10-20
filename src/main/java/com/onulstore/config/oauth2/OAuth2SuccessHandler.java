@@ -13,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
+import org.springframework.web.util.UriComponentsBuilder;
 
 @Slf4j
 @Component
@@ -27,13 +28,11 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 
         TokenDto tokenDto = tokenProvider.generateToken(authentication);
 
-        Cookie accessToken = new Cookie("accessToken", tokenDto.getAccessToken());
-        Cookie refreshToken = new Cookie("refreshToken", tokenDto.getRefreshToken());
-
-        response.addCookie(accessToken);
-        response.addCookie(refreshToken);
-        log.info(accessToken.getName() + " : " + accessToken.getValue());
-
-        response.sendRedirect("https://onulstore.netlify.app/");
+        String uri;
+        uri = UriComponentsBuilder.fromUriString("https://onulstore.netlify.app/")
+                .queryParam("Access Token", tokenDto.getAccessToken())
+                .queryParam("Refresh Token", tokenDto.getRefreshToken())
+                .build().toUriString();
+        getRedirectStrategy().sendRedirect(request, response, uri);
     }
 }

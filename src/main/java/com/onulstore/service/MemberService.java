@@ -13,10 +13,12 @@ import com.onulstore.web.dto.MemberDto;
 import com.onulstore.web.dto.PasswordDto;
 import com.onulstore.web.dto.ProductDto;
 import com.onulstore.web.dto.ProductDto.ProductResponse;
+
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -35,18 +37,18 @@ public class MemberService {
 
     public MemberDto.MemberResponse getMyInfo() {
         return memberRepository.findById(SecurityUtil.getCurrentMemberId())
-            .map(MemberDto.MemberResponse::of)
-            .orElseThrow(() -> new CustomException(CustomErrorResult.NOT_EXIST_USER));
+                .map(MemberDto.MemberResponse::of)
+                .orElseThrow(() -> new CustomException(CustomErrorResult.NOT_EXIST_USER));
     }
 
     @Transactional
     public MemberDto.MemberResponse updateProfile(MemberDto.UpdateRequest updateRequest) {
         if (SecurityContextHolder.getContext().getAuthentication().getPrincipal()
-            .equals("anonymousUser")) {
+                .equals("anonymousUser")) {
             throw new CustomException(CustomErrorResult.LOGIN_NEEDED);
         }
         Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId())
-            .orElseThrow(() -> new CustomException(CustomErrorResult.NOT_EXIST_USER));
+                .orElseThrow(() -> new CustomException(CustomErrorResult.NOT_EXIST_USER));
         Member updateMember = member.updateProfile(updateRequest);
         return MemberDto.MemberResponse.of(memberRepository.save(updateMember));
     }
@@ -54,44 +56,44 @@ public class MemberService {
     @Transactional
     public void deleteProfile() {
         if (SecurityContextHolder.getContext().getAuthentication().getPrincipal()
-            .equals("anonymousUser")) {
+                .equals("anonymousUser")) {
             throw new CustomException(CustomErrorResult.LOGIN_NEEDED);
         }
         Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId())
-            .orElseThrow(() -> new CustomException(CustomErrorResult.NOT_EXIST_USER));
+                .orElseThrow(() -> new CustomException(CustomErrorResult.NOT_EXIST_USER));
         memberRepository.delete(member);
     }
 
     @Transactional
     public void updatePassword(PasswordDto passwordDto) {
         if (SecurityContextHolder.getContext().getAuthentication().getPrincipal()
-            .equals("anonymousUser")) {
+                .equals("anonymousUser")) {
             throw new CustomException(CustomErrorResult.LOGIN_NEEDED);
         }
         Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId())
-            .orElseThrow(() -> new CustomException(CustomErrorResult.NOT_EXIST_USER));
+                .orElseThrow(() -> new CustomException(CustomErrorResult.NOT_EXIST_USER));
 
         if (!passwordDto.getNewPassword().equals(passwordDto.getNewPasswordConfirm())) {
             throw new CustomException(CustomErrorResult.UPDATE_PASSWORD);
         }
 
         Member updateMember = member.updatePassword(
-            passwordEncoder.encode(passwordDto.getNewPassword()));
+                passwordEncoder.encode(passwordDto.getNewPassword()));
         memberRepository.save(updateMember);
     }
 
     @Transactional
     public ArrayList<ProductResponse> latestProduct(HttpServletRequest request) {
         if (SecurityContextHolder.getContext().getAuthentication().getPrincipal()
-            .equals("anonymousUser")) {
+                .equals("anonymousUser")) {
             throw new CustomException(CustomErrorResult.LOGIN_NEEDED);
         }
         Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId())
-            .orElseThrow(() -> new CustomException(CustomErrorResult.NOT_EXIST_USER));
+                .orElseThrow(() -> new CustomException(CustomErrorResult.NOT_EXIST_USER));
         HttpSession session = request.getSession();
 
         ArrayList<Product> latest = (ArrayList) session.getAttribute("List");
-        if (latest.isEmpty()) {
+        if (latest == null) {
             latest = new ArrayList<>();
         }
         ArrayList<ProductDto.ProductResponse> recentlyViewed = new ArrayList<>();
@@ -104,24 +106,24 @@ public class MemberService {
     @Transactional
     public DashboardDto.DashboardMemberResponse memberDashBoard(LocalDateTime localDateTime) {
         if (SecurityContextHolder.getContext().getAuthentication().getPrincipal()
-            .equals("anonymousUser")) {
+                .equals("anonymousUser")) {
             throw new CustomException(CustomErrorResult.LOGIN_NEEDED);
         }
         Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId())
-            .orElseThrow(() -> new CustomException(CustomErrorResult.NOT_EXIST_USER));
+                .orElseThrow(() -> new CustomException(CustomErrorResult.NOT_EXIST_USER));
         if (!member.getAuthority().equals(Authority.ROLE_ADMIN.getKey())) {
             throw new CustomException(CustomErrorResult.ACCESS_PRIVILEGE); // 에러위치
         }
 
         Long members = memberRepository.countByAuthorityAndCreatedDateAfter(
-            Authority.ROLE_USER.getKey(), localDateTime);
+                Authority.ROLE_USER.getKey(), localDateTime);
         Long sellers = memberRepository.countByAuthorityAndCreatedDateAfter(
-            Authority.ROLE_SELLER.getKey(), localDateTime);
+                Authority.ROLE_SELLER.getKey(), localDateTime);
         DashboardDto.DashboardMemberResponse dashboardMemberResponse =
-            DashboardMemberResponse.builder()
-                .memberCounts(members)
-                .sellerCounts(sellers)
-                .build();
+                DashboardMemberResponse.builder()
+                        .memberCounts(members)
+                        .sellerCounts(sellers)
+                        .build();
         return dashboardMemberResponse;
     }
 }
