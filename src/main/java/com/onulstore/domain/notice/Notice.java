@@ -20,7 +20,6 @@ public class Notice extends BaseTimeEntity {
     @Column
     private String title;
 
-    @Lob
     @Column
     private String content;
 
@@ -30,6 +29,11 @@ public class Notice extends BaseTimeEntity {
     public Notice updateNotice(NoticeDto.NoticeRequest noticeRequest) {
         this.title = noticeRequest.getTitle();
         this.content = noticeRequest.getContent();
+        return this;
+    }
+
+    public Notice updateBanner(NoticeDto.BannerRequest bannerRequest) {
+        this.content = bannerRequest.getContent();
         return this;
     }
 
