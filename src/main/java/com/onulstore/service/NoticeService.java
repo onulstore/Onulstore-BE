@@ -11,12 +11,14 @@ import com.onulstore.domain.member.MemberRepository;
 import com.onulstore.domain.notice.Notice;
 import com.onulstore.domain.notice.NoticeRepository;
 import com.onulstore.web.dto.NoticeDto;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -37,16 +39,17 @@ public class NoticeService {
 
     /**
      * Notice 등록
+     *
      * @param noticeRequest
      * @return Notice 등록 정보
      */
     public NoticeDto.NoticeResponse addNotice(NoticeDto.NoticeRequest noticeRequest) {
         if (SecurityContextHolder.getContext().getAuthentication().getPrincipal()
-            .equals("anonymousUser")) {
+                .equals("anonymousUser")) {
             throw new CustomException(CustomErrorResult.LOGIN_NEEDED);
         }
         Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId())
-            .orElseThrow(() -> new CustomException(CustomErrorResult.NOT_EXIST_USER));
+                .orElseThrow(() -> new CustomException(CustomErrorResult.NOT_EXIST_USER));
         if (!member.getAuthority().equals(Authority.ROLE_ADMIN.getKey())) {
             throw new CustomException(CustomErrorResult.ACCESS_PRIVILEGE);
         }
@@ -57,23 +60,23 @@ public class NoticeService {
 
     /**
      * Notice 수정
+     *
      * @param noticeRequest
      * @param noticeId
      * @return Notice 수정 정보
      */
-    public NoticeDto.NoticeResponse updateNotice(NoticeDto.NoticeRequest noticeRequest,
-        Long noticeId) {
+    public NoticeDto.NoticeResponse updateNotice(NoticeDto.NoticeRequest noticeRequest, Long noticeId) {
         if (SecurityContextHolder.getContext().getAuthentication().getPrincipal()
-            .equals("anonymousUser")) {
+                .equals("anonymousUser")) {
             throw new CustomException(CustomErrorResult.LOGIN_NEEDED);
         }
         Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId())
-            .orElseThrow(() -> new CustomException(CustomErrorResult.NOT_EXIST_USER));
+                .orElseThrow(() -> new CustomException(CustomErrorResult.NOT_EXIST_USER));
         if (!member.getAuthority().equals(Authority.ROLE_ADMIN.getKey())) {
             throw new CustomException(CustomErrorResult.ACCESS_PRIVILEGE);
         }
         Notice findNotice = noticeRepository.findById(noticeId).orElseThrow(
-            () -> new CustomException(CustomErrorResult.NOT_FOUND_NOTICE));
+                () -> new CustomException(CustomErrorResult.NOT_FOUND_NOTICE));
 
         Notice notice = findNotice.updateNotice(noticeRequest);
         return NoticeDto.NoticeResponse.of(noticeRepository.save(notice));
@@ -81,17 +84,19 @@ public class NoticeService {
 
     /**
      * 해당 Notice 조회
+     *
      * @param noticeId
      * @return Notice 정보
      */
     @Transactional(readOnly = true)
     public NoticeDto.NoticeResponse getNotice(Long noticeId) {
         return noticeRepository.findById(noticeId).map(NoticeDto.NoticeResponse::of)
-            .orElseThrow(() -> new CustomException(CustomErrorResult.NOT_FOUND_NOTICE));
+                .orElseThrow(() -> new CustomException(CustomErrorResult.NOT_FOUND_NOTICE));
     }
 
     /**
      * 전체 Notice 조회
+     *
      * @return 전체 Notice 정보
      */
     @Transactional(readOnly = true)
@@ -104,38 +109,82 @@ public class NoticeService {
 
     /**
      * 해당 Notice 삭제
+     *
      * @param noticeId
      */
     public void deleteNotice(Long noticeId) {
-        if (SecurityContextHolder.getContext().getAuthentication().getPrincipal()
-            .equals("anonymousUser")) {
+        if (SecurityContextHolder.getContext().getAuthentication().getPrincipal().equals("anonymousUser")) {
             throw new CustomException(CustomErrorResult.LOGIN_NEEDED);
         }
         Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId())
-            .orElseThrow(() -> new CustomException(CustomErrorResult.NOT_EXIST_USER));
+                .orElseThrow(() -> new CustomException(CustomErrorResult.NOT_EXIST_USER));
         if (!member.getAuthority().equals(Authority.ROLE_ADMIN.getKey())) {
             throw new CustomException(CustomErrorResult.ACCESS_PRIVILEGE);
         }
 
         Notice notice = noticeRepository.findById(noticeId).orElseThrow(
-            () -> new CustomException(CustomErrorResult.NOT_FOUND_NOTICE));
+                () -> new CustomException(CustomErrorResult.NOT_FOUND_NOTICE));
 
         noticeRepository.delete(notice);
     }
 
-    public String uploadContent(MultipartFile multipartFile, Long noticeId) throws IOException {
+    /**
+     * 홈 배너 내용 등록
+     *
+     * @param bannerRequest
+     * @return 등록 결과
+     */
+    public NoticeDto.NoticeResponse addBanner(NoticeDto.BannerRequest bannerRequest) {
         if (SecurityContextHolder.getContext().getAuthentication().getPrincipal()
-            .equals("anonymousUser")) {
+                .equals("anonymousUser")) {
             throw new CustomException(CustomErrorResult.LOGIN_NEEDED);
         }
         Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId())
-            .orElseThrow(() -> new CustomException(CustomErrorResult.NOT_EXIST_USER));
+                .orElseThrow(() -> new CustomException(CustomErrorResult.NOT_EXIST_USER));
+        if (!member.getAuthority().equals(Authority.ROLE_ADMIN.getKey())) {
+            throw new CustomException(CustomErrorResult.ACCESS_PRIVILEGE);
+        }
+
+        return NoticeDto.NoticeResponse.of(noticeRepository.save(bannerRequest.toBanner()));
+    }
+
+    /**
+     * 배너 내용 수정
+     *
+     * @param bannerRequest
+     * @param noticeId
+     * @return 수정 된 내용
+     */
+    public NoticeDto.NoticeResponse updateBanner(NoticeDto.BannerRequest bannerRequest, Long noticeId) {
+        if (SecurityContextHolder.getContext().getAuthentication().getPrincipal()
+                .equals("anonymousUser")) {
+            throw new CustomException(CustomErrorResult.LOGIN_NEEDED);
+        }
+        Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId())
+                .orElseThrow(() -> new CustomException(CustomErrorResult.NOT_EXIST_USER));
         if (!member.getAuthority().equals(Authority.ROLE_ADMIN.getKey())) {
             throw new CustomException(CustomErrorResult.ACCESS_PRIVILEGE);
         }
 
         Notice notice = noticeRepository.findById(noticeId).orElseThrow(
-            () -> new CustomException(CustomErrorResult.NOT_FOUND_NOTICE));
+                () -> new CustomException(CustomErrorResult.NOT_FOUND_NOTICE));
+
+        return NoticeDto.NoticeResponse.of(noticeRepository.save(notice.updateBanner(bannerRequest)));
+    }
+
+    public String uploadContent(MultipartFile multipartFile, Long noticeId) throws IOException {
+        if (SecurityContextHolder.getContext().getAuthentication().getPrincipal()
+                .equals("anonymousUser")) {
+            throw new CustomException(CustomErrorResult.LOGIN_NEEDED);
+        }
+        Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId())
+                .orElseThrow(() -> new CustomException(CustomErrorResult.NOT_EXIST_USER));
+        if (!member.getAuthority().equals(Authority.ROLE_ADMIN.getKey())) {
+            throw new CustomException(CustomErrorResult.ACCESS_PRIVILEGE);
+        }
+
+        Notice notice = noticeRepository.findById(noticeId).orElseThrow(
+                () -> new CustomException(CustomErrorResult.NOT_FOUND_NOTICE));
 
         InputStream inputStream = multipartFile.getInputStream();
         String originFileName = multipartFile.getOriginalFilename();

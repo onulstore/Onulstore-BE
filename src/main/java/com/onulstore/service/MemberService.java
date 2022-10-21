@@ -93,7 +93,7 @@ public class MemberService {
         HttpSession session = request.getSession();
 
         ArrayList<Product> latest = (ArrayList) session.getAttribute("List");
-        if (latest == null) {
+        if (latest.isEmpty()) {
             latest = new ArrayList<>();
         }
         ArrayList<ProductDto.ProductResponse> recentlyViewed = new ArrayList<>();
