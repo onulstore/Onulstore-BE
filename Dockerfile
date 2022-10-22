@@ -1,4 +1,5 @@
-FROM openjdk:11-jre-slim-buster
-ARG JAR_FILE=build/libs/*.jar
+FROM openjdk:11-jdk
+VOLUME /tmp
+ARG JAR_FILE=./build/libs/*.jar
 COPY ${JAR_FILE} app.jar
-ENTRYPOINT ["java","-jar","-Dspring.profiles.active=prod","/app.jar"]
+ENTRYPOINT ["java","-jar","app.jar"]
