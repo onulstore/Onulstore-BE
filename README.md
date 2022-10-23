@@ -92,7 +92,6 @@
     - 생성된 Image를 Docker Hub로 Push
     - Docker Hub로부터 Image를 Pull 하여 해당 이미지를 기반으로 Container Run
 
----
 <br>
 
 ## ER Diagram
@@ -140,17 +139,17 @@
 <div markdown="1">
 
 - `POST`
-  - `/admin/signup` : 입점사 회원가입
-  - `/admin/dashboard` : 전체 대시보드 / 관리자
-  - `/admin/dashboard/categories` : 카테고리 대시보드 / 관리자
-  - `/admin/dashboard/customers` : 질문 및 리뷰 대시보드 / 관리자
-  - `/admin/dashboard/dailyStatistic` : 대시보드 통계 / 관리자
-  - `/admin/dashboard/members` : 회원 대시보드 / 관리자
-  - `/admin/dashboard/orders` : 판매금액 아이템 수 대시보드 / 관리자
-  - `/admin/dashboard/patmentOrders` : 주문 관련 대시보드 / 관리자
-  - `/admin/dashboard/products` : 상품 대시보드 / 관리자
-- `GET` 
-  - `/admin/find` : 전체 회원 조회 / 관리자
+    - `/admin/signup` : 입점사 회원가입
+    - `/admin/dashboard` : 전체 대시보드 / 관리자
+    - `/admin/dashboard/categories` : 카테고리 대시보드 / 관리자
+    - `/admin/dashboard/customers` : 질문 및 리뷰 대시보드 / 관리자
+    - `/admin/dashboard/dailyStatistic` : 대시보드 통계 / 관리자
+    - `/admin/dashboard/members` : 회원 대시보드 / 관리자
+    - `/admin/dashboard/orders` : 판매금액 아이템 수 대시보드 / 관리자
+    - `/admin/dashboard/patmentOrders` : 주문 관련 대시보드 / 관리자
+    - `/admin/dashboard/products` : 상품 대시보드 / 관리자
+- `GET`
+    - `/admin/find` : 전체 회원 조회 / 관리자
 
 </div>
 </details>
@@ -162,10 +161,10 @@
 <div markdown="1">
 
 - `POST`
-  - `/auth/signup` : 회원가입
-  - `/auth/login` : 로그인
-  - `/auth/refresh` : Refresh Token 발급
-  - `/auth/find/email` : 휴대폰 번호로 이메일 찾기
+    - `/auth/signup` : 회원가입
+    - `/auth/login` : 로그인
+    - `/auth/refresh` : Refresh Token 발급
+    - `/auth/find/email` : 휴대폰 번호로 이메일 찾기
 
 </div>
 </details>
@@ -177,14 +176,14 @@
 <div markdown="1">
 
 - `POST`
-  - `/brands` : 브랜드 등록 / 관리자
+    - `/brands` : 브랜드 등록 / 관리자
 - `GET`
-  - `/brands` : 브랜드 전체 조회
-  - `/brands/{brandId}/product` : 브랜드 상품 조회
+    - `/brands` : 브랜드 전체 조회
+    - `/brands/{brandId}/product` : 브랜드 상품 조회
 - `PUT`
-  - `/brands/{brandId}` : 브랜드 수정 / 관리자
+    - `/brands/{brandId}` : 브랜드 수정 / 관리자
 - `DELETE`
-  - `/brands/{brandId}` : 브랜드 삭제 / 관리자
+    - `/brands/{brandId}` : 브랜드 삭제 / 관리자
 
 </div>
 </details>
@@ -196,13 +195,13 @@
 <div markdown="1">
 
 - `POST`
-  - `/carts` : 장바구니 등록
-  - `/carts/{cartId}/plus` : 장바구니 수량 증가
-  - `/carts/{cartId}/minus` : 장바구니 수량 감소
+    - `/carts` : 장바구니 등록
+    - `/carts/{cartId}/plus` : 장바구니 수량 증가
+    - `/carts/{cartId}/minus` : 장바구니 수량 감소
 - `GET`
-  - `/carts` : 장바구니 조회
+    - `/carts` : 장바구니 조회
 - `DELETE`
-  - `/carts/{cartId}` : 장바구니 삭제
+    - `/carts/{cartId}` : 장바구니 삭제
 
 </div>
 </details>
@@ -214,14 +213,14 @@
 <div markdown="1">
 
 - `POST`
-  - `/categories` : 카테고리 등록 / 관리자
+    - `/categories` : 카테고리 등록 / 관리자
 - `GET`
-  - `/categories` : 카테고리 전체 조회
-  - `/categories/{categoryId}/product` : 카테고리 상품 조회
+    - `/categories` : 카테고리 전체 조회
+    - `/categories/{categoryId}/product` : 카테고리 상품 조회
 - `PUT`
-  - `/categories/{categoryId}` : 카테고리 수정 / 관리자
+    - `/categories/{categoryId}` : 카테고리 수정 / 관리자
 - `DELETE`
-  - `/categories/{categoryId}` : 카테고리 삭제 / 관리자
+    - `/categories/{categoryId}` : 카테고리 삭제 / 관리자
 
 </div>
 </details>
@@ -233,10 +232,10 @@
 <div markdown="1">
 
 - `POST`
-  - `/coupon` : 특정 유저에게 쿠폰 등록 / 관리자
-  - `/coupons` : 모두에게 쿠폰 등록 / 관리자
+    - `/coupon` : 특정 유저에게 쿠폰 등록 / 관리자
+    - `/coupons` : 모두에게 쿠폰 등록 / 관리자
 - `GET`
-  - `/mycoupons` : 쿠폰 조회
+    - `/mycoupons` : 쿠폰 조회
 
 </div>
 </details>
@@ -248,20 +247,20 @@
 <div markdown="1">
 
 - `POST`
-  - `/curations/magazine` : 매거진 등록 / 관리자
-  - `/curations/recommend` : MD추천 등록 / 관리자
-  - `/curations/{curationId}/image` : 큐레이션 이미지 등록 / 관리자
+    - `/curations/magazine` : 매거진 등록 / 관리자
+    - `/curations/recommend` : MD추천 등록 / 관리자
+    - `/curations/{curationId}/image` : 큐레이션 이미지 등록 / 관리자
 - `GET`
-  - `/curations` : 큐레이션 조회
-  - `/curations/{curationId}` : 특정 큐레이션 조회
-  - `/curations/magazine` : 매거진 전체 조회
-  - `/curations/recommend` : MD추천 전체 조회
+    - `/curations` : 큐레이션 조회
+    - `/curations/{curationId}` : 특정 큐레이션 조회
+    - `/curations/magazine` : 매거진 전체 조회
+    - `/curations/recommend` : MD추천 전체 조회
 - `PUT`
-  - `/curations/{curationId}` : 큐레이션 수정 / 관리자
-  - `/curations/{curationId}/display` : 공개 여부 TRUE / 관리자
-  - `/curations/{curationId}/unDisplay` : 공개 여부 FALSE / 관리자
+    - `/curations/{curationId}` : 큐레이션 수정 / 관리자
+    - `/curations/{curationId}/display` : 공개 여부 TRUE / 관리자
+    - `/curations/{curationId}/unDisplay` : 공개 여부 FALSE / 관리자
 - `DELETE`
-  - `/curations/{curationId}` : 큐레이션 삭제 / 관리자
+    - `/curations/{curationId}` : 큐레이션 삭제 / 관리자
 
 </div>
 </details>
@@ -273,13 +272,13 @@
 <div markdown="1">
 
 - `GET`
-  - `/members` : 내 정보
-  - `/members/latest` : 최근 본 상품
+    - `/members` : 내 정보
+    - `/members/latest` : 최근 본 상품
 - `PUT`
-  - `/members` : 프로필 수정
-  - `/members/password` : 비밀번호 수정
+    - `/members` : 프로필 수정
+    - `/members/password` : 비밀번호 수정
 - `DELETE`
-  - `/members` : 회원 탈퇴
+    - `/members` : 회원 탈퇴
 
 </div>
 </details>
@@ -291,17 +290,17 @@
 <div markdown="1">
 
 - `POST`
-  - `/notices` : 공지 등록 / 관리자
-  - `/notices/banner` : 홈 배너 내용 등록 / 관리자
-  - `/notices/{noticeId}/image` : 공지 내용(이미지) 업로드 / 관리자
+    - `/notices` : 공지 등록 / 관리자
+    - `/notices/banner` : 홈 배너 내용 등록 / 관리자
+    - `/notices/{noticeId}/image` : 공지 내용(이미지) 업로드 / 관리자
 - `GET`
-  - `/notices` : 공지 조회
-  - `/notices/{noticeId}` : 특정 공지 조회
+    - `/notices` : 공지 조회
+    - `/notices/{noticeId}` : 특정 공지 조회
 - `PUT`
-  - `/notices/{noticeId}` : 공지 수정 / 관리자
-  - `/notices/{noticeId}/banner` : 홈 배너 내용 수정 / 관리자
+    - `/notices/{noticeId}` : 공지 수정 / 관리자
+    - `/notices/{noticeId}/banner` : 홈 배너 내용 수정 / 관리자
 - `DELETE`
-  - `/notices/{noticeId}` : 공지 삭제 / 관리자
+    - `/notices/{noticeId}` : 공지 삭제 / 관리자
 
 </div>
 </details>
@@ -313,18 +312,18 @@
 <div markdown="1">
 
 - `POST`
-  - `/orders` : 단일 상품 주문
-  - `/orders/cartorder` : 장바구니 상품 선택 주문
+    - `/orders` : 단일 상품 주문
+    - `/orders/cartorder` : 장바구니 상품 선택 주문
 - `GET`
-  - `/orders` : 주문 및 결제 내역 조회
-  - `/orders/{orderId}` : 특정 주문의 주문 및 결제 내역 조회
-  - `/orders/entire` : 전체 주문 및 결제 내역 조회 / 관리자
+    - `/orders` : 주문 및 결제 내역 조회
+    - `/orders/{orderId}` : 특정 주문의 주문 및 결제 내역 조회
+    - `/orders/entire` : 전체 주문 및 결제 내역 조회 / 관리자
 - `PUT`
-  - `/orders` : 주문 상태 변경(환불 요청 / 구매 확정)
-  - `/orders/{orderId}` : 환불 완료 / 관리자
-  - `/orders/update` : 해당 주문 회원 정보 변경 
+    - `/orders` : 주문 상태 변경(환불 요청 / 구매 확정)
+    - `/orders/{orderId}` : 환불 완료 / 관리자
+    - `/orders/update` : 해당 주문 회원 정보 변경
 - `DELETE`
-  - `/orders/{orderId}` : 브랜드 삭제
+    - `/orders/{orderId}` : 브랜드 삭제
 
 </div>
 </details>
@@ -336,7 +335,7 @@
 <div markdown="1">
 
 - `POST`
-  - `/payments` : 결제 하기
+    - `/payments` : 결제 하기
 
 </div>
 </details>
@@ -348,19 +347,19 @@
 <div markdown="1">
 
 - `POST`
-  - `/products` : 상품 등록 / 관리자
-  - `/products/search` : 상품 검색
-  - `/products/discount/{productId}` : 상품 할인 추가 / 관리자
-  - `/products/{productId}/content` : 상품 설명 업로드 / 관리자
-  - `/products/{productId}/image` : 상품 이미지 업로드 / 관리자
+    - `/products` : 상품 등록 / 관리자
+    - `/products/search` : 상품 검색
+    - `/products/discount/{productId}` : 상품 할인 추가 / 관리자
+    - `/products/{productId}/content` : 상품 설명 업로드 / 관리자
+    - `/products/{productId}/image` : 상품 이미지 업로드 / 관리자
 - `GET`
-  - `/products/list` : 상품 전체 조회
-  - `/products/{productId}` : 상품 상세 조회
+    - `/products/list` : 상품 전체 조회
+    - `/products/{productId}` : 상품 상세 조회
 - `PUT`
-  - `/products/{productId}` : 상품 수정 / 관리자
+    - `/products/{productId}` : 상품 수정 / 관리자
 - `DELETE`
-  - `/products/{productId}` : 상품 삭제 / 관리자
-  - `/products/{productId}/image` : 상품 이미지 삭제 / 관리자
+    - `/products/{productId}` : 상품 삭제 / 관리자
+    - `/products/{productId}/image` : 상품 이미지 삭제 / 관리자
 
 </div>
 </details>
@@ -372,15 +371,15 @@
 <div markdown="1">
 
 - `POST`
-  - `/questions` : 질문 등록
+    - `/questions` : 질문 등록
 - `GET`
-  - `/members/questions` : 질문 전체 조회(멤버별)
-  - `/questions/{productId}` : 질문 전체 조회(상품별)
-  - `/questions/{productId}/{questionId}` : 질문 상세 조회
+    - `/members/questions` : 질문 전체 조회(멤버별)
+    - `/questions/{productId}` : 질문 전체 조회(상품별)
+    - `/questions/{productId}/{questionId}` : 질문 상세 조회
 - `PUT`
-  - `/questions/{questionId}` : 질문 수정
+    - `/questions/{questionId}` : 질문 수정
 - `DELETE`
-  - `/questions/{questionId}` : 질문 삭제
+    - `/questions/{questionId}` : 질문 삭제
 
 </div>
 </details>
@@ -392,9 +391,9 @@
 <div markdown="1">
 
 - `POST`
-  - `/questions/{questionId}/answers` : 답변 등록 / 관리자
+    - `/questions/{questionId}/answers` : 답변 등록 / 관리자
 - `GET`
-  - `/questions/{questionId}/answers/{answerId}` : 답변 조회
+    - `/questions/{questionId}/answers/{answerId}` : 답변 조회
 
 </div>
 </details>
@@ -406,16 +405,16 @@
 <div markdown="1">
 
 - `POST`
-  - `/reviews/{orderId}` : 리뷰 등록
-  - `/reviews/{reviewId}/image` : 리뷰 이미지 등록
+    - `/reviews/{orderId}` : 리뷰 등록
+    - `/reviews/{reviewId}/image` : 리뷰 이미지 등록
 - `GET`
-  - `/members/reviews` : 리뷰 목록 조회(멤버별)
-  - `/products/{productId}/reviews` : 리뷰 목록 조회(상품별)
-  - `/reviews/{reviewId}` : 리뷰 상세 조회
+    - `/members/reviews` : 리뷰 목록 조회(멤버별)
+    - `/products/{productId}/reviews` : 리뷰 목록 조회(상품별)
+    - `/reviews/{reviewId}` : 리뷰 상세 조회
 - `PUT`
-  - `/reviews/{reviewId}` : 리뷰 수정
+    - `/reviews/{reviewId}` : 리뷰 수정
 - `DELETE`
-  - `/reviews/{reviewId}` : 리뷰 삭제
+    - `/reviews/{reviewId}` : 리뷰 삭제
 
 </div>
 </details>
@@ -427,16 +426,14 @@
 <div markdown="1">
 
 - `POST`
-  - `/wishlists` : 찜 등록
+    - `/wishlists` : 찜 등록
 - `GET`
-  - `/wishlists` : 찜 조회
+    - `/wishlists` : 찜 조회
 - `DELETE`
-  - `/wishlists/{productId}` : 찜 삭제
+    - `/wishlists/{productId}` : 찜 삭제
 
 </div>
 </details>
-
-<br>
 
 <br>
 
