@@ -49,7 +49,7 @@ public class OrderController {
         return ResponseEntity.ok("상품 주문이 완료되었습니다.");
     }
 
-    @PostMapping("/cartOrder")
+    @PostMapping("/cartorder")
     @ApiOperation(value = "장바구니 선택 상품 주문 생성 / 인증 필요")
     public ResponseEntity<String> CreateOrderList(
             @RequestBody OrderDto.CartOrderRequest cartOrderRequest) {
