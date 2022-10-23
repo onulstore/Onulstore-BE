@@ -1,4 +1,4 @@
-![logo](https://user-images.githubusercontent.com/77063888/197363644-48e4ede5-8331-4e04-8646-bac58f17a105.jpg)
+<img alt="logo" src="https://user-images.githubusercontent.com/77063888/197363644-48e4ede5-8331-4e04-8646-bac58f17a105.jpg">
 
 ## Project Overview
 
