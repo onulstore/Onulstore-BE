@@ -21,11 +21,11 @@
 `Client` : https://onulstore.netlify.app/ <br>
 `API Server` : https://onulstore.breon.ml/
 
-
 `Front-End Repository` : <br>
+
 - [Onulstore-FE](https://github.com/onulstore/Onulstore-FE)<br>
 - [Onulstore-FE-admin](https://github.com/onulstore/Onulstore-FE-admin)
-<br>
+  <br>
 
 ## Team
 
@@ -47,7 +47,6 @@
 |[@leewg97](https://github.com/leewg97)|[@diaboloss217](https://github.com/diaboloss217)|[@army246](https://github.com/army246)|
 |<img width="100" height="100" alt="image" src="https://user-images.githubusercontent.com/77063888/197363851-20b70139-4b2a-4615-baea-1695250e5c3f.jpg">|<img width="100" height="100" alt="image" src="https://user-images.githubusercontent.com/77063888/197363846-d309ab48-4236-49d6-85f8-1cfa287ba4fa.jpg">|<img width="100" height="100" alt="image" src="https://user-images.githubusercontent.com/77063888/197363849-ab42e7c2-fa78-4761-b3d7-5c373937ccca.jpg">|
 
-
 ## Back-End 역할 분담
 
 `이원근` : 서버 구축(EC2, RDS, Route 53), CI/CD, Docker, 인증, 회원, 브랜드, 카테고리, 큐레이션, 공지, 주문, 결제<br>
@@ -68,6 +67,7 @@
 `Gradle` : 7.5 <br>
 `DataBase` : MySQL 8.0.28 <br>
 `AWS EC2` : <br>
+
 - Jenkins Server : Ubuntu<br>
 - API Server : Amazon Linux 2 Kernel 5.10 <br>
 
@@ -75,7 +75,7 @@
 
 ## Service Architecture
 
-![Service Architecture](https://user-images.githubusercontent.com/77063888/197365071-f85943eb-b47e-4f98-9657-59feadf94757.png)
+![Service Architecture](https://user-images.githubusercontent.com/77063888/197367655-6565313d-73a6-46ec-ab96-c821ee00aa87.png)
 
 - Jenkins Server와 API Server, 총 2개의 EC2를 사용합니다.
 - 두 개의 EC2 인스턴스에는 CI/CD를 위한 Jenkins Container와 Main Server인 Spring Container로 각각 하나씩 존재합니다.
