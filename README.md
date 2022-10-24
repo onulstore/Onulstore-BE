@@ -50,7 +50,7 @@
 ## Back-End 역할 분담
 
 `이원근` : 
-- 서버(EC2, RDS, Route 53), CI/CD(Jenkins, Docker)
+- 서버(AWS EC2, RDS, Route 53), CI/CD(Jenkins, Docker)
 - 인증, 회원, 브랜드, 카테고리, 큐레이션, 공지, 주문, 결제
 
 `여병규` : 
