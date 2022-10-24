@@ -103,6 +103,7 @@
 <details>
 <summary>Onulstore-BE</summary>
 <div markdown="1">
+
 ```
  src
   ├─ main
@@ -123,6 +124,7 @@
   │  └─ resources
   └─ test
 ```
+
 </div>
 </details>
 
@@ -154,8 +156,6 @@
 </div>
 </details>
 
-<br>
-
 <details>
 <summary>인증 관련</summary>
 <div markdown="1">
@@ -168,8 +168,6 @@
 
 </div>
 </details>
-
-<br>
 
 <details>
 <summary>브랜드 관련</summary>
@@ -188,8 +186,6 @@
 </div>
 </details>
 
-<br>
-
 <details>
 <summary>장바구니 관련</summary>
 <div markdown="1">
@@ -205,8 +201,6 @@
 
 </div>
 </details>
-
-<br>
 
 <details>
 <summary>카테고리 관련</summary>
@@ -225,8 +219,6 @@
 </div>
 </details>
 
-<br>
-
 <details>
 <summary>쿠폰 관련</summary>
 <div markdown="1">
@@ -239,8 +231,6 @@
 
 </div>
 </details>
-
-<br>
 
 <details>
 <summary>큐레이션 관련</summary>
@@ -265,8 +255,6 @@
 </div>
 </details>
 
-<br>
-
 <details>
 <summary>회원 관련</summary>
 <div markdown="1">
@@ -282,8 +270,6 @@
 
 </div>
 </details>
-
-<br>
 
 <details>
 <summary>공지 관련</summary>
@@ -304,8 +290,6 @@
 
 </div>
 </details>
-
-<br>
 
 <details>
 <summary>주문 관련</summary>
@@ -328,8 +312,6 @@
 </div>
 </details>
 
-<br>
-
 <details>
 <summary>결제 관련</summary>
 <div markdown="1">
@@ -339,8 +321,6 @@
 
 </div>
 </details>
-
-<br>
 
 <details>
 <summary>상품 관련</summary>
@@ -364,8 +344,6 @@
 </div>
 </details>
 
-<br>
-
 <details>
 <summary>질문 관련</summary>
 <div markdown="1">
@@ -384,8 +362,6 @@
 </div>
 </details>
 
-<br>
-
 <details>
 <summary>답변 관련</summary>
 <div markdown="1">
@@ -397,8 +373,6 @@
 
 </div>
 </details>
-
-<br>
 
 <details>
 <summary>리뷰 관련</summary>
@@ -418,8 +392,6 @@
 
 </div>
 </details>
-
-<br>
 
 <details>
 <summary>찜 관련</summary>
