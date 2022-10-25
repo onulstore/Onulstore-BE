@@ -57,7 +57,7 @@
 
 ## Tech Stack
 
-![Tech Stack](https://user-images.githubusercontent.com/77063888/197366791-01e0fb5e-d2b4-478e-b617-c8f4b37a4083.png)
+![Tech Stack](https://user-images.githubusercontent.com/77063888/197776319-19f6799e-a873-4af3-a21d-f36e481d9e39.png)
 
 ### Development Environment
 
