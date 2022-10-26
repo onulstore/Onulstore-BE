@@ -2,8 +2,6 @@ package com.onulstore.service;
 
 import com.onulstore.config.SecurityUtil;
 import com.onulstore.config.exception.CustomException;
-import com.onulstore.config.jwt.RefreshToken;
-import com.onulstore.config.jwt.RefreshTokenRepository;
 import com.onulstore.config.jwt.TokenProvider;
 import com.onulstore.domain.enums.Authority;
 import com.onulstore.domain.enums.CustomErrorResult;
@@ -13,6 +11,7 @@ import com.onulstore.web.dto.LoginDto;
 import com.onulstore.web.dto.MemberDto;
 import com.onulstore.web.dto.TokenDto;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
@@ -20,10 +19,12 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.ObjectUtils;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 @Service
 @Transactional
@@ -34,23 +35,20 @@ public class AuthService {
     private final MemberRepository memberRepository;
     private final PasswordEncoder passwordEncoder;
     private final TokenProvider tokenProvider;
-    private final RefreshTokenRepository refreshTokenRepository;
+    private final RedisTemplate<String, String> redisTemplate;
 
     /**
      * 회원가입
+     *
      * @param signupRequest
      * @return 회원가입 정보
      */
     public MemberDto.MemberResponse signup(MemberDto.MemberRequest signupRequest) {
         if (memberRepository.existsByEmail(signupRequest.getEmail())) {
             throw new CustomException(CustomErrorResult.DUPLICATE_USER_ID);
-        }
-
-        if (memberRepository.existsByPhoneNum(signupRequest.getPhoneNum())) {
+        } else if (memberRepository.existsByPhoneNum(signupRequest.getPhoneNum())) {
             throw new CustomException(CustomErrorResult.DUPLICATE_PHONE_NUMBER);
-        }
-
-        if (!signupRequest.getPassword().equals(signupRequest.getPasswordConfirm())) {
+        } else if (!signupRequest.getPassword().equals(signupRequest.getPasswordConfirm())) {
             throw new CustomException(CustomErrorResult.PASSWORD_MISMATCH);
         }
 
@@ -60,28 +58,47 @@ public class AuthService {
 
     /**
      * 로그인
+     *
      * @param loginDto
      * @return token 발급
      */
     public TokenDto login(LoginDto loginDto) {
+        if (memberRepository.findByEmail(loginDto.getEmail()).orElse(null) == null) {
+            throw new CustomException(CustomErrorResult.NOT_EXIST_USER);
+        }
+
         UsernamePasswordAuthenticationToken authenticationToken = loginDto.toAuthentication();
-        Authentication authentication = authenticationManagerBuilder.getObject()
-            .authenticate(authenticationToken);
+        Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
 
         TokenDto tokenDto = tokenProvider.generateToken(authentication);
 
-        RefreshToken refreshToken = RefreshToken.builder()
-            .key(authentication.getName())
-            .value(tokenDto.getRefreshToken())
-            .build();
+        String prevToken = redisTemplate.opsForValue().get("Access Token : " + authentication.getName());
 
-        refreshTokenRepository.save(refreshToken);
+        if (prevToken != null) {
+            redisTemplate.delete("Access Token : " + authentication.getName()); // Access Token 삭제
+
+            Long expire = tokenProvider.getExpire(prevToken);
+            redisTemplate.opsForValue().set(prevToken, "anotherAccess", expire, TimeUnit.MILLISECONDS);
+        }
+
+        redisTemplate.opsForValue()
+                .set("Access Token : " + authentication.getName(),
+                        tokenDto.getAccessToken(),
+                        tokenDto.getAccessTokenExpiresIn(),
+                        TimeUnit.MILLISECONDS);
+
+        redisTemplate.opsForValue()
+                .set("Refresh Token : " + authentication.getName(),
+                        tokenDto.getRefreshToken(),
+                        tokenDto.getRefreshTokenExpiresIn(),
+                        TimeUnit.MILLISECONDS);
 
         return tokenDto;
     }
 
     /**
      * 입점사 회원가입
+     *
      * @param sellerRequest
      * @return 회원가입 정보
      */
@@ -96,18 +113,18 @@ public class AuthService {
 
     /**
      * 전체 회원 조회(Admin)
+     *
      * @return 전체 회원 정보
      */
     @Transactional(readOnly = true)
     public Map<String, List<Member>> viewAllMember() {
         Map<String, List<Member>> resultMap = new HashMap<>();
 
-        if (SecurityContextHolder.getContext().getAuthentication().getPrincipal()
-            .equals("anonymousUser")) {
+        if (SecurityContextHolder.getContext().getAuthentication().getPrincipal().equals("anonymousUser")) {
             throw new CustomException(CustomErrorResult.LOGIN_NEEDED);
         }
         Member member = memberRepository.findById(SecurityUtil.getCurrentMemberId())
-            .orElseThrow(() -> new CustomException(CustomErrorResult.NOT_EXIST_USER));
+                .orElseThrow(() -> new CustomException(CustomErrorResult.NOT_EXIST_USER));
 
         if (!member.getAuthority().equals(Authority.ROLE_ADMIN.getKey())) {
             throw new CustomException(CustomErrorResult.ACCESS_PRIVILEGE);
@@ -121,6 +138,7 @@ public class AuthService {
 
     /**
      * Refresh Token 발급
+     *
      * @param tokenRequest
      * @return Refresh Token 발급
      */
@@ -129,32 +147,35 @@ public class AuthService {
             throw new CustomException(CustomErrorResult.INVALID_REFRESH_TOKEN);
         }
 
-        Authentication authentication = tokenProvider.getAuthentication(
-            tokenRequest.getAccessToken());
-        RefreshToken refreshToken = refreshTokenRepository.findByKey(authentication.getName())
-            .orElseThrow(() -> new CustomException(CustomErrorResult.LOGOUT_USER));
+        Authentication authentication = tokenProvider.getAuthentication(tokenRequest.getAccessToken());
 
-        if (!refreshToken.getValue().equals(tokenRequest.getRefreshToken())) {
-            throw new CustomException(CustomErrorResult.TOKEN_INFO_NOT_MATCH);
+        String refreshToken = redisTemplate.opsForValue().get("Refresh Token : " + authentication.getName());
+
+        if (ObjectUtils.isEmpty(refreshToken)) {
+            throw new CustomException(CustomErrorResult.INVALID_REQUEST);
+        } else if (!refreshToken.equals(tokenRequest.getRefreshToken())) {
+            throw new CustomException(CustomErrorResult.INVALID_REFRESH_TOKEN);
         }
 
-        TokenDto tokenDto = tokenProvider.generateToken(authentication);
+        TokenDto token = tokenProvider.generateToken(authentication);
 
-        RefreshToken newRefreshToken = refreshToken.updateValue(tokenDto.getRefreshToken());
-        refreshTokenRepository.save(newRefreshToken);
+        redisTemplate.opsForValue()
+                .set("Refresh Token : " + authentication.getName(), token.getRefreshToken(),
+                        token.getRefreshTokenExpiresIn(), TimeUnit.MILLISECONDS);
 
-        return tokenDto;
+        return token;
     }
 
     /**
      * 휴대폰 번호로 이메일 찾기
+     *
      * @param findRequest
      * @return 회원 이메일 정보
      */
     @Transactional(readOnly = true)
     public MemberDto.FindResponse findEmail(MemberDto.FindRequest findRequest) {
         Member member = memberRepository.findByPhoneNum(findRequest.getPhoneNum())
-            .orElseThrow(() -> new CustomException(CustomErrorResult.NOT_EXIST_USER));
+                .orElseThrow(() -> new CustomException(CustomErrorResult.NOT_EXIST_USER));
 
         return MemberDto.FindResponse.ofEmail(member);
     }
