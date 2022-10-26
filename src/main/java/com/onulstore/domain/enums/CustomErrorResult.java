@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 public enum CustomErrorResult implements SuperErrorResult {
 
     // 400 BAD_REQUEST
+    INVALID_REQUEST(HttpStatus.BAD_REQUEST, "잘못된 요청입니다."),
     TOKEN_INFO_NOT_MATCH(HttpStatus.BAD_REQUEST, "토큰의 유저 정보가 일치하지 않습니다."),
     INVALID_REFRESH_TOKEN(HttpStatus.BAD_REQUEST, "Refresh Token 이 유효하지 않습니다."),
     USER_NOT_MATCH(HttpStatus.BAD_REQUEST, "유저 정보가 일치하지 않습니다."),
