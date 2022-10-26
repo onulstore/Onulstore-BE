@@ -3,11 +3,12 @@ package com.onulstore.config;
 import com.onulstore.config.auth.PrincipalOauth2UserService;
 import com.onulstore.config.jwt.JwtAccessDeniedHandler;
 import com.onulstore.config.jwt.JwtAuthenticationEntryPoint;
-import com.onulstore.config.jwt.JwtSecurityConfig;
+import com.onulstore.config.jwt.JwtFilter;
 import com.onulstore.config.jwt.TokenProvider;
 import com.onulstore.config.oauth2.OAuth2SuccessHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -16,6 +17,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.web.filter.CorsFilter;
 
@@ -30,6 +32,7 @@ public class SecurityConfig {
     private final CorsFilter corsFilter;
     private final PrincipalOauth2UserService principalOauth2UserService;
     private final OAuth2SuccessHandler oAuth2SuccessHandler;
+    private final RedisTemplate redisTemplate;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -39,40 +42,39 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-            .csrf().disable()
+                .csrf().disable()
 
-            .sessionManagement()
-            .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-            .and()
+                .sessionManagement()
+                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                .and()
 
-            .addFilter(corsFilter)
-            .addFilter(new AnonymousAuthenticationFilter("anonymous"))
-            .exceptionHandling()
-            .authenticationEntryPoint(jwtAuthenticationEntryPoint)
-            .accessDeniedHandler(jwtAccessDeniedHandler)
+                .addFilter(corsFilter)
+                .addFilter(new AnonymousAuthenticationFilter("anonymous"))
+                .exceptionHandling()
+                .authenticationEntryPoint(jwtAuthenticationEntryPoint)
+                .accessDeniedHandler(jwtAccessDeniedHandler)
 
-            .and()
-            .authorizeRequests()
-            .antMatchers("/", "/**", "/auth/**", "/products", "/v2/api-docs",
-                "/swagger-resources/**", "/swagger-ui.html", "/swagger-ui/index.html",
-                "/webjars/**", "/swagger/**")
-            .permitAll()
-            .anyRequest().authenticated()
+                .and()
+                .authorizeRequests()
+                .antMatchers("/", "/**", "/auth/**", "/products", "/v2/api-docs",
+                        "/swagger-resources/**", "/swagger-ui.html", "/swagger-ui/index.html",
+                        "/webjars/**", "/swagger/**")
+                .permitAll()
+                .anyRequest().authenticated()
 
-            .and()
-            .logout()
-            .logoutRequestMatcher(new AntPathRequestMatcher("/auth/logout"))
-            .logoutSuccessUrl("/")
-            .invalidateHttpSession(true)
+                .and()
+                .logout()
+                .logoutRequestMatcher(new AntPathRequestMatcher("/auth/logout"))
+                .logoutSuccessUrl("/")
+                .invalidateHttpSession(true)
 
-            .and()
-            .apply(new JwtSecurityConfig(tokenProvider))
+                .and()
+                .addFilterBefore(new JwtFilter(tokenProvider, redisTemplate), UsernamePasswordAuthenticationFilter.class)
 
-            .and()
-            .formLogin().disable()
-            .oauth2Login()
-            .successHandler(oAuth2SuccessHandler)
-            .userInfoEndpoint().userService(principalOauth2UserService);
+                .formLogin().disable()
+                .oauth2Login()
+                .successHandler(oAuth2SuccessHandler)
+                .userInfoEndpoint().userService(principalOauth2UserService);
 
         return http.build();
     }
