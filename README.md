@@ -76,7 +76,7 @@
 `AWS EC2` : <br>
 
 - Jenkins Server : AWS Ubuntu 22.04<br>
-- API Server : Amazon Linux 2 Kernel 5.10 <br>
+- API Server : AWS Ubuntu 22.04<br>
 
 <br>
 
