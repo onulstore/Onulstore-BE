@@ -49,15 +49,18 @@
 
 ## Back-End 역할 분담
 
-`이원근` : 
+`이원근` :
+
 - 서버(AWS EC2, RDS, Route 53), CI/CD(Jenkins, Docker)
 - 인증, 회원, 브랜드, 카테고리, 큐레이션, 공지, 주문, 결제
 
-`여병규` : 
+`여병규` :
+
 - 서버(AWS S3)
 - 대시보드, 장바구니, 쿠폰, 상품
 
-`정아름` : 
+`정아름` :
+
 - 질문, 답변, 리뷰, 찜
 
 <br>
@@ -99,6 +102,7 @@
     - 생성된 Image를 Docker Hub로 Push
     - Docker Hub로부터 Image를 Pull 하여 해당 이미지를 기반으로 Container Run
 
+---
 <br>
 
 ## ER Diagram
@@ -110,7 +114,6 @@
 <details>
 <summary>Onulstore-BE</summary>
 <div markdown="1">
-
 ```
  src
   ├─ main
@@ -131,7 +134,6 @@
   │  └─ resources
   └─ test
 ```
-
 </div>
 </details>
 
