@@ -6,6 +6,7 @@ import com.onulstore.domain.enums.DiscountType;
 import com.onulstore.domain.member.Member;
 
 import com.onulstore.domain.payment.Payment;
+
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -20,6 +21,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -75,6 +77,7 @@ public class Coupon extends BaseTimeEntity {
     @JoinColumn(name = "member_id")
     private Member member;
 
+    @Builder.Default
     @OneToMany(mappedBy = "coupon", cascade = CascadeType.ALL)
     private List<Payment> payments = new ArrayList<>();
 

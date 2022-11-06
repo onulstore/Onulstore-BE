@@ -43,6 +43,7 @@ public class Curation extends BaseTimeEntity {
     @JsonIgnore
     private Member member;
 
+    @Builder.Default
     @OneToMany(mappedBy = "curation", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
     private List<CurationProduct> curationProducts = new ArrayList<>();
@@ -53,7 +54,7 @@ public class Curation extends BaseTimeEntity {
     }
 
     public static Curation createRecommend(String title, String content, Member member,
-        CurationProduct curationProduct) {
+                                           CurationProduct curationProduct) {
         Curation curation = new Curation();
         curation.setMember(member);
         curation.addCurationProduct(curationProduct);
@@ -70,7 +71,7 @@ public class Curation extends BaseTimeEntity {
     }
 
     public static Curation createMagazine(String title, String content, Member member,
-        List<CurationProduct> curationProducts) {
+                                          List<CurationProduct> curationProducts) {
         Curation curation = new Curation();
         curation.setMember(member);
         for (CurationProduct curationProduct : curationProducts) {

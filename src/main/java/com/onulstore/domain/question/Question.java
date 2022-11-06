@@ -43,6 +43,7 @@ public class Question extends BaseTimeEntity {
     @JoinColumn(name = "product_id")
     private Product product;
 
+    @Builder.Default
     @OneToMany(mappedBy = "question", cascade = CascadeType.ALL)
     @JsonIgnore
     private List<QuestionAnswer> questionAnswers = new ArrayList<>();
