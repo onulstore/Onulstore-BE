@@ -418,5 +418,3 @@
 </details>
 
 <br>
-
-## Result
