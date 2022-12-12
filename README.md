@@ -16,10 +16,11 @@
 - 오늘상점의 물건들을 '공급자 관점'이 아닌 '소비자 관점'으로 접근했습니다.
 - 오늘상점에서 제공하는 상품을 아이템으로 만드는 '특별한 스토리'를 매일 새롭게 전달하고자 합니다.
 
-### URL
+### URL 
 
-`Client` : https://onulstore.netlify.app/ <br>
-`API Server` : https://onulstore.breon.ml/
+`Client` : https://onulstore.netlify.app/  <br>
+`API Server` : https://onulstore.breon.ml/  **👉 현재 배포는 중지된 상태입니다.**<br>
+
 
 `Front-End Repository` : <br>
 
